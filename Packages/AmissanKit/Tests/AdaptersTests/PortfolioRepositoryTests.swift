@@ -3,7 +3,7 @@ import Foundation
 import Networking
 import Persistence
 import Testing
-@testable import Data
+@testable import Adapters
 
 /// The freshness policy, and the coordination around it.
 ///

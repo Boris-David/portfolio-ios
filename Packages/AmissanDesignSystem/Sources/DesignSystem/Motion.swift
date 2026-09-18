@@ -8,13 +8,13 @@ import SwiftUI
 /// le téléphone.
 public enum Motion {
   /// L'arrivée d'un élément : rapide au départ, long à s'arrêter.
-  public static let entrance = animation(Tokens.Ease.out, duration: 0.45)
+  public static let entrance = animation(Tokens.Ease.out, duration: Tokens.Duration.entrance)
   /// Le dépliage d'une carte — la plus longue, parce qu'on la regarde.
-  public static let disclosure = animation(Tokens.Ease.soft, duration: 0.42)
+  public static let disclosure = animation(Tokens.Ease.soft, duration: Tokens.Duration.disclosure)
   /// Un aller-retour : une bascule, un changement d'état.
-  public static let toggle = animation(Tokens.Ease.io, duration: 0.28)
+  public static let toggle = animation(Tokens.Ease.io, duration: Tokens.Duration.toggle)
   /// Un rebond mesuré, pour ce qui doit attirer l'œil une fois.
-  public static let pop = animation(Tokens.Ease.back, duration: 0.5)
+  public static let pop = animation(Tokens.Ease.back, duration: Tokens.Duration.pop)
 
   public static func animation(_ curve: Tokens.Curve, duration: Double) -> Animation {
     .timingCurve(curve.x1, curve.y1, curve.x2, curve.y2, duration: duration)

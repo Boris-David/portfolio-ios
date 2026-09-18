@@ -30,6 +30,16 @@ couche de vernis à ajouter : c'est la conception à reprendre.
 
 ## 0. La langue du code — non négociable
 
+**Portée élargie le 2026-09-18 :** *« Why en français ? T'as oublié qu'ils
+doivent être en anglais les comments et tout ? »* — la règle ne vise pas que le
+Swift. **Tout commentaire de code, quel que soit le fichier**, est en anglais :
+`project.yml`, les scripts shell, les `$comment` des JSON, les workflows.
+
+Et **partout** : `portfolio-web` et `portfolio-api` aussi. Décidé le 2026-09-18.
+
+Restent en français : `docs/`, les messages de commit, et le contenu de
+l'application.
+
 **Demandé, le 2026-09-18 :** *« Stop les commentaires de code et les noms de
 classes, struct etc. en français. Tout ça doit être in English. Et c'est non
 négociable. »*
@@ -400,6 +410,163 @@ enum FreshnessPolicy {
 Et le trou relevé en rédigeant disparaît avec : l'application rappelle la source
 à chaque retour au premier plan (`scenePhase == .active`), puisque le réseau est
 désormais le chemin normal et non l'exception.
+
+---
+
+## 16. Un fichier par type
+
+**Demandé :** *« Ici pareil, un fichier par DTO ! Au fait généralement, un fichier
+par classe, struct, objet, protocol etc. »*
+
+Un type public = un fichier portant son nom. `PortfolioDTO.swift` porte quinze
+types ; il en portera un.
+
+Les exceptions, et elles sont étroites :
+
+- un type **imbriqué** reste avec son parent (`CaseStudy.Chapter` vit dans
+  `CaseStudy.swift`) — le sortir couperait ce qui n'a pas de sens séparé ;
+- une **extension de conformité** courte (`extension X: Equatable`) reste avec le
+  type ;
+- les **aperçus** (`#Preview`) restent avec la vue qu'ils montrent.
+
+Bénéfice réel, au-delà du rangement : un fichier par type donne un historique git
+par type. « Qui a changé ce DTO et pourquoi » devient une question à laquelle
+`git log` répond.
+
+---
+
+## 17. La visibilité — `private` par défaut
+
+**Demandé :** *« Fais également très attention aux visibilités ! C'est private par
+défaut ! Pour être public faut vraiment qu'il y ait une raison ! Et quelque chose
+de public d'une couche ne doit pas être visible sur une autre couche qui n'y a
+pas accès. »*
+
+La règle, du plus fermé au plus ouvert, et on ne monte d'un cran qu'avec une
+raison nommée :
+
+| Niveau | Quand |
+|---|---|
+| `private` | le défaut. Tout commence ici |
+| `fileprivate` | un type auxiliaire partagé dans le même fichier |
+| `internal` (implicite) | employé ailleurs dans **le même module** |
+| `package` | employé par un autre module **du même package** — et par personne d'autre |
+| `public` | franchit une frontière de package. Se justifie |
+| `open` | jamais. Rien ici n'est conçu pour être sous-classé |
+
+⚠️ **`package` est le niveau qu'on oublie**, et c'est précisément celui qui
+manquait : un type utilisé par deux modules d'`AmissanKit` n'a aucune raison
+d'être visible depuis l'application. Le passer `public` l'expose à tout le monde
+pour satisfaire un voisin.
+
+**Garde :** un test qui compte les déclarations `public` par module et échoue
+au-delà d'un seuil ; et surtout, le découpage en packages (§18) qui rend une
+fuite de visibilité **impossible** plutôt qu'improbable.
+
+---
+
+## 18. Chaque couche est un package
+
+**Demandé :** *« Je veux aussi que chaque couche puisse avoir des dépendances !
+Ce qui fera qu'on pourra bloquer par dépendances le fait que certaines couches se
+connaissent ou non. »*
+
+C'est le prolongement logique de ce qui a été fait pour le design system, et
+c'est plus fort qu'une cible :
+
+- une **cible** d'un même package peut voir les types `public` de ses sœurs dès
+  qu'on ajoute la dépendance au manifeste — une ligne, et la frontière tombe ;
+- un **package** a son propre manifeste, ses propres dépendances, et il ne peut
+  pas accéder à ce qu'il ne déclare pas. La frontière n'est plus une règle, c'est
+  la structure du projet.
+
+Découpage visé :
+
+```
+Packages/
+  AmissanDomain/         entités + ports. Zéro dépendance.          [fait]
+  AmissanNetworking/     HTTP. Ne connaît pas le domaine.
+  AmissanPersistence/    octets. Ne connaît pas le domaine.
+  AmissanDesignSystem/   couleurs, typo, mouvement.                 [fait]
+  AmissanAdapters/       DTO, mapping, dépôts. Domain + les deux techniques.
+  AmissanFeatures/       les écrans. Domain + DesignSystem, rien d'autre.
+  AmissanApp/            la composition. Le seul qui voit tout.
+```
+
+Le test d'architecture change de nature : il ne lit plus un manifeste pour
+vérifier une convention, il constate un graphe que le compilateur impose déjà.
+Il reste utile — pour refuser qu'on **ajoute** une dépendance interdite au
+manifeste.
+
+---
+
+## 19. `AppRoot` viole le SRP
+
+**Demandé :** *« Il y a trop de choses différentes dans `AppRoot.swift` ! C'est
+clairement un antipattern ! SRP ! »*
+
+Constat juste. Le fichier porte aujourd'hui : la `TabView`, la résolution des
+routes, la résolution des feuilles, la feuille de contact, l'accessoire de barre,
+la lecture de l'argument de lancement, et le câblage de l'environnement. Sept
+responsabilités dans un fichier appelé « racine ».
+
+Découpage :
+
+| Fichier | Responsabilité unique |
+|---|---|
+| `AppRoot` | assembler la scène — et **rien** d'autre |
+| `AppTabs` | la `TabView` et ses onglets |
+| `RouteResolver` | route → écran |
+| `SheetResolver` | feuille → écran |
+| `ContactSheet` | son propre écran, dans sa fonctionnalité |
+| `BackstageAccessory` | l'accessoire de barre |
+| `LaunchArguments` | lire `-tab` et `-backstage` |
+| `AppEnvironment` | construire le graphe de dépendances |
+
+---
+
+## 20. Où on en est
+
+*Tenu à jour à chaque étape, pour qu'une reprise ne reparte pas de zéro.*
+
+**Fait :**
+
+- [x] cahier des charges (ce document)
+- [x] politique de fraîcheur : réseau d'abord, `cacheFirst(maxAge:)` par appel ;
+      une charge mal formée n'est pas rattrapée par le cache ; le cache est écrit
+      à **chaque** appel réussi
+- [x] `ViewPhase` (4 états) + `PhaseView` + `FailureView`
+- [x] `Sources/Features/` par le `path:` du manifeste
+- [x] préférences dans le domaine (apparence, langue, coulisses), repli **anglais**
+- [x] adaptateur des préférences dans `Adapters`, pas dans `Persistence`
+- [x] `Data` renommé **`Adapters`** — la couche dit enfin ce qu'elle fait
+- [x] design system en **package séparé** (`AmissanDesignSystem`)
+- [x] tokens en **deux couches** : hub partagé + `tokens.ios.json` spécifique,
+      assemblés à la génération ; recouvrement refusé
+- [x] zéro nombre magique (17 remplacés par des tokens)
+- [x] `Scripts/check-language.sh` — le Swift est en anglais, mutation-testé
+- [x] `Domain` converti en anglais
+
+**À faire :**
+
+- [ ] convertir les ~60 fichiers Swift restants en anglais
+- [ ] convertir **web et api** en anglais
+- [ ] commentaires anglais aussi dans `project.yml`, les scripts, les JSON
+- [ ] un fichier par type (§16)
+- [ ] passe de visibilité (§17)
+- [ ] une couche = un package (§18)
+- [ ] découper `AppRoot` (§19)
+- [ ] écran de réglages (§3)
+- [ ] refaire l'accroche (§6)
+- [ ] mouvement, haptique, bandeaux, Lottie (§4)
+- [ ] catalogue des présentations (§5)
+- [ ] coulisses en révélation progressive (§8)
+- [ ] comparatif d'architectures (§9)
+- [ ] routes d'API dédiées (§10)
+- [ ] accessibilité (§13)
+- [ ] rafraîchissement au retour au premier plan (§14)
+- [ ] fastlane / TestFlight
+- [ ] paysage et écran partagé sur iPad
 
 ---
 

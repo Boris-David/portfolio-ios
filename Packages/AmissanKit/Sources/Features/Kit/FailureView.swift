@@ -23,7 +23,7 @@ public struct FailureView: View {
   public var body: some View {
     VStack(spacing: Tokens.Space.s4) {
       Image(systemName: failure.symbol)
-        .font(.system(size: 44, weight: .light))
+        .font(.system(size: Tokens.Icon.hero, weight: .light))
         .foregroundStyle(Color.ink3)
         // Le symbole respire une fois à l'apparition — assez pour attirer l'œil,
         // pas assez pour distraire de ce qu'il y a à lire.

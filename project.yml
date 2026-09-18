@@ -40,6 +40,11 @@ settings:
 packages:
   AmissanKit:
     path: Packages/AmissanKit
+  # Déclaré directement, bien qu'il ne soit atteint que par `AmissanKit` : sans
+  # ça, Xcode ne génère pas de schéma pour ses cibles de test, et la suite du
+  # design system ne serait exécutable que depuis la ligne de commande.
+  AmissanDesignSystem:
+    path: Packages/AmissanDesignSystem
 
 targets:
   Amissan:

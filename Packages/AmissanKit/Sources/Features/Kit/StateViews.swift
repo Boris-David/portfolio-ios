@@ -20,7 +20,7 @@ public struct LoadingSkeleton: View {
         RoundedRectangle(cornerRadius: Tokens.Radius.sm, style: .continuous)
           .fill(Color.paper2)
           .frame(height: index == 0 ? 120 : 64)
-          .opacity(shimmer ? 0.55 : 1)
+          .opacity(shimmer ? Tokens.Opacity.shimmer : 1)
       }
     }
     .padding(Tokens.Space.s5)
@@ -28,7 +28,7 @@ public struct LoadingSkeleton: View {
     .accessibilityLabel(chrome.loading)
     .onAppear {
       guard !reducedMotion else { return }
-      withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
+      withAnimation(.easeInOut(duration: Tokens.Duration.shimmer).repeatForever(autoreverses: true)) {
         shimmer = true
       }
     }

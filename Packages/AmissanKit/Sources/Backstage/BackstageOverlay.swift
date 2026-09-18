@@ -36,7 +36,7 @@ public struct BackstageOverlay: ViewModifier {
             // mal placée ne se voit pas — c'est arrivé, et c'est ce qui a
             // motivé ce rendu.
             RoundedRectangle(cornerRadius: Tokens.Radius.sm, style: .continuous)
-              .strokeBorder(Color.accent.opacity(0.55), style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+              .strokeBorder(Color.accent.opacity(Tokens.Opacity.annotation), style: StrokeStyle(lineWidth: Tokens.Stroke.regular, dash: [4, 3]))
               .frame(width: entry.rect.width, height: entry.rect.height)
               .position(x: entry.rect.midX, y: entry.rect.midY)
               .allowsHitTesting(false)
@@ -65,12 +65,12 @@ public struct BackstageOverlay: ViewModifier {
       backstage.present(note)
     } label: {
       Text("\(number)")
-        .font(.system(size: 13, weight: .bold, design: .rounded))
+        .font(.system(size: Tokens.Icon.caption, weight: .bold, design: .rounded))
         .monospacedDigit()
         .foregroundStyle(Color.onAccent)
         .frame(width: 26, height: 26)
         .background(Circle().fill(Color.accent))
-        .overlay(Circle().strokeBorder(Color.paper, lineWidth: 2))
+        .overlay(Circle().strokeBorder(Color.paper, lineWidth: Tokens.Stroke.regular * 2))
     }
     // La pastille fait 26 points de côté, la cible tactile 44 : le reste est
     // une surface transparente. Une pastille qu'on doit viser est une pastille

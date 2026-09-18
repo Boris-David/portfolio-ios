@@ -262,7 +262,7 @@ struct AppCell: View {
       )
       .overlay(
         RoundedRectangle(cornerRadius: Tokens.Radius.md, style: .continuous)
-          .strokeBorder(Color.line, lineWidth: 1)
+          .strokeBorder(Color.line, lineWidth: Tokens.Stroke.regular)
       )
     }
     .buttonStyle(.plain)
@@ -283,11 +283,11 @@ struct AppIcon: View {
     Image(slug, bundle: .main)
       .resizable()
       .aspectRatio(contentMode: .fit)
-      .frame(width: 44, height: 44)
-      .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+      .frame(width: Tokens.Layout.appIconSide, height: Tokens.Layout.appIconSide)
+      .clipShape(RoundedRectangle(cornerRadius: Tokens.Layout.appIconRadius, style: .continuous))
       .overlay(
-        RoundedRectangle(cornerRadius: 10, style: .continuous)
-          .strokeBorder(Color.line, lineWidth: 0.5)
+        RoundedRectangle(cornerRadius: Tokens.Layout.appIconRadius, style: .continuous)
+          .strokeBorder(Color.line, lineWidth: Tokens.Stroke.hairline)
       )
       .accessibilityHidden(true)
   }

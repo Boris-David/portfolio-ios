@@ -208,7 +208,7 @@ struct WalkthroughsBlock: View {
               ForEach(Array(walkthrough.steps.enumerated()), id: \.offset) { index, step in
                 HStack(alignment: .top, spacing: Tokens.Space.s3) {
                   Text("\(index + 1)")
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .font(.system(size: Tokens.Icon.badge, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(Color.onAccent)
                     .frame(width: 20, height: 20)

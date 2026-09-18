@@ -1,5 +1,5 @@
 import Backstage
-import Data
+import Adapters
 import Foundation
 import DesignSystem
 import Domain

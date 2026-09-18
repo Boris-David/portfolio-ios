@@ -65,10 +65,14 @@ public extension View {
             .fill(.ultraThinMaterial)
             // La teinte se pose **au-dessus** du matériau, pas en dessous :
             // en dessous, le flou l'aurait délavée jusqu'à l'invisible.
-            .overlay(shape.fill(tint?.opacity(0.14) ?? .clear))
-            .overlay(shape.strokeBorder(Color.line.opacity(0.6), lineWidth: 0.5))
+            .overlay(shape.fill(tint?.opacity(Tokens.Opacity.tintOnMaterial) ?? .clear))
+            .overlay(shape.strokeBorder(Color.line.opacity(Tokens.Opacity.hairlineOnGlass), lineWidth: Tokens.Stroke.hairline))
         }
-        .shadow(color: .black.opacity(0.08), radius: 12, y: 4)
+        .shadow(
+          color: .black.opacity(Tokens.Elevation.floating.opacity),
+          radius: Tokens.Elevation.floating.radius,
+          y: Tokens.Elevation.floating.y
+        )
     }
   }
 
@@ -124,7 +128,7 @@ public struct AdaptiveGlassButtonStyle: ButtonStyle {
     label(configuration)
       // Le retour au toucher est le même dans les deux mondes : c'est une
       // information, pas une décoration, et elle ne dépend pas du matériau.
-      .scaleEffect(configuration.isPressed ? 0.97 : 1)
+      .scaleEffect(configuration.isPressed ? Tokens.Layout.pressedScale : 1)
       .animation(Motion.toggle, value: configuration.isPressed)
   }
 
@@ -163,7 +167,7 @@ public struct AdaptiveGlassButtonStyle: ButtonStyle {
     } else {
       content
         .background(Capsule().fill(.ultraThinMaterial))
-        .overlay(Capsule().strokeBorder(Color.line, lineWidth: 1))
+        .overlay(Capsule().strokeBorder(Color.line, lineWidth: Tokens.Stroke.regular))
     }
   }
 }

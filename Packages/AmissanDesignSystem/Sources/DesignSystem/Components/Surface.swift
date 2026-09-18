@@ -40,13 +40,13 @@ public struct Surface<Content: View>: View {
       .background(background)
       .overlay(
         RoundedRectangle(cornerRadius: Tokens.Radius.md, style: .continuous)
-          .strokeBorder(Color.line, lineWidth: level == .recessed ? 0 : 1)
+          .strokeBorder(Color.line, lineWidth: level == .recessed ? 0 : Tokens.Stroke.regular)
       )
       .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.md, style: .continuous))
       .shadow(
-        color: level == .raised ? .black.opacity(0.10) : .clear,
-        radius: level == .raised ? 18 : 0,
-        y: level == .raised ? 8 : 0
+        color: level == .raised ? .black.opacity(Tokens.Elevation.raised.opacity) : .clear,
+        radius: level == .raised ? Tokens.Elevation.raised.radius : 0,
+        y: level == .raised ? Tokens.Elevation.raised.y : 0
       )
   }
 

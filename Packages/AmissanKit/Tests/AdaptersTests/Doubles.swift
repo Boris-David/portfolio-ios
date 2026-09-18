@@ -2,7 +2,7 @@ import Domain
 import Foundation
 import Networking
 import Persistence
-@testable import Data
+@testable import Adapters
 
 /// Un transport qui rend ce qu'on lui a dit, et **compte** ses appels.
 ///

@@ -66,7 +66,7 @@ struct HeroBlock: View {
     .padding(.horizontal, Tokens.Space.s3)
     .padding(.vertical, Tokens.Space.s2)
     .background(Capsule().fill(Color.paper2))
-    .overlay(Capsule().strokeBorder(Color.line, lineWidth: 1))
+    .overlay(Capsule().strokeBorder(Color.line, lineWidth: Tokens.Stroke.regular))
     .accessibilityElement(children: .combine)
   }
 

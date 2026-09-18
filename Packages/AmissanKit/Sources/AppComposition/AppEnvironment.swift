@@ -1,4 +1,4 @@
-import Data
+import Adapters
 import Domain
 import Foundation
 import Networking

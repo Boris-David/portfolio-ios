@@ -43,10 +43,10 @@ let package = Package(
     .library(name: "AppComposition", targets: ["AppComposition"]),
   ],
   dependencies: [
-    // Lottie : des animations vectorielles que ni SwiftUI ni Core Animation ne
-    // savent produire — des tracés dessinés hors de Xcode. Version épinglée au
-    // mineur : la bibliothèque est mature et suit le semver.
-    .package(url: "https://github.com/airbnb/lottie-ios", from: "4.6.1"),
+    // The design system is a package of its own, and that is the point: this
+    // package does not lend it `Domain`, so `import Domain` cannot compile
+    // there. The boundary stops being a rule and becomes an impossibility.
+    .package(path: "../AmissanDesignSystem"),
 
     // Textual : du Markdown rendu en `AttributedString` native. Le même auteur
     // maintenait MarkdownUI, aujourd'hui en mode maintenance et qui renvoie
@@ -75,26 +75,26 @@ let package = Package(
     .target(name: "Networking"),
     .target(name: "Persistence"),
 
-    // Le seul endroit où le domaine et la technique se rencontrent : les
-    // adaptateurs. Les DTO vivent ici, jamais dans `Domain` — une entité qui
-    // porte des `CodingKeys` est une entité qui a laissé le réseau dicter sa
-    // forme.
+    // The adapter layer — and it is named for what it does.
+    //
+    // It was called `Data` at first, after the Clean Architecture convention.
+    // The name describes a *kind of thing* rather than a *role*, and this app
+    // has to explain its own architecture out loud: a layer that says what it
+    // does is worth more here than one that follows a convention.
+    //
+    // This is the one place where the domain and the plumbing meet. DTOs live
+    // here and **never** in `Domain`: an entity carrying `CodingKeys` is an
+    // entity that let the network dictate its shape.
     .target(
-      name: "Data",
+      name: "Adapters",
       dependencies: ["Domain", "Networking", "Persistence"],
-      // La graine embarquée — produite depuis l'API par `Scripts/seed.sh`.
+      // The bundled seed — produced from the API by `Scripts/seed.sh`.
       resources: [.process("Resources")]
     ),
 
     // ─────────────────────────────────────────────────────────────────────
     // La présentation
     // ─────────────────────────────────────────────────────────────────────
-    .target(
-      name: "DesignSystem",
-      dependencies: [.product(name: "Lottie", package: "lottie-ios")],
-      resources: [.process("Resources")]
-    ),
-
     // Les « Coulisses » : le modèle des annotations et leur rendu. Séparé du
     // design system parce que c'est une **fonctionnalité de l'application**,
     // pas une primitive visuelle — et séparé des fonctionnalités parce que
@@ -102,11 +102,11 @@ let package = Package(
     .target(
       name: "Backstage",
       dependencies: [
-        // `Domain` pour `Language` et `Bilingual` : une annotation est du
-        // contenu, et un contenu a une langue. La dépendance est gratuite —
-        // `Domain` ne dépend lui-même de rien.
+        // `Domain` for `Language` and `Bilingual`: an annotation is content, and
+        // content has a language. The dependency is free — `Domain` itself
+        // depends on nothing.
         "Domain",
-        "DesignSystem",
+        .product(name: "DesignSystem", package: "AmissanDesignSystem"),
         .product(name: "Textual", package: "textual"),
       ]
     ),
@@ -127,7 +127,11 @@ let package = Package(
     // formatage. Il voit `Domain` — donc des ports — jamais `Data`.
     .target(
       name: "FeatureKit",
-      dependencies: ["Domain", "DesignSystem", "Backstage"],
+      dependencies: [
+        "Domain",
+        .product(name: "DesignSystem", package: "AmissanDesignSystem"),
+        "Backstage",
+      ],
       path: "Sources/Features/Kit"
     ),
 
@@ -145,7 +149,7 @@ let package = Package(
     .target(
       name: "AppComposition",
       dependencies: [
-        "Data",
+        "Adapters",
         "FeatureProfile",
         "FeatureWork",
         "FeatureJourney",
@@ -162,13 +166,11 @@ let package = Package(
     .testTarget(name: "NetworkingTests", dependencies: ["Networking"]),
     .testTarget(name: "PersistenceTests", dependencies: ["Persistence"]),
     .testTarget(
-      name: "DataTests",
-      dependencies: ["Data"],
+      name: "AdaptersTests",
+      dependencies: ["Adapters"],
       resources: [.process("Fixtures")]
     ),
     .testTarget(name: "BackstageTests", dependencies: ["Backstage"]),
-    .testTarget(name: "DesignSystemTests", dependencies: ["DesignSystem"]),
-
     // Le graphe de dépendances est lui-même sous test : une fonctionnalité qui
     // se mettrait à importer `Networking` compilerait — c'est la *règle* qui
     // l'interdit, et une règle non exécutée finit contournée.

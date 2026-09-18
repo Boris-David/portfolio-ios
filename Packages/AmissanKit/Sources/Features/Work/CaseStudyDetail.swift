@@ -297,7 +297,7 @@ struct Gallery: View {
               .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.lg, style: .continuous))
               .overlay(
                 RoundedRectangle(cornerRadius: Tokens.Radius.lg, style: .continuous)
-                  .strokeBorder(Color.line, lineWidth: 1)
+                  .strokeBorder(Color.line, lineWidth: Tokens.Stroke.regular)
               )
               .accessibilityLabel(item.alt)
             Text(item.caption)

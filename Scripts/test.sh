@@ -21,7 +21,7 @@ SUITES=(
   DomainTests
   NetworkingTests
   PersistenceTests
-  DataTests
+  AdaptersTests
   BackstageTests
   DesignSystemTests
   ArchitectureTests

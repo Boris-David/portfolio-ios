@@ -1,6 +1,6 @@
 import Domain
 import Testing
-@testable import Data
+@testable import Adapters
 
 /// La frontière où une chaîne devient une valeur du domaine.
 ///

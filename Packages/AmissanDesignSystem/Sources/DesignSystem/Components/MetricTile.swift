@@ -61,7 +61,7 @@ public struct MetricTile: View {
   private func startCounting() {
     guard let countTo, !hasAppeared, !reducedMotion else { return }
     hasAppeared = true
-    withAnimation(Motion.animation(Tokens.Ease.out, duration: 1.1)) {
+    withAnimation(Motion.animation(Tokens.Ease.out, duration: Tokens.Duration.counter)) {
       displayed = Double(countTo)
     }
   }

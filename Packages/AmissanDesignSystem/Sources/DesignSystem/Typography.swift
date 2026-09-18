@@ -82,7 +82,7 @@ public extension View {
   /// approche les 65 caractères pour une police proportionnelle, et elle suit
   /// donc l'échelle si celle-ci change.
   func readableWidth() -> some View {
-    frame(maxWidth: Tokens.TypeScale.body * 40)
+    frame(maxWidth: Tokens.TypeScale.body * Tokens.Layout.readingWidthInBodies)
       .frame(maxWidth: .infinity)
   }
 }

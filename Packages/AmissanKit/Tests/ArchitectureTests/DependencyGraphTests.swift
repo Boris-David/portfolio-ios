@@ -41,14 +41,14 @@ struct DependencyGraphTests {
   }
 
   private static let allTargets = [
-    "Domain", "Networking", "Persistence", "Data", "DesignSystem", "Backstage",
+    "Domain", "Networking", "Persistence", "Adapters", "Backstage",
     "FeatureKit", "FeatureProfile", "FeatureWork", "FeatureJourney",
-    "FeatureResume", "FeatureBackstage", "AppComposition",
+    "FeatureResume", "FeatureBackstage", "FeatureSettings", "AppComposition",
   ]
 
   private static let features = [
     "FeatureKit", "FeatureProfile", "FeatureWork", "FeatureJourney",
-    "FeatureResume", "FeatureBackstage",
+    "FeatureResume", "FeatureBackstage", "FeatureSettings",
   ]
 
   @Test("le manifeste est lisible depuis les tests")
@@ -72,9 +72,9 @@ struct DependencyGraphTests {
 
   /// **L'invariant central.** Une vue parle à un port du domaine ; ce qui
   /// l'implémente est décidé dans `AppComposition` et nulle part ailleurs.
-  @Test("aucune fonctionnalité ne voit le réseau, le stockage ni les dépôts")
+  @Test("no feature sees networking, storage or the adapters")
   func featuresSeeNoInfrastructure() {
-    let forbidden: Set<String> = ["Networking", "Persistence", "Data"]
+    let forbidden: Set<String> = ["Networking", "Persistence", "Adapters"]
     for feature in Self.features {
       let leaked = dependencies(of: feature).intersection(forbidden)
       #expect(
@@ -96,17 +96,23 @@ struct DependencyGraphTests {
     }
   }
 
-  /// Le design system doit rester réutilisable dans une autre application. Le
-  /// jour où il connaît `Portfolio`, il ne l'est plus.
-  @Test("DesignSystem ne connaît pas le domaine")
-  func designSystemIgnoresDomain() {
-    #expect(!dependencies(of: "DesignSystem").contains("Domain"))
+  /// The design system lives in a **package of its own**, and that is stronger
+  /// than any test: it does not depend on `AmissanKit`, so `import Domain`
+  /// cannot compile there. What this test guards is that the split stays — that
+  /// nobody moves the target back in "just for a moment".
+  @Test("the design system is not a target of this package")
+  func designSystemIsASeparatePackage() {
+    #expect(
+      !Self.manifest.contains("name: \"DesignSystem\""),
+      "DesignSystem belongs to AmissanDesignSystem; bringing it back here would let it see Domain"
+    )
+    #expect(Self.manifest.contains("path: \"../AmissanDesignSystem\""))
   }
 
-  /// `Data` est le seul endroit où le domaine et la technique se rencontrent.
-  @Test("Data est le seul adaptateur")
-  func dataIsTheAdapter() {
-    #expect(dependencies(of: "Data") == ["Domain", "Networking", "Persistence"])
+  /// `Adapters` is the one place where the domain and the plumbing meet.
+  @Test("Adapters is the only adapter layer")
+  func adaptersIsTheOnlyAdapter() {
+    #expect(dependencies(of: "Adapters") == ["Domain", "Networking", "Persistence"])
   }
 
   /// Un seul produit exporté : l'application n'a aucune raison de pouvoir
