@@ -5,9 +5,14 @@
 #   ./Scripts/test.sh                 sur le simulateur par défaut
 #   ./Scripts/test.sh "iPhone 16 Pro" sur un appareil nommé
 #
-# Un script plutôt qu'un schéma unique : les cibles de test d'un paquet SPM
-# référencé n'entrent pas dans l'action `test` d'un schéma d'application. Chaque
-# suite a son propre schéma, généré par Xcode, et c'est ici qu'on les rassemble.
+# A script rather than a single scheme: the test targets of a referenced SPM
+# package do not enter an app scheme's `test` action. Each suite has its own
+# scheme, and this is where they are gathered.
+#
+# `DesignSystemTests` lives in a *separate package* and has no declared scheme:
+# XcodeGen cannot declare one for a package test target — it reads `A/B` as
+# `project/target`. `xcodebuild` resolves it as an implicit scheme anyway, which
+# is why it is listed here and works.
 #
 # Le code de retour est celui du **premier échec**, pas celui de la dernière
 # commande : sans ça, une suite rouge suivie d'une verte rendrait zéro.

@@ -102,10 +102,18 @@ struct DependencyGraphTests {
   /// nobody moves the target back in "just for a moment".
   @Test("the design system is not a target of this package")
   func designSystemIsASeparatePackage() {
-    #expect(
-      !Self.manifest.contains("name: \"DesignSystem\""),
-      "DesignSystem belongs to AmissanDesignSystem; bringing it back here would let it see Domain"
-    )
+    // Every mention must be a *product* of the other package, never a target of
+    // this one. A plain `contains` would have matched
+    // `.product(name: "DesignSystem", …)` and passed for the wrong reason —
+    // which it did, on the first attempt.
+    let mentions = Self.manifest.components(separatedBy: "\"DesignSystem\"").dropLast()
+    for prefix in mentions {
+      #expect(
+        prefix.hasSuffix(".product(name: "),
+        "DesignSystem belongs to AmissanDesignSystem; declaring it as a target here would let it see Domain"
+      )
+    }
+    #expect(!mentions.isEmpty, "the design system product should still be depended upon")
     #expect(Self.manifest.contains("path: \"../AmissanDesignSystem\""))
   }
 
