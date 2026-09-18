@@ -120,6 +120,8 @@ xcodegen generate
 ./Scripts/check-layers.sh      # aucune couche ne voit ce qu'elle ne doit pas
 ./Scripts/check-naming.sh      # le nom dit le rôle
 ./Scripts/check-suites.sh      # aucune suite ne s'est évaporée
+./Scripts/screens.sh           # 21 captures : 2 thèmes, la plus grande taille
+                               # d'accessibilité, et les écrans poussés
 ```
 
 **Et on regarde l'écran.** Une application qui compile n'est pas une application
@@ -129,8 +131,21 @@ illisible sur iOS 18 — ne se voyaient qu'en capture d'écran.
 
 ```bash
 xcrun simctl launch <appareil> dev.amissan.portfolio -backstage
+xcrun simctl launch <appareil> dev.amissan.portfolio -tab journey
+xcrun simctl launch <appareil> dev.amissan.portfolio -settings
+xcrun simctl launch <appareil> dev.amissan.portfolio -resume
+xcrun simctl launch <appareil> dev.amissan.portfolio -route architectures
 xcrun simctl io <appareil> screenshot capture.png
 ```
+
+⚠️ **`xcrun simctl ui … content_size` sort avec 0 sur une valeur qu'il refuse.**
+`accessibility5` n'existe pas ; c'est `accessibility-extra-extra-extra-large`.
+Tout un axe de la matrice a été capturé à la mauvaise taille sans que rien ne le
+dise. `screens.sh` relit désormais la valeur au lieu de croire le code de retour.
+
+⚠️ **Un drapeau de capture n'écrit jamais dans les réglages.** `-backstage` le
+faisait, et toutes les captures suivantes sortaient annotées — y compris celles
+censées montrer l'application au repos.
 
 ## Où vont les choses
 
@@ -170,6 +185,20 @@ de conformité courte reste avec le type, un `#Preview` reste avec sa vue.
 même package n'a aucune raison d'être visible depuis l'application. Dans
 `Features`, la moitié de la surface est `package` — et `check-layers.sh` refuse
 un type `public` que rien, dehors, ne nomme.
+
+## L'ordre de livraison : l'API d'abord
+
+Le DTO décrit ce que l'API sert **aujourd'hui**, et un champ manquant lève —
+c'est l'invariant n° 5, et il n'a pas d'exception. Conséquence : une ressource
+ajoutée à l'API doit être **déployée avant** que l'application qui la lit ne
+parte. En attendant, `./Scripts/seed.sh --check` échoue, et c'est correct.
+
+Pour travailler pendant ce temps :
+
+```bash
+cd ../api && npx wrangler dev --port 8788
+API_BASE_URL=http://127.0.0.1:8788 ./Scripts/seed.sh
+```
 
 ## Ce qui se discute avant d'être fait
 
