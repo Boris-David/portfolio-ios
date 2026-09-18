@@ -720,9 +720,13 @@ Découpage :
       six textes servis par l'API pouvaient l'être, et le tableau comparatif
       cachait sa barre de défilement
 
+- [x] **l'écran partagé sur iPad** — les deux conditions du multitâche sont
+      désormais sous test (`UIRequiresFullScreen` absent, les quatre
+      orientations offertes sur iPad), et la matrice de captures tourne aussi
+      sur iPad Pro 11"
+
 **À faire :**
 - [ ] fastlane / TestFlight
-- [ ] l'écran partagé sur iPad
 
 ### ⚠️ Un ordre de livraison, pas un bug
 
