@@ -265,8 +265,26 @@ public struct SettingsScreen: View {
       en: "Two to four short options you want all visible. Language, just below, uses a list instead: its labels are language names, and they grow."
     ),
     pitfall: Bilingual(
-      fr: "Les libellés ne se tronquent pas gracieusement en Dynamic Type extra-large : ils se chevauchent. À vérifier à l'écran, pas au jugé.",
-      en: "The labels do not truncate gracefully at extra-large Dynamic Type: they overlap. Check it on screen, not by eye."
+      fr: """
+        Il **plafonne sa police** : aux tailles d'accessibilité, tout l'écran \
+        grossit et lui reste petit. Ce n'est pas un défaut — c'est ce qui garde \
+        les trois options sur une ligne — mais ça se voit, et ça veut dire qu'un \
+        segmenté ne peut pas porter un libellé qu'on a besoin de lire en grand.
+
+        Vérifié en capture à `accessibility-extra-extra-extra-large`. La note \
+        disait auparavant qu'ils « se chevauchent » : c'était faux, et écrit \
+        avant d'avoir regardé.
+        """,
+      en: """
+        It **caps its own font**: at the accessibility sizes the whole screen \
+        grows and this stays small. That is not a defect — it is what keeps the \
+        three options on one line — but it shows, and it means a segmented \
+        control cannot carry a label somebody needs to read large.
+
+        Verified in a capture at `accessibility-extra-extra-extra-large`. This \
+        note previously claimed the labels "overlap": that was wrong, and \
+        written before anybody looked.
+        """
     ),
     documentation: URL(string: "https://developer.apple.com/documentation/swiftui/picker")
   )

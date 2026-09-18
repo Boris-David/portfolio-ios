@@ -45,6 +45,15 @@ package struct FailureView: View {
         Text(failure.title)
           .font(Typography.heading)
           .foregroundStyle(Color.ink)
+          .multilineTextAlignment(.center)
+          // ⚠️ Without this the title is **truncated** rather than wrapped, and
+          // only at the accessibility text sizes: "Contenu illisible" came out
+          // as "Contenu illi…". The message below always had it; the title did
+          // not, which is how this survives review — the two lines look alike.
+          //
+          // Found on the first correct run of `Scripts/screens.sh`. The previous
+          // runs had captured that axis at the wrong size and shown nothing.
+          .fixedSize(horizontal: false, vertical: true)
         Text(failure.message)
           .font(Typography.secondary)
           .foregroundStyle(Color.ink2)
