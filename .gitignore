@@ -54,7 +54,16 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output/
+# Le README que fastlane génère lui-même. La documentation de livraison écrite
+# à la main vit dans `docs/testflight.md` — une doc versionnée ne s'écrit pas
+# dans un fichier que l'outil écrase.
 fastlane/README.md
+
+# ⚠️ `.env` est l'endroit où fastlane cherche des identifiants en local. Jamais
+# versionné — et `check-secrets.sh` le refuserait de toute façon, parce que le
+# prix d'une seule erreur est un historique public irréversible.
+.env
+.env.*
 
 # ── macOS ────────────────────────────────────────────────────────────────
 .DS_Store

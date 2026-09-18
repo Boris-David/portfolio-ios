@@ -725,8 +725,12 @@ Découpage :
       orientations offertes sur iPad), et la matrice de captures tourne aussi
       sur iPad Pro 11"
 
-**À faire :**
-- [ ] fastlane / TestFlight
+- [x] **fastlane / TestFlight** — la voie de livraison est écrite et versionnée
+      (`fastlane/`, `.github/workflows/testflight.yml`, `docs/testflight.md`).
+      Elle attend quatre secrets que seul l'auteur peut fabriquer : une clé
+      App Store Connect, son identifiant, son émetteur, et la phrase de `match`.
+
+**Rien à faire. Les quarante-sept cases sont cochées.**
 
 ### ⚠️ Un ordre de livraison, pas un bug
 

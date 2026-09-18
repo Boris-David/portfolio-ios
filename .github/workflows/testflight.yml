@@ -1,0 +1,87 @@
+name: TestFlight
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Sending a build is a **decision**, so it is triggered, never automatic.
+#
+# A portfolio app does not need a build on every push: TestFlight keeps them,
+# App Store Connect processes each one for twenty minutes, and a tester
+# confronted with forty builds stops looking at any of them. Pushing a tag says
+# "this one".
+#
+# ## What a run needs, and where it comes from
+#
+# Four secrets, none of which exist in this repository:
+#
+#   APP_STORE_CONNECT_KEY_ID       the key's ten-character identifier
+#   APP_STORE_CONNECT_ISSUER_ID    the issuer UUID, one per account
+#   APP_STORE_CONNECT_KEY          the .p8 file, base64 — NOT its path
+#   MATCH_PASSWORD                 the passphrase the certificates are sealed with
+#
+# plus read access to the certificates repository, granted by
+# MATCH_GIT_BASIC_AUTHORIZATION. See fastlane/README.md for how each is made.
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+concurrency:
+  group: testflight
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  beta:
+    name: Build, sign and upload
+    # A signed iOS archive needs a real Xcode, so this is the one job in the
+    # portfolio that cannot run on Linux.
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # `increment_build_number` falls back to counting commits when
+          # GITHUB_RUN_NUMBER is absent, and a shallow clone would count wrong.
+          fetch-depth: 0
+
+      - name: Xcode 26
+        run: sudo xcode-select -s /Applications/Xcode_26.app
+
+      - name: XcodeGen
+        run: brew install xcodegen
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      # Everything that does not need a credential runs first: a secret that
+      # turns out to be missing should not cost a twelve-minute build, and a
+      # test that fails should never reach the signing step at all.
+      - name: The whole suite, before anything is signed
+        run: |
+          ./Scripts/bootstrap.sh
+          ./Scripts/test.sh
+
+      - name: Upload to TestFlight
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+        run: bundle exec fastlane beta
+
+      # A build that failed to upload should still leave something to look at.
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: archive
+          path: |
+            ios/build/*.ipa
+            ios/build/*.app.dSYM.zip
+          if-no-files-found: ignore
+          retention-days: 7

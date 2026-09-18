@@ -212,6 +212,21 @@ cd ../api && npx wrangler dev --port 8788
 API_BASE_URL=http://127.0.0.1:8788 ./Scripts/seed.sh
 ```
 
+## Livrer
+
+```bash
+git tag v1.0.0 && git push --tags   # déclenche la livraison TestFlight
+```
+
+La suite complète tourne **avant** la signature : un test qui échoue ne doit
+jamais atteindre l'étape qui coûte un certificat. `match` est en lecture seule en
+CI — un runner capable de régénérer du matériel de signature est un runner
+capable d'invalider toutes les autres machines. Détail : `docs/testflight.md`.
+
+⚠️ Les quatre secrets ne vivent nulle part dans ce dépôt, et ne se collent
+jamais dans une conversation. Ils vont de l'interface qui les fabrique aux
+secrets GitHub, et nulle part ailleurs.
+
 ## Ce qui se discute avant d'être fait
 
 - **Ajouter une dépendance.** La règle : *ce qui serait pire sans elle, pas ce
