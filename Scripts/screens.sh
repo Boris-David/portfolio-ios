@@ -107,11 +107,33 @@ set_content_size() {
   fi
 }
 
+# Waits until the app is really gone.
+#
+# WARNING: `simctl terminate` returns before the process has exited. Launching
+# straight after it finds the old instance still alive, and `launch` then simply
+# **foregrounds** it -- the flags are ignored and the screenshot shows the
+# previous screen. Every capture still lands, every file is the wrong size, and
+# nothing anywhere says so.
+#
+# This is the second time this matrix has lied: the first was `content_size`,
+# which `simctl` accepts with exit 0 and silently ignores. Same lesson, so the
+# same answer -- do not trust the exit code, check the state.
+wait_until_gone() {
+  local attempt
+  for attempt in $(seq 1 40); do
+    xcrun simctl spawn "$UDID" launchctl list 2>/dev/null | grep -q "$BUNDLE" || return 0
+    sleep 0.25
+  done
+  echo "  the app would not quit; the capture would show the previous screen" >&2
+  return 1
+}
+
 capture() {
   local tab="$1" flags="$2" appearance="$3" size="$4" name="$5"
   xcrun simctl ui "$UDID" appearance "$appearance" >/dev/null
   set_content_size "$size"
   xcrun simctl terminate "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
+  wait_until_gone || return 1
   # shellcheck disable=SC2086
   xcrun simctl launch "$UDID" "$BUNDLE" -tab "$tab" $flags >/dev/null
   sleep 6
