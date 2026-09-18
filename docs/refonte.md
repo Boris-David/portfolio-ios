@@ -704,6 +704,12 @@ Découpage :
 - [x] **api en anglais** (56 fichiers)
 - [x] un drapeau `-route` : la matrice atteignait les racines et les couvertures,
       jamais un écran **poussé**
+- [x] **§23 le texte quitte le code** — 314 entrées dans des catalogues
+      `.xcstrings`, résolus sur la langue du contenu ; `Bilingual` supprimé
+- [x] **le vocabulaire** — « coulisses » et « chrome » retirés, `DesignDecision`
+      et `EngineeringRecord` à la place, audit de nommage passé sur tout le dépôt
+- [x] **l'API déployée** — `architectures` et `deepDives` sont en production,
+      `seed.sh --check` est vert
 
 **À faire :**
 
@@ -889,3 +895,106 @@ typographie, mouvement. Rien qui dessine. Deux conséquences qui comptent :
 - `CoreUI` s'appuie dessus, et pas l'inverse. Un composant connaît sa palette ;
   une palette ne connaît aucun composant.
 
+## 23. L'internationalisation — le texte quitte le code
+
+> Arbitrage rendu le 2026-09-18, à la demande de l'auteur : *« pourquoi les vues
+> n'ont pas uniquement des clés, référencées dans le truc Localizables d'Xcode
+> avec des trads en français et anglais ? »*
+
+### Ce qui existait, et pourquoi ça ne tenait plus
+
+Le texte vivait dans des valeurs Swift — `Bilingual(fr:en:)` — qui portaient les
+deux langues côte à côte. Ça tenait une promesse réelle : une traduction
+manquante ne compilait pas. Et ça en cassait deux.
+
+**SRP, au sens d'Uncle Bob** — « un module, une raison de changer », et *raison*
+veut dire *acteur*. `AppChrome` changeait quand un rédacteur retouchait une
+phrase **et** quand un développeur touchait à une logique de présentation. Deux
+acteurs, un fichier.
+
+**OCP** — `Bilingual(fr:en:)` est fermé à l'extension par construction : ajouter
+une troisième langue, c'était éditer chacune des ~250 déclarations une par une.
+
+### La décision
+
+Le texte vit dans des catalogues `.xcstrings`, **un par module qui en porte**,
+à côté du code qu'il habille. Une vue nomme une clé typée ; le mot est dans le
+catalogue, éditable sans ouvrir un fichier Swift.
+
+```
+ViewKit/Resources/            les libellés partagés + l'écran Réglages
+Decisions/Resources/          les libellés autour d'une décision
+Features/<Nom>/Resources/     les décisions annotées sur cet écran
+Features/Engineering/         ce que l'application dit d'elle-même
+```
+
+### Les trois règles qui font que ce n'est pas « juste un .xcstrings »
+
+**1. Résolu sur la langue choisie, pas sur celle de l'appareil.** C'était la
+seule objection sérieuse à un catalogue, et elle ne visait pas le catalogue mais
+son *lookup par défaut*. `TextCatalogue` passe par le sous-bundle `<code>.lproj`,
+donc sur la langue **du contenu servi**. Une suite l'épingle, y compris le repli
+d'un code inconnu — qui va vers la langue **source** et non vers celle de
+l'appareil, sans quoi le défaut rentrerait par la fenêtre.
+
+**2. Seule la couche vue résout.** Résoudre demande un bundle, un catalogue
+compilé et la langue à l'écran : trois détails de livraison. `Presentation` ne
+déclare donc pas `Localization`, et `import Localization` y répond « no such
+module ». Les couches basses rendent des **valeurs** : `PhaseFailure` porte la
+cause et le chemin du champ, `AppSection` un cas, `ArchitecturePattern.Criterion`
+un cas. Le mapping vers une clé vit dans `ViewKit`.
+
+**3. Rien n'énumère les langues.** Ni un type, ni une vue. La liste est ce que le
+catalogue compilé contient (`TextCatalogue.languages`). `\.contentLanguage` est
+**posé une fois** par la scène et **lu par deux résolveurs** : `@Localized` pour
+les clés, `@LocalizedDecision` pour les phrases d'une décision. Aucun écran n'en
+voit une. `check-strings.sh` le refuse, mutation testé.
+
+### Pourquoi `Localization` est un package et pas un coin de `Core`
+
+`Core` porte aussi le stockage disque et la connectivité, et l'invariant central
+dit qu'**aucun écran ne les atteint**. L'y ranger aurait acheté une commodité au
+prix de l'accès disque pour toutes les vues de l'application. Ségrégation des
+interfaces, tenue par le manifeste plutôt que par la bonne volonté.
+
+### Ce que ça a coûté, et comment c'est racheté
+
+Une traduction manquante n'est plus une erreur de compilation : la clé s'affiche
+à l'écran, en silence. `check-strings.sh` rachète ça en CI — et va plus loin que
+`Bilingual` ne savait aller :
+
+| ce qui échoue | ce que `Bilingual` en disait |
+|---|---|
+| une traduction vide ou non `translated` | erreur de compilation |
+| une clé requise absente d'un catalogue | erreur de compilation |
+| une **clé morte** que rien n'atteint | rien |
+| une **langue absente d'un seul** catalogue | rien |
+| une phrase écrite en dur dans une vue | rien |
+| une vue qui lit `\.contentLanguage` | rien |
+| un `case .french` n'importe où | rien |
+
+### Le défaut que ça a fait sortir
+
+```swift
+language == .french ? "\(count) chantiers" : "\(count) workstreams"
+```
+
+Faux au singulier — « 1 chantiers ». Le pluriel revient à la plateforme
+(*Vary by Plural*), qui applique la règle **de la langue demandée** : le français
+met 0 et 1 au singulier, l'anglais seulement 1.
+
+### Le vocabulaire, au passage
+
+« Coulisses » / `Backstage` était une métaphore de théâtre dans un portfolio
+professionnel, et elle écrasait deux concepts. L'onglet porte des couches, des
+défis, des parcours de code et l'arbitrage des dépendances : c'est de
+l'**ingénierie**. L'annotation sur un composant porte le rôle, la justification,
+ce qui a été écarté, quand l'employer et le piège : c'est la structure exacte
+d'un **ADR**, donc une `DesignDecision`.
+
+`Chrome` était du jargon de navigateur sans contrepartie : c'est `interface`.
+
+⚠️ **Un mot du contrat de contenu ne se renomme pas d'un seul côté.** `eyebrow` a
+été renommé en `overline` et la suite l'a refusé : c'est un champ servi par
+l'API. Rendu tel quel — la décision, si elle se prend, se prend sur les trois
+dépôts à la fois.
