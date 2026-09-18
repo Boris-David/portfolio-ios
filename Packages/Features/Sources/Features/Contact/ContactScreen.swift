@@ -1,3 +1,4 @@
+import CoreUI
 import DesignSystem
 import Presentation
 import SwiftUI
@@ -59,7 +60,7 @@ public struct ContactScreen: View {
             .padding(Tokens.Space.s5)
           }
         } else {
-          LoadingSkeleton()
+          LoadingSkeletonView()
         }
       }
       .background(Color.paper)

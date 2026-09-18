@@ -1,3 +1,4 @@
+import CoreUI
 import DesignSystem
 import FeatureBackstage
 import FeatureJourney

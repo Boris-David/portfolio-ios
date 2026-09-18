@@ -1,8 +1,8 @@
+import Core
 import Data
 import Domain
 import Foundation
 import Networking
-import Persistence
 
 /// Everything the app needs in order to run, as one value.
 ///
@@ -31,18 +31,23 @@ public struct AppEnvironment: Sendable {
 
   /// The real wiring: network, disk cache, bundled seed.
   public static func live(
-    endpoints: Endpoints = .production,
+    endpoints: APIEndpoints = .production,
     language: Language = .preferred()
   ) -> AppEnvironment {
     let client = URLSessionHTTPClient(session: URLSessionHTTPClient.makeSession())
     let store = FileStore()
+    // One monitor for the whole app: several of them would each keep an
+    // `NWPathMonitor` alive, and the system would answer the same question
+    // three times.
+    let connectivity = ConnectivityMonitor()
 
     return AppEnvironment(
       portfolio: PortfolioRepository(
         client: client,
         store: store,
-        seed: BundledSeed(),
-        endpoints: endpoints
+        seed: BundledSeedDataSource(),
+        endpoints: endpoints,
+        connectivity: connectivity
       ),
       resume: ResumeRepository(client: client, store: store, endpoints: endpoints),
       language: language

@@ -35,6 +35,12 @@ xcuserdata/
 .swiftpm/
 Packages/*/.build/
 
+# ⚠️ Un `Package.resolved` sous `Packages/` est un artefact d'outil, pas le
+# verrou du projet : celui qui compte vit dans le workspace du `.xcodeproj` et
+# il est ré-inclus plus haut. Celui-ci réapparaissait sous le nom d'un package
+# supprimé, régénéré par l'index d'Xcode depuis un DerivedData périmé.
+Packages/*/Package.resolved
+
 # ── Signature — rien de tout ça n'entre dans un dépôt public ─────────────
 *.mobileprovision
 *.p12

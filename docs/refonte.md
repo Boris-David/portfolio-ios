@@ -659,18 +659,36 @@ Découpage :
 - [x] garde de langue corrigée : elle prenait du **contenu** français pour des
       commentaires (toute ligne commençant par `**gras**`)
 
+- [x] **`Core`** — horloge, stockage clé-valeur, connectivité, bus d'événements
+      (§22). `Persistence` absorbé : deux abstractions du stockage, c'était la
+      duplication à éviter
+- [x] **`CoreUI`** — les composants, et le **seul** package qui nomme Lottie,
+      Textual et PDFKit. `import Textual` ailleurs répond « no such module »
+- [x] `DesignSystem` redevient le **langage visuel** : des valeurs, rien qui
+      dessine — donc consommable hors SwiftUI
+- [x] **les suffixes** (§21) — `check-naming.sh`, mutation-testé quatre fois
+- [x] deux bugs trouvés par les mutations : `check-layers.sh` déclarait son
+      verdict **entre** ses deux gardes, donc la seconde était effacée ; et des
+      backticks dans une chaîne à guillemets doubles
+- [x] `ConnectivityMonitor` **branché** sur la politique de fraîcheur : « hors
+      ligne » se déduisait d'un échec après quinze secondes, alors que le système
+      le savait avant que la requête ne parte. `.unknown` ne court-circuite rien
+      — ne pas savoir n'est pas une raison de renoncer
+
 **À faire :**
 
-- [ ] convertir **web et api** en anglais
-- [ ] passe de visibilité (§17) — `private` par défaut, `package` où il faut
-- [ ] écran de réglages (§3)
+- [ ] convertir **web et api** en anglais (114 fichiers)
+- [ ] écran de réglages (§3) — branchera `PreferencesRepository`
 - [ ] refaire l'accroche (§6)
-- [ ] mouvement, haptique, bandeaux, Lottie (§4)
-- [ ] catalogue des présentations (§5)
+- [ ] mouvement, haptique, bandeaux, Lottie (§4) — **0 `sensoryFeedback`
+      aujourd'hui, une seule animation**
+- [ ] catalogue des présentations (§5) — **0 `fullScreenCover`, 0 `popover`,
+      0 `confirmationDialog`, 0 `contextMenu`**
 - [ ] coulisses en révélation progressive (§8)
 - [ ] comparatif d'architectures (§9)
 - [ ] routes d'API dédiées (§10)
-- [ ] accessibilité (§13)
+- [ ] accessibilité (§13) — 8 libellés, **0 test Dynamic Type**
+
 - [ ] rafraîchissement au retour au premier plan (§14)
 - [ ] fastlane / TestFlight
 - [ ] paysage et écran partagé sur iPad
@@ -699,3 +717,145 @@ Découpage :
   qu'on va reprendre entièrement n'apporte rien ;
 - **le paysage et l'écran partagé sur iPad** — à regarder, pas encore tenu pour
   acquis.
+
+---
+
+## 21. Les suffixes — le nom dit le rôle
+
+**Demandé :** *« Tout ce qui est network request doit avoir le suffixe `Request`,
+pareil pour les responses, pour les adapter `Adapter`, pour les screens `Screen`,
+etc. Tu pourras l'adapter à nos couches réelles. »*
+
+La règle, en une phrase : **le suffixe nomme le rôle dans l'architecture, jamais
+la sorte Swift.** `PortfolioEntity` ou `LanguageEnum` ajoutent un mot qui ne dit
+rien — tout type est un type. `PortfolioDTO` dit à quelle couche il appartient et
+ce qu'il fait.
+
+| Couche | Rôle | Suffixe | Exemple |
+|---|---|---|---|
+| `Domain` | entité | **aucun** | `Portfolio`, `CaseStudy`, `Experience` |
+| `Domain` | port | **aucun** — voir l'exception | `PortfolioReading` |
+| `Networking` | requête | `Request` | `HTTPRequest` |
+| `Networking` | réponse | `Response` | `HTTPResponse` |
+| `Networking` | transport | `Client` | `URLSessionHTTPClient` |
+| `Data` | objet de transfert | `DTO` | `PortfolioDTO` |
+| `Data` | traduction DTO → entité | `Mapper` | `PortfolioMapper` |
+| `Data` | implémentation d'un port | `Repository` | `PortfolioRepository` |
+| `Data` | source de données | `DataSource` | `BundledSeedDataSource` |
+| `Data` | pont vers un framework tiers | `Adapter` | `KeychainCredentialsAdapter` |
+| `Presentation` | porteur d'état d'écran | `Store` | `PortfolioStore` |
+| `Presentation` | domaine → affichable | `Presenter` | `FailurePresenter` |
+| `Presentation` | navigation | `Router` / `Resolver` | `Router`, `RouteResolver` |
+| `Presentation` | mise en forme | `Style` | `DateStyle`, `FreshnessStyle` |
+| `Features` | écran (connaît le store) | `Screen` | `ProfileScreen` |
+| `Features` | vue bête (reçoit tout) | `View` | `FailureView` |
+| `CoreUI` | composant réutilisable | **aucun** | `Chip`, `Surface`, `PDFPreview` |
+| partout | double de test | `Stub` / `Spy` | `HTTPClientSpy` |
+
+### Les deux exceptions, et pourquoi
+
+**Les entités n'ont pas de suffixe.** Le domaine parle le vocabulaire du métier,
+et le métier ne dit pas « PortfolioEntity ». C'est la seule couche dont les noms
+devraient se lire à voix haute devant quelqu'un qui ne code pas.
+
+**Les protocoles suivent la convention Swift, pas la nôtre.** Les *Swift API
+Design Guidelines* sont explicites : un protocole qui décrit une **capacité** se
+nomme en `-able`, `-ible` ou `-ing` — `Equatable`, `Collection`,
+`ProgressReporting`. D'où `PortfolioReading`, `SeedProviding`,
+`PreferencesStoring`. Écrire `PortfolioProtocol` ou `PortfolioPort` serait une
+habitude de C# ou de Java plaquée sur un langage qui a tranché autrement — et ça
+se lit mal au point d'usage : `any PortfolioReading` dit ce qu'il fait,
+`any PortfolioPort` dit seulement qu'il existe.
+
+### Tenu par une garde
+
+`Scripts/check-naming.sh` lit chaque répertoire et refuse un type dont le nom ne
+porte pas le suffixe de son rôle. Une convention que rien n'exécute est une
+convention qui tient trois semaines.
+
+---
+
+## 22. `Core` et `CoreUI` — une seule implémentation, partout
+
+**Demandé :** *« On pourrait avoir un package core dans lequel on a tous nos
+helpers ; notre abstraction sur la gestion de Core Data ou SwiftData,
+UserDefaults, si le user est offline, mettre à dispo des listeners/events
+auxquels peut s'abonner toute l'app, les mécaniques d'injection de dépendances
+qui doivent être communes, les protocols, les contextes — pour qu'on soit sûr
+que quel que soit l'endroit dans l'app, on a une seule implémentation. »*
+
+*« Et aussi une sorte de core-ui, dans lequel les composants réutilisables
+pourront être déclarés, parfaitement configurables. Des choses comme le
+previewer PDF ; et même Textual : c'est core-ui qui doit le tirer. Je ne dois pas
+avoir d'`import Textual` dans les fichiers de code, mais `import CoreUI` — comme
+ça, si un jour je change de bibliothèque, je n'ai pas à changer d'import. »*
+
+### `Core` — les mécaniques, et zéro connaissance du portfolio
+
+| Ce qu'il porte | Pourquoi là |
+|---|---|
+| `Clock` + `SystemClock` + `FixedClock` | trois couches injectent déjà une horloge par fermeture `() -> Date`. Trois fermetures, trois conventions |
+| `KeyValueStore` + `UserDefaultsKeyValueStore` | l'abstraction sur `UserDefaults`, qui n'a plus à être réécrite par qui en a besoin |
+| `FileStore`, `StorageKey`, `StoredValue`, `LocalStore` | l'ancien package `Persistence`, absorbé — deux abstractions du stockage, c'était exactement la duplication à éviter |
+| `ConnectivityReporting` + `ConnectivityMonitor` | *« si le user est offline »*. Aujourd'hui c'est déduit d'un échec réseau ; un moniteur le **sait** avant d'essayer |
+| `EventBus` | *« des listeners auxquels peut s'abonner toute l'app »* |
+
+**Il ne dépend de rien.** Pas de `Domain`, pas de SwiftUI. Le critère d'entrée est
+écrit et se vérifie :
+
+> Entre dans `Core` ce qui **(a)** sert à au moins deux couches, **(b)** ne sait
+> rien du portfolio, et **(c)** pourrait être livré dans une autre application
+> sans changer d'une ligne.
+
+⚠️ **Un `Core` est un tiroir fourre-tout en puissance.** Tout le monde en dépend,
+donc tout ce qu'on y met devient global — c'est-à-dire l'inverse du découpage.
+Les trois critères ci-dessus sont la seule chose qui l'en empêche, et
+`ArchitectureTests` vérifie que `Core` ne gagne jamais une dépendance.
+
+#### L'`EventBus` — et sa règle d'admission
+
+Un bus d'événements devient du spaghetti dès qu'on y fait passer des **ordres** :
+plus personne ne sait qui déclenche quoi, et la pile d'appels ne dit plus rien.
+
+> Un événement décrit un **fait déjà arrivé** (`contentRefreshed`,
+> `connectivityChanged`, `languageChanged`), dont **plusieurs parties sans lien**
+> ont besoin. Un ordre (« recharge ») passe par un port, pas par le bus.
+
+#### L'injection de dépendances — ce que `Core` apporte, et ce qu'il n'apporte pas
+
+Il **n'apporte pas** de conteneur. L'arbitrage est déjà écrit dans
+`AppEnvironment` et il tient : un enregistrement dispersé fait qu'on ne sait plus
+en lisant ce qui répond à quoi, et une résolution manquante ne se découvre qu'à
+l'exécution. Un `@Injected` est un localisateur de service déguisé — il cache le
+graphe au lieu de le montrer.
+
+Ce qu'il apporte est plus utile : **le vocabulaire commun d'abstractions**
+(`Clock`, `KeyValueStore`, `ConnectivityReporting`, `EventPublishing`) et **leurs
+doubles**. Deux couches qui ont besoin d'une horloge dépendent du même protocole,
+et la racine de composition reste le seul endroit qui décide. C'est ça, « une
+seule implémentation partout ».
+
+### `CoreUI` — les composants, et le seul à connaître les bibliothèques
+
+| Ce qu'il porte | Ce qu'il enveloppe |
+|---|---|
+| `MarkdownText` | **Textual** |
+| `LottieAnimation` | **Lottie** |
+| `PDFPreview` | **PDFKit** |
+| `Chip`, `Surface`, `MetricTile`, `Reveal`, `WrappingRow`, `Skeleton`, le verre | — |
+
+**Aucun autre package ne déclare Lottie ni Textual.** Ce n'est pas une règle de
+revue : leurs manifestes ne les nomment pas, donc `import Textual` ailleurs
+répond « no such module ». Le jour où Textual est remplacé, un fichier change —
+et l'interface, elle, ne bouge pas.
+
+### `DesignSystem` cesse d'être une bibliothèque de composants
+
+Il garde ce que son nom annonce : le **langage visuel** — tokens, couleurs,
+typographie, mouvement. Rien qui dessine. Deux conséquences qui comptent :
+
+- il reste consommable par ce qui n'est pas SwiftUI — un générateur de PDF, une
+  extension, un jour une app watchOS ;
+- `CoreUI` s'appuie dessus, et pas l'inverse. Un composant connaît sa palette ;
+  une palette ne connaît aucun composant.
+

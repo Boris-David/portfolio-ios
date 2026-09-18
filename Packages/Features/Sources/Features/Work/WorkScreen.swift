@@ -1,4 +1,5 @@
 import Backstage
+import CoreUI
 import DesignSystem
 import Domain
 import FeatureKit
@@ -246,7 +247,7 @@ struct AppCell: View {
       if let url = URL(string: app.appStoreURL) { openURL(url) }
     } label: {
       VStack(alignment: .leading, spacing: Tokens.Space.s2) {
-        AppIcon(slug: app.slug)
+        AppIconView(slug: app.slug)
         Text(app.name)
           .font(Typography.bodyStrong)
           .foregroundStyle(Color.ink)
@@ -278,7 +279,7 @@ struct AppCell: View {
 ///
 /// Never by an internal network identifier: those do not leave the building, and
 /// an image path is public content just as much as a sentence is.
-struct AppIcon: View {
+struct AppIconView: View {
   let slug: String
 
   var body: some View {

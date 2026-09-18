@@ -22,7 +22,7 @@ struct RouteResolver: View {
     switch route {
     case .caseStudy(let slug):
       if let study = store.portfolio?.caseStudies.first(where: { $0.slug == slug }) {
-        CaseStudyDetail(study: study)
+        CaseStudyDetailScreen(study: study)
       } else {
         // A route to content that is not there — which happens with a deep link
         // received before the first load. Say so; do not show a blank screen.

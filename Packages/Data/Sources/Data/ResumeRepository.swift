@@ -1,7 +1,7 @@
+import Core
 import Domain
 import Foundation
 import Networking
-import Persistence
 
 /// The résumé in PDF: downloaded once, revalidated afterwards, never rebuilt.
 ///
@@ -24,12 +24,12 @@ import Persistence
 public actor ResumeRepository: ResumeReading {
   private let client: any HTTPClient
   private let store: any LocalStore
-  private let endpoints: Endpoints
+  private let endpoints: APIEndpoints
 
   /// As with the content: opening the résumé twice at once makes one download.
   private var downloads: [Language: Task<ResumeDocument, any Error>] = [:]
 
-  public init(client: any HTTPClient, store: any LocalStore, endpoints: Endpoints = .production) {
+  public init(client: any HTTPClient, store: any LocalStore, endpoints: APIEndpoints = .production) {
     self.client = client
     self.store = store
     self.endpoints = endpoints

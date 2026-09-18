@@ -1,7 +1,7 @@
+import Core
 import Domain
 import Foundation
 import Networking
-import Persistence
 
 /// The content gateway: the source first, the local copy only when it fails.
 ///
@@ -37,9 +37,10 @@ import Persistence
 public actor PortfolioRepository: PortfolioReading {
   private let client: any HTTPClient
   private let store: any LocalStore
-  private let endpoints: Endpoints
+  private let endpoints: APIEndpoints
   private let seed: any SeedProviding
-  private let clock: @Sendable () -> Date
+  private let clock: any DateProviding
+  private let connectivity: any ConnectivityReporting
 
   /// The refresh in flight, per language. This is **all** of the coordination.
   private var refreshes: [Language: Task<Loaded, any Error>] = [:]
@@ -48,14 +49,19 @@ public actor PortfolioRepository: PortfolioReading {
     client: any HTTPClient,
     store: any LocalStore,
     seed: any SeedProviding,
-    endpoints: Endpoints = .production,
-    clock: @escaping @Sendable () -> Date = { Date() }
+    endpoints: APIEndpoints = .production,
+    clock: any DateProviding = SystemClock(),
+    // `.unknown` by default, and that is the safe default: not knowing is not a
+    // reason to stop trying. Only a monitor that has actually seen the path go
+    // down short-circuits anything.
+    connectivity: any ConnectivityReporting = StaticConnectivity(.unknown)
   ) {
     self.client = client
     self.store = store
     self.endpoints = endpoints
     self.seed = seed
     self.clock = clock
+    self.connectivity = connectivity
   }
 
   public func portfolio(
@@ -69,6 +75,29 @@ public actor PortfolioRepository: PortfolioReading {
        let local = await localSnapshot(for: language),
        isFresh(local, within: maxAge) {
       return local
+    }
+
+    // ── Known offline: do not spend fifteen seconds proving it ───────────
+    //
+    // "Offline" used to be **inferred from a failure**: fire the request, wait
+    // for the timeout, then fall back. The person waited fifteen seconds to be
+    // told what the system knew before the request left.
+    //
+    // This is not a return to cache-first. The rule is unchanged — the source is
+    // asked whenever it can be reached. What changes is that a request which
+    // *cannot* leave is no longer sent, and the screen says why immediately.
+    //
+    // `.unknown` does not take this path: not knowing is not a reason to give up.
+    if await connectivity.current.isKnownOffline {
+      guard let local = await localSnapshot(for: language) else {
+        throw ContentUnavailable.nothingAvailable
+      }
+      return PortfolioSnapshot(
+        portfolio: local.portfolio,
+        contentVersion: local.contentVersion,
+        origin: local.origin,
+        refreshFailure: .unreachable
+      )
     }
 
     do {
@@ -116,7 +145,7 @@ public actor PortfolioRepository: PortfolioReading {
     // never "fresh" in the sense a cache policy means.
     case .bundledSeed, .network: return false
     }
-    return clock().timeIntervalSince(storedAt) < Double(maxAge.components.seconds)
+    return clock.now.timeIntervalSince(storedAt) < Double(maxAge.components.seconds)
   }
 
   /// The refresh, **shared** between every simultaneous caller.
@@ -202,7 +231,7 @@ public actor PortfolioRepository: PortfolioReading {
 
     do {
       return Loaded(
-        portfolio: try PortfolioMapping.portfolio(from: envelope.data),
+        portfolio: try PortfolioMapper.portfolio(from: envelope.data),
         contentVersion: envelope.meta.contentVersion
       )
     } catch let error as MappingError {

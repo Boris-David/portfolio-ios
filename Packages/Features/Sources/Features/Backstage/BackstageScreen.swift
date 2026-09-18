@@ -1,10 +1,10 @@
 import Backstage
+import CoreUI
 import DesignSystem
 import Domain
 import FeatureKit
 import Presentation
 import SwiftUI
-import Textual
 import ViewKit
 
 /// The backstage of the app itself.
@@ -96,9 +96,7 @@ struct LayersBlock: View {
                 font: Typography.bodyStrong,
                 color: .ink
               )
-              StructuredText(markdown: layer.rule(language))
-                .font(Typography.secondary)
-                .foregroundStyle(Color.ink2)
+              MarkdownText(layer.rule(language), font: Typography.secondary, color: .ink2)
               if !layer.dependsOn.isEmpty {
                 WrappingRow {
                   ForEach(layer.dependsOn, id: \.self) { Chip($0) }
@@ -182,9 +180,7 @@ struct ChallengesBlock: View {
   private func labelled(_ title: String, _ markdown: String) -> some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s2) {
       Text(title).eyebrowStyle()
-      StructuredText(markdown: markdown)
-        .font(Typography.body)
-        .foregroundStyle(Color.ink2)
+      MarkdownText(markdown, font: Typography.body, color: .ink2)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
   }
@@ -219,9 +215,7 @@ struct WalkthroughsBlock: View {
                     Text(step.actor)
                       .font(Typography.code)
                       .foregroundStyle(Color.accent)
-                    StructuredText(markdown: step.does(language))
-                      .font(Typography.secondary)
-                      .foregroundStyle(Color.ink2)
+                    MarkdownText(step.does(language), font: Typography.secondary, color: .ink2)
                   }
                 }
                 .accessibilityElement(children: .combine)
@@ -256,9 +250,7 @@ struct DependenciesBlock: View {
               Spacer(minLength: Tokens.Space.s2)
               verdict(call.verdict)
             }
-            StructuredText(markdown: call.reasoning(language))
-              .font(Typography.secondary)
-              .foregroundStyle(Color.ink2)
+            MarkdownText(call.reasoning(language), font: Typography.secondary, color: .ink2)
           }
         }
       }

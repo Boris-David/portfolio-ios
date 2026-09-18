@@ -37,18 +37,27 @@ déclare jamais `Networking` : dans un écran, `import Networking` ne donne pas 
 remarque en revue, il donne **« no such module »**.
 
 ```
-Domain        rien                                    ← zéro dépendance, et c'est le point
-Networking    rien          Persistence    rien
-DesignSystem  Lottie
-Data          Domain + Networking + Persistence       ← le seul qui voie les deux côtés
-Presentation  Domain                                  ← et SURTOUT pas SwiftUI
-Features      Domain + Presentation + DesignSystem + Textual
-Composition   tout                                    ← le seul, et il n'a aucune logique
+Core          rien            ← mécaniques : horloge, stockage, réseau-dispo, bus
+Domain        rien            ← entités + ports. Zéro dépendance, et c'est le point
+Networking    rien
+DesignSystem  rien            ← le langage visuel. Des valeurs, rien qui dessine
+CoreUI        DesignSystem + Lottie + Textual   ← les composants, et SEUL à les connaître
+Data          Domain + Networking + Core        ← le seul qui voie les deux côtés
+Presentation  Domain                            ← et SURTOUT pas SwiftUI
+Features      Domain + Presentation + DesignSystem + CoreUI
+Composition   tout                              ← le seul, et il n'a aucune logique
 ```
 
-Deux invariants qu'aucun manifeste ne peut tenir, parce que SwiftUI vient du
-SDK : **le domaine ignore qu'une interface existe**, et **la présentation ne
-dessine pas**. C'est `./Scripts/check-layers.sh` qui les refuse.
+
+Trois invariants qu'aucun manifeste ne peut tenir : **le domaine ignore qu'une
+interface existe**, **la présentation ne dessine pas** (SwiftUI vient du SDK), et
+**`import Textual`, `import Lottie`, `import PDFKit` n'existent que dans
+`CoreUI`**. C'est `./Scripts/check-layers.sh` qui les refuse.
+
+⚠️ **`Core` est un tiroir fourre-tout en puissance** — tout le monde en dépend,
+donc tout ce qu'on y met devient global. Le critère d'entrée est écrit dans son
+manifeste : sert à **deux couches au moins**, ne sait **rien** du portfolio, et
+pourrait être livré dans une autre application sans changer d'une ligne.
 
 `ArchitectureTests` lit tous les manifestes et échoue si le graphe dérive.
 
@@ -102,13 +111,15 @@ Il se génère depuis `project.yml` (`xcodegen generate`). Ne jamais committer
 
 ```bash
 xcodegen generate
-./Scripts/test.sh              # les 11 suites, sur simulateur
+./Scripts/test.sh              # les 13 suites, sur simulateur
 ./Scripts/tokens.mjs --check   # le design descend bien des tokens
 ./Scripts/seed.sh --check      # la graine décrit encore ce que sert l'API
 ./Scripts/assets.py --check    # chaque actif attendu est présent
 ./Scripts/check-secrets.sh     # dépôt public
 ./Scripts/check-language.sh    # le source Swift est en anglais
 ./Scripts/check-layers.sh      # aucune couche ne voit ce qu'elle ne doit pas
+./Scripts/check-naming.sh      # le nom dit le rôle
+./Scripts/check-suites.sh      # aucune suite ne s'est évaporée
 ```
 
 **Et on regarde l'écran.** Une application qui compile n'est pas une application
@@ -125,10 +136,12 @@ xcrun simctl io <appareil> screenshot capture.png
 
 | Quoi | Où |
 |---|---|
+| Horloge, stockage, connectivité, bus d'événements | `Packages/Core/` |
 | Entités et ports | `Packages/Domain/Sources/Domain/` |
-| Transport, stockage | `Packages/Networking/`, `Packages/Persistence/` |
+| Transport HTTP | `Packages/Networking/` |
 | DTO, correspondances, dépôts, sources | `Packages/Data/Sources/Data/` |
-| Couleurs, typo, mouvement, composants | `Packages/DesignSystem/` |
+| Tokens, couleurs, typo, mouvement | `Packages/DesignSystem/` |
+| Composants, et Lottie / Textual / PDFKit | `Packages/CoreUI/` |
 | Phases, store, chrome, formatage, routes | `Packages/Presentation/` |
 | Vues partagées, environnement, icônes | `Packages/Features/Sources/ViewKit/` |
 | Annotations de coulisses | `Packages/Features/Sources/Backstage/` |
@@ -137,6 +150,16 @@ xcrun simctl io <appareil> screenshot capture.png
 | Le câblage | `Packages/Composition/` |
 | Configuration du projet | `project.yml` |
 | Générateurs et gardes | `Scripts/` |
+
+**Le nom dit le rôle.** `*DTO`, `*Mapper`, `*Repository`, `*DataSource`,
+`*Request`, `*Response`, `*Store`, `*Screen`, `*View`, `*Stub`, `*Spy`. Deux
+exceptions : les **entités** n'ont pas de suffixe (le domaine parle le
+vocabulaire du métier), et les **protocoles** suivent Swift — `-able`, `-ible`,
+`-ing`. `./Scripts/check-naming.sh` le tient. Détail : `docs/refonte.md` §21.
+
+**Aucun `import` de bibliothèque hors de `CoreUI`.** Un écran demande
+`MarkdownText`, `LottieAnimation`, `PDFPreview`. Le jour où la bibliothèque
+change, un fichier change.
 
 **Un fichier par type.** Un type public porte le nom de son fichier. Les
 exceptions sont étroites : un type imbriqué reste avec son parent, une extension

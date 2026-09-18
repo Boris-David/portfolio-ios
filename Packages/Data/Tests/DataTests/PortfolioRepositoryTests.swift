@@ -1,7 +1,7 @@
+import Core
 import Domain
 import Foundation
 import Networking
-import Persistence
 import Testing
 @testable import Data
 
@@ -13,12 +13,12 @@ import Testing
 /// dated content with the confidence of fresh content.
 struct PortfolioRepositoryTests {
   private func makeRepository(
-    client: CountingClient,
-    store: MemoryStore = MemoryStore(),
-    seed: any SeedProviding = EmptySeed(),
+    client: HTTPClientSpy,
+    store: LocalStoreStub = LocalStoreStub(),
+    seed: any SeedProviding = EmptySeedStub(),
     now: Date = Date(timeIntervalSince1970: 1_800_000_000)
   ) -> PortfolioRepository {
-    PortfolioRepository(client: client, store: store, seed: seed, clock: { now })
+    PortfolioRepository(client: client, store: store, seed: seed, clock: FixedClock(now))
   }
 
   // ── Network first ──────────────────────────────────────────────────────
@@ -26,8 +26,8 @@ struct PortfolioRepositoryTests {
   @Test("serves the network when it answers")
   func networkWins() async throws {
     let repository = makeRepository(
-      client: CountingClient(response: .success(Fixtures.response(.french))),
-      seed: FixtureSeed()
+      client: HTTPClientSpy(response: .success(Fixtures.response(.french))),
+      seed: SeedDataSourceStub()
     )
 
     let snapshot = try await repository.portfolio(in: .french, policy: .networkFirst)
@@ -43,8 +43,8 @@ struct PortfolioRepositoryTests {
   func fallsBackToCache() async throws {
     let cached = try #require(Fixtures.payload(.french))
     let repository = makeRepository(
-      client: CountingClient(response: .failure(.transport(description: "offline"))),
-      store: MemoryStore(seeded: ["portfolio-fr.json": cached])
+      client: HTTPClientSpy(response: .failure(.transport(description: "offline"))),
+      store: LocalStoreStub(seeded: ["portfolio-fr.json": cached])
     )
 
     let snapshot = try await repository.portfolio(in: .french, policy: .networkFirst)
@@ -62,8 +62,8 @@ struct PortfolioRepositoryTests {
   @Test("falls back to the bundled seed when there is no cache")
   func fallsBackToSeed() async throws {
     let repository = makeRepository(
-      client: CountingClient(response: .failure(.transport(description: "offline"))),
-      seed: FixtureSeed()
+      client: HTTPClientSpy(response: .failure(.transport(description: "offline"))),
+      seed: SeedDataSourceStub()
     )
 
     let snapshot = try await repository.portfolio(in: .french, policy: .networkFirst)
@@ -77,7 +77,7 @@ struct PortfolioRepositoryTests {
   @Test("throws when nothing at all is available")
   func throwsWithNothing() async {
     let repository = makeRepository(
-      client: CountingClient(response: .failure(.transport(description: "offline")))
+      client: HTTPClientSpy(response: .failure(.transport(description: "offline")))
     )
 
     await #expect(throws: ContentUnavailable.nothingAvailable) {
@@ -94,8 +94,8 @@ struct PortfolioRepositoryTests {
   func malformedIsNotMasked() async throws {
     let cached = try #require(Fixtures.payload(.french))
     let repository = makeRepository(
-      client: CountingClient(response: .success(Fixtures.responseMissing(["data", "profile"]))),
-      store: MemoryStore(seeded: ["portfolio-fr.json": cached])
+      client: HTTPClientSpy(response: .success(Fixtures.responseMissing(["data", "profile"]))),
+      store: LocalStoreStub(seeded: ["portfolio-fr.json": cached])
     )
 
     do {
@@ -115,12 +115,12 @@ struct PortfolioRepositoryTests {
   @Test("cacheFirst skips the network while the cache is young enough")
   func cacheFirstSkipsNetwork() async throws {
     let cached = try #require(Fixtures.payload(.french))
-    let client = CountingClient(response: .success(Fixtures.response(.french)))
-    // MemoryStore stamps its seeded values at a fixed instant; the clock is set
+    let client = HTTPClientSpy(response: .success(Fixtures.response(.french)))
+    // LocalStoreStub stamps its seeded values at a fixed instant; the clock is set
     // one hour later, so a one-day budget still holds.
     let repository = makeRepository(
       client: client,
-      store: MemoryStore(seeded: ["portfolio-fr.json": cached]),
+      store: LocalStoreStub(seeded: ["portfolio-fr.json": cached]),
       now: Date(timeIntervalSince1970: 1_700_003_600)
     )
 
@@ -139,10 +139,10 @@ struct PortfolioRepositoryTests {
   @Test("cacheFirst goes to the network once the cache is too old")
   func cacheFirstExpires() async throws {
     let cached = try #require(Fixtures.payload(.french))
-    let client = CountingClient(response: .success(Fixtures.response(.french)))
+    let client = HTTPClientSpy(response: .success(Fixtures.response(.french)))
     let repository = makeRepository(
       client: client,
-      store: MemoryStore(seeded: ["portfolio-fr.json": cached]),
+      store: LocalStoreStub(seeded: ["portfolio-fr.json": cached]),
       now: Date(timeIntervalSince1970: 1_800_000_000)
     )
 
@@ -159,8 +159,8 @@ struct PortfolioRepositoryTests {
   /// never "fresh" in the sense of a cache policy.
   @Test("cacheFirst never treats the bundled seed as fresh")
   func seedIsNeverFresh() async throws {
-    let client = CountingClient(response: .success(Fixtures.response(.french)))
-    let repository = makeRepository(client: client, seed: FixtureSeed())
+    let client = HTTPClientSpy(response: .success(Fixtures.response(.french)))
+    let repository = makeRepository(client: client, seed: SeedDataSourceStub())
 
     let snapshot = try await repository.portfolio(
       in: .french,
@@ -181,7 +181,7 @@ struct PortfolioRepositoryTests {
   /// exactly what makes the defect expensive.
   @Test("four simultaneous reads make one request")
   func concurrentReadsShareOneRequest() async throws {
-    let client = CountingClient(response: .success(Fixtures.response(.french)))
+    let client = HTTPClientSpy(response: .success(Fixtures.response(.french)))
     let repository = makeRepository(client: client)
 
     await withTaskGroup(of: Void.self) { group in
@@ -197,7 +197,7 @@ struct PortfolioRepositoryTests {
 
   @Test("two languages asked at once make two requests")
   func languagesAreNotShared() async throws {
-    let client = CountingClient(response: .success(Fixtures.response(.french)))
+    let client = HTTPClientSpy(response: .success(Fixtures.response(.french)))
     let repository = makeRepository(client: client)
 
     async let fr = try? await repository.portfolio(in: .french, policy: .networkFirst)
@@ -212,7 +212,7 @@ struct PortfolioRepositoryTests {
   @Test("maps the API's real payload into domain entities")
   func decodesRealPayload() async throws {
     let repository = makeRepository(
-      client: CountingClient(response: .success(Fixtures.response(.french)))
+      client: HTTPClientSpy(response: .success(Fixtures.response(.french)))
     )
 
     let snapshot = try await repository.portfolio(in: .french, policy: .networkFirst)
@@ -231,7 +231,7 @@ struct PortfolioRepositoryTests {
   @Test("refuses a response served in the wrong language")
   func refusesWrongLanguage() async {
     let repository = makeRepository(
-      client: CountingClient(response: .success(Fixtures.response(.english)))
+      client: HTTPClientSpy(response: .success(Fixtures.response(.english)))
     )
 
     do {
@@ -254,10 +254,10 @@ struct PortfolioRepositoryTests {
   /// itself.
   @Test("caches the received bytes verbatim")
   func cachesRawBytes() async throws {
-    let store = MemoryStore()
+    let store = LocalStoreStub()
     let received = try #require(Fixtures.payload(.french))
     let repository = makeRepository(
-      client: CountingClient(response: .success(Fixtures.response(.french))),
+      client: HTTPClientSpy(response: .success(Fixtures.response(.french))),
       store: store
     )
 
@@ -265,5 +265,79 @@ struct PortfolioRepositoryTests {
 
     let key = try #require(StorageKey("portfolio-fr.json"))
     #expect(await store.read(key)?.data == received)
+  }
+}
+
+/// Being offline is a **fact the system knows**, not a conclusion to be reached
+/// after fifteen seconds of waiting.
+struct OfflineShortCircuitTests {
+  private func makeRepository(
+    client: HTTPClientSpy,
+    store: LocalStoreStub = LocalStoreStub(),
+    seed: any SeedProviding = EmptySeedStub(),
+    connectivity: ConnectivityStatus
+  ) -> PortfolioRepository {
+    PortfolioRepository(
+      client: client,
+      store: store,
+      seed: seed,
+      connectivity: StaticConnectivity(connectivity)
+    )
+  }
+
+  /// The behaviour this replaces: fire a request that cannot leave, wait for the
+  /// timeout, fall back. The person waited to be told what the system already
+  /// knew — and the request count is how you prove it stopped happening.
+  @Test("a known-offline device does not send the request at all")
+  func offlineSkipsTheNetwork() async throws {
+    let client = HTTPClientSpy(response: .success(Fixtures.response(.french)))
+    let repository = makeRepository(
+      client: client,
+      seed: SeedDataSourceStub(),
+      connectivity: .offline
+    )
+
+    let snapshot = try await repository.portfolio(in: .french, policy: .networkFirst)
+
+    #expect(await client.sendCount == 0, "the request left despite a known-down path")
+    #expect(snapshot.refreshFailure == .unreachable, "the screen must be able to say why")
+  }
+
+  /// With nothing local and no route, there is genuinely nothing to show — and
+  /// that is the one case that earns a full error screen.
+  @Test("a known-offline device with nothing local says so")
+  func offlineWithNothingLocal() async {
+    let repository = makeRepository(
+      client: HTTPClientSpy(response: .success(Fixtures.response(.french))),
+      connectivity: .offline
+    )
+
+    await #expect(throws: ContentUnavailable.nothingAvailable) {
+      try await repository.portfolio(in: .french, policy: .networkFirst)
+    }
+  }
+
+  /// ⚠️ The distinction the three-case status exists for. Before the first path
+  /// update lands, the monitor answers `.unknown` — and treating that as offline
+  /// would short-circuit the very first load of every launch.
+  @Test("an unknown path is not a reason to give up")
+  func unknownStillTries() async throws {
+    let client = HTTPClientSpy(response: .success(Fixtures.response(.french)))
+    let repository = makeRepository(client: client, connectivity: .unknown)
+
+    let snapshot = try await repository.portfolio(in: .french, policy: .networkFirst)
+
+    #expect(await client.sendCount == 1)
+    #expect(snapshot.origin == .network)
+  }
+
+  @Test("an expensive but working path is still a working path")
+  func expensiveStillTries() async throws {
+    let client = HTTPClientSpy(response: .success(Fixtures.response(.french)))
+    let repository = makeRepository(client: client, connectivity: .online(isExpensive: true))
+
+    _ = try await repository.portfolio(in: .french, policy: .networkFirst)
+
+    #expect(await client.sendCount == 1)
   }
 }

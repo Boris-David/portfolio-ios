@@ -42,7 +42,7 @@ let package = Package(
   dependencies: [
     .package(path: "../Domain"),
     .package(path: "../Networking"),
-    .package(path: "../Persistence"),
+    .package(path: "../Core"),
   ],
   targets: [
     .target(
@@ -50,7 +50,7 @@ let package = Package(
       dependencies: [
         .product(name: "Domain", package: "Domain"),
         .product(name: "Networking", package: "Networking"),
-        .product(name: "Persistence", package: "Persistence"),
+        .product(name: "Core", package: "Core"),
       ],
       // The bundled seed — produced from the API by `Scripts/seed.sh`, never
       // written by hand. A hand-written snapshot is a second source of truth.

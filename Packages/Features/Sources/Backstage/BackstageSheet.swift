@@ -1,7 +1,7 @@
+import CoreUI
 import DesignSystem
 import Domain
 import SwiftUI
-import Textual
 import ViewKit
 
 /// A component's explanation, in detail.
@@ -145,7 +145,7 @@ package struct BackstageSheet: View {
   /// Dynamic Type and selection that come with it, instead of a rebuilt view
   /// tree.
   private func markdown(_ source: String) -> some View {
-    StructuredText(markdown: source)
+    MarkdownText(source)
       .font(Typography.body)
       .foregroundStyle(Color.ink2)
       .frame(maxWidth: .infinity, alignment: .leading)

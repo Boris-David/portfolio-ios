@@ -12,13 +12,13 @@ struct MappingTests {
     ("2023-05", 2023, 5), ("2020-10", 2020, 10),
   ])
   func yearMonth(_ raw: String, _ year: Int, _ month: Int) throws {
-    let value = try PortfolioMapping.yearMonth(raw, at: "test")
+    let value = try PortfolioMapper.yearMonth(raw, at: "test")
     #expect(value == YearMonth(year: year, month: month))
   }
 
   @Test("lit une année seule")
   func yearOnly() throws {
-    #expect(try PortfolioMapping.yearMonth("2025", at: "test") == YearMonth(year: 2025))
+    #expect(try PortfolioMapper.yearMonth("2025", at: "test") == YearMonth(year: 2025))
   }
 
   @Test("refuse une date illisible, en nommant le champ", arguments: [
@@ -26,7 +26,7 @@ struct MappingTests {
   ])
   func refusesBadDate(_ raw: String) {
     #expect(throws: MappingError.self) {
-      try PortfolioMapping.yearMonth(raw, at: "experience[x].start")
+      try PortfolioMapper.yearMonth(raw, at: "experience[x].start")
     }
   }
 
@@ -35,13 +35,13 @@ struct MappingTests {
   ])
   func refusesInsecureURL(_ raw: String) {
     #expect(throws: MappingError.self) {
-      try PortfolioMapping.url(raw, at: "profile.contact.links[github].url")
+      try PortfolioMapper.url(raw, at: "profile.contact.links[github].url")
     }
   }
 
   @Test("accepte une URL https")
   func acceptsHTTPS() throws {
-    let url = try PortfolioMapping.url("https://amissan.dev", at: "test")
+    let url = try PortfolioMapper.url("https://amissan.dev", at: "test")
     #expect(url == "https://amissan.dev")
   }
 
@@ -50,7 +50,7 @@ struct MappingTests {
   /// would be out of proportion. The opposite of an application role.
   @Test("un style de texte inconnu ne fait pas échouer la charge")
   func unknownEmphasisIsLenient() {
-    let text = PortfolioMapping.richText([
+    let text = PortfolioMapper.richText([
       SpanDTO(text: "a", style: "strong"),
       SpanDTO(text: "b", style: "inconnu"),
       SpanDTO(text: "c", style: "code"),

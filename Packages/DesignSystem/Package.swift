@@ -1,7 +1,19 @@
 // swift-tools-version: 6.2
 import PackageDescription
 
-/// Colour, type, motion, and the components built from them.
+/// The **visual language**: colour, type, motion. Values, and nothing that
+/// draws.
+///
+/// ## Why the components left
+///
+/// They moved to `CoreUI` on 2026-09-18, and the line between the two is worth
+/// stating: a design system describes *what things look like*; a component
+/// library *is* the things. Keeping both here made the package impossible to
+/// consume from anywhere that is not SwiftUI.
+///
+/// Now it can be: a PDF generator, an app extension, a watchOS target one day.
+/// A palette knows no component; a component knows its palette. The dependency
+/// runs one way, and it is `CoreUI` that declares it.
 ///
 /// ## Why a package and not a target
 ///
@@ -10,13 +22,8 @@ import PackageDescription
 /// **impossibility**: this package does not depend on `Domain`, so
 /// `import Domain` cannot resolve. Nothing to remember, nothing to check.
 ///
-/// Two things follow, and they are the real point:
-///
-/// - **it is reusable.** A design system that cannot leave its application was
-///   never a design system, it was a folder of views. This one builds, tests
-///   and previews on its own;
-/// - **it versions on its own.** The day it moves to its own repository,
-///   nothing changes here but a URL.
+/// And it **versions on its own**. The day it moves to its own repository,
+/// nothing changes here but a URL.
 ///
 /// ## Where its values come from
 ///
@@ -28,20 +35,11 @@ let package = Package(
   name: "DesignSystem",
   platforms: [.iOS(.v18)],
   products: [.library(name: "DesignSystem", targets: ["DesignSystem"])],
-  dependencies: [
-    // Vector animation that neither SwiftUI nor Core Animation can read:
-    // interpolated Bézier paths, masks, motion along a curve. Reimplementing an
-    // After Effects interpreter is not "less convenient", it is a project of its
-    // own — which is exactly the test a dependency has to pass.
-    .package(url: "https://github.com/airbnb/lottie-ios", from: "4.6.1"),
-  ],
+  // Empty, and that is the point. A design language that needed a rendering
+  // library would not be a language, it would be a renderer.
+  dependencies: [],
   targets: [
-    .target(
-      name: "DesignSystem",
-      dependencies: [.product(name: "Lottie", package: "lottie-ios")],
-      resources: [.process("Resources")],
-      swiftSettings: .strict
-    ),
+    .target(name: "DesignSystem", swiftSettings: .strict),
     .testTarget(name: "DesignSystemTests", dependencies: ["DesignSystem"], swiftSettings: .strict),
   ],
   swiftLanguageModes: [.v6]

@@ -6,7 +6,7 @@ import PackageDescription
 /// ## What this manifest forbids, by omission
 ///
 /// Three names are missing from `dependencies:`, and their absence is the
-/// design: `Networking`, `Persistence`, `Data`. A screen that writes
+/// design: `Networking`, `Core`, `Data`. A screen that writes
 /// `import Networking` does not get a review comment, it gets "no such module".
 /// Dependency inversion held by the resolver rather than by vigilance.
 ///
@@ -64,13 +64,13 @@ let package = Package(
     .package(path: "../Presentation"),
     .package(path: "../DesignSystem"),
 
-    // Textual: Markdown rendered into a native `AttributedString`. The same
-    // author maintained MarkdownUI, now in maintenance mode and pointing here.
+    // The components, and the only package that knows Lottie, Textual and
+    // PDFKit exist. No screen in here may name a rendering library: it asks
+    // `CoreUI` for a `MarkdownText`, a `LottieAnimation`, a `PDFPreview`.
     //
-    // ⚠️ A **0.x** version: semver promises nothing before 1.0, and a minor
-    // release is allowed to break. Hence `upToNextMinor` rather than `from` —
-    // patches are taken, minor bumps are a decision.
-    .package(url: "https://github.com/gonzalezreal/textual", .upToNextMinor(from: "0.5.0")),
+    // That is not a review rule — this manifest does not declare Textual, so
+    // `import Textual` in a screen answers "no such module".
+    .package(path: "../CoreUI"),
   ],
   targets: [
     // ─────────────────────────────────────────────────────────────────────
@@ -90,6 +90,7 @@ let package = Package(
         .product(name: "Domain", package: "Domain"),
         .product(name: "Presentation", package: "Presentation"),
         .product(name: "DesignSystem", package: "DesignSystem"),
+        .product(name: "CoreUI", package: "CoreUI"),
       ],
       swiftSettings: .strict
     ),
@@ -104,7 +105,7 @@ let package = Package(
       dependencies: [
         .product(name: "Domain", package: "Domain"),
         .product(name: "DesignSystem", package: "DesignSystem"),
-        .product(name: "Textual", package: "textual"),
+        .product(name: "CoreUI", package: "CoreUI"),
         "ViewKit",
       ],
       swiftSettings: .strict

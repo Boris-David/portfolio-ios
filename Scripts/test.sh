@@ -25,10 +25,11 @@ cd "$ROOT"
 SUITES=(
   DomainTests
   NetworkingTests
-  PersistenceTests
+  CoreTests
   DataTests
   PresentationTests
   DesignSystemTests
+  CoreUITests
   ViewKitTests
   BackstageTests
   CompositionTests

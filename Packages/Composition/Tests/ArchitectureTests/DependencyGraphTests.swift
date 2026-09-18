@@ -56,8 +56,8 @@ struct DependencyGraphTests {
   }
 
   private static let layers = [
-    "Domain", "Networking", "Persistence", "Data",
-    "Presentation", "DesignSystem", "Features", "Composition",
+    "Domain", "Networking", "Core", "Data",
+    "Presentation", "DesignSystem", "CoreUI", "Features", "Composition",
   ]
 
   @Test("every layer is a package of its own")
@@ -85,7 +85,7 @@ struct DependencyGraphTests {
 
   /// `Networking` speaks HTTP, not portfolio. `Persistence` writes bytes, not
   /// entities. That is what lets each be tested knowing nothing of the other.
-  @Test("the technical layers ignore the domain", arguments: ["Networking", "Persistence"])
+  @Test("the technical layers ignore the domain", arguments: ["Networking", "Core"])
   func infrastructureIgnoresDomain(_ layer: String) {
     #expect(packages(of: layer).isEmpty)
   }
@@ -94,7 +94,7 @@ struct DependencyGraphTests {
   /// decided in `Composition` and nowhere else.
   @Test("no screen can reach the network, the disk, or the data layer")
   func featuresSeeNoInfrastructure() {
-    let forbidden: Set<String> = ["Networking", "Persistence", "Data"]
+    let forbidden: Set<String> = ["Networking", "Core", "Data"]
     let leaked = packages(of: "Features").intersection(forbidden)
     #expect(
       leaked.isEmpty,
@@ -110,21 +110,46 @@ struct DependencyGraphTests {
     #expect(packages(of: "Presentation") == ["Domain"])
   }
 
-  /// The design system must never learn what a profile is. It is a package of
-  /// its own precisely so that `import Domain` cannot resolve there.
-  @Test("the design system knows nothing of the domain")
+  /// The design system must never learn what a profile is, nor how anything is
+  /// drawn. It is the visual **language**: values, and nothing that renders.
+  @Test("the design system depends on nothing at all")
   func designSystemIsIndependent() {
     #expect(packages(of: "DesignSystem").isEmpty)
-    #expect(Self.manifests["DesignSystem"]?.contains("lottie-ios") == true)
+    #expect(Self.manifests["DesignSystem"]?.contains("lottie-ios") == false,
+            "a design language that needs a rendering library is a renderer")
+  }
+
+  /// `Core` is the junk-drawer risk of this repository: everybody depends on it,
+  /// so anything admitted becomes global. The empty dependency list is the only
+  /// structural thing that keeps it honest.
+  @Test("Core depends on nothing, and therefore cannot smuggle the domain in")
+  func coreDependsOnNothing() {
+    #expect(packages(of: "Core").isEmpty)
+    #expect(Self.manifests["Core"]?.contains("dependencies: []") == true)
+  }
+
+  /// The rendering libraries are declared in exactly one manifest. That is what
+  /// makes `import Textual` in a screen answer "no such module" rather than
+  /// compile and spread.
+  @Test("only CoreUI declares a rendering library", arguments: ["lottie-ios", "textual"])
+  func onlyCoreUIDeclaresLibraries(_ library: String) {
+    let declaring = Self.layers.filter { Self.manifests[$0]?.contains(library) == true }
+    #expect(declaring == ["CoreUI"], "\(library) is declared by \(declaring.joined(separator: ", "))")
+  }
+
+  /// A component knows its palette; a palette knows no component.
+  @Test("CoreUI builds on the design language, not the other way round")
+  func coreUIDependsOnDesignSystem() {
+    #expect(packages(of: "CoreUI") == ["DesignSystem"])
   }
 
   /// `Data` is the only place where the domain and the plumbing meet — which is
   /// the whole reason it is allowed to name all three.
   @Test("the data layer is the only one that sees both sides")
   func dataIsTheOnlyMeetingPoint() {
-    #expect(packages(of: "Data") == ["Domain", "Networking", "Persistence"])
+    #expect(packages(of: "Data") == ["Domain", "Networking", "Core"])
     for layer in Self.layers where layer != "Data" && layer != "Composition" {
-      let both = packages(of: layer).intersection(["Networking", "Persistence"])
+      let both = packages(of: layer).intersection(["Networking", "Core"])
       #expect(both.isEmpty, "\(layer) also reaches the plumbing")
     }
   }

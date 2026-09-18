@@ -48,18 +48,26 @@ packages:
   # Only `Composition` is referenced by the app target. It is the composition
   # root, and it pulls the rest transitively — the app itself has no way to
   # import `Networking` either.
+  #
+  # ⚠️ Every package is listed here even though the app names one. A package
+  # left out still builds — it is reached transitively — but Xcode never
+  # surfaces its test target, so `xcodebuild test -scheme CoreUITests` answers
+  # "no such scheme" and the suite silently stops running. Found exactly that
+  # way, on a package added an hour earlier.
   Domain:
     path: Packages/Domain
   Networking:
     path: Packages/Networking
-  Persistence:
-    path: Packages/Persistence
+  Core:
+    path: Packages/Core
   Data:
     path: Packages/Data
   Presentation:
     path: Packages/Presentation
   DesignSystem:
     path: Packages/DesignSystem
+  CoreUI:
+    path: Packages/CoreUI
   Features:
     path: Packages/Features
   Composition:

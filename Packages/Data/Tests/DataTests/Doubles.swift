@@ -1,14 +1,14 @@
+import Core
 import Domain
 import Foundation
 import Networking
-import Persistence
 @testable import Data
 
 /// A transport that returns what it was told to, and **counts** its calls.
 ///
 /// The count is the subject of this module's most important test: four reads of
 /// the content must produce one request.
-actor CountingClient: HTTPClient {
+actor HTTPClientSpy: HTTPClient {
   private(set) var sendCount = 0
   private(set) var downloadCount = 0
   private var response: Result<HTTPResponse, HTTPError>
@@ -47,7 +47,7 @@ actor CountingClient: HTTPClient {
 
 /// In-memory storage — `Data`'s tests are about policy, not about disks. The
 /// disk has tests of its own.
-actor MemoryStore: LocalStore {
+actor LocalStoreStub: LocalStore {
   private var values: [String: StoredValue] = [:]
   private let directory = URL(fileURLWithPath: NSTemporaryDirectory())
 
@@ -66,7 +66,7 @@ actor MemoryStore: LocalStore {
 }
 
 /// A seed served from the test's fixtures.
-struct FixtureSeed: SeedProviding {
+struct SeedDataSourceStub: SeedProviding {
   let builtAt = Date(timeIntervalSince1970: 1_600_000_000)
   func data(for language: Language) -> Data? { Fixtures.payload(language) }
 }

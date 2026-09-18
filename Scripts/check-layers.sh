@@ -29,11 +29,38 @@ RULES=(
   "Domain:SwiftUI,UIKit,AppKit,Combine"
   "Presentation:SwiftUI,UIKit,AppKit,DesignSystem"
   "Networking:SwiftUI,UIKit,AppKit,Domain"
-  "Persistence:SwiftUI,UIKit,AppKit,Domain"
-  "DesignSystem:Domain,Presentation"
+  "Core:SwiftUI,UIKit,AppKit,Domain,Networking,Data,Presentation,DesignSystem"
+  "DesignSystem:Domain,Presentation,Lottie,Textual,PDFKit,CoreUI"
 )
 
+# The rendering libraries are named in exactly one package.
+#
+# Stated by the author: "I must not have `import Textual` in my code files, but
+# `import CoreUI` — so that the day I change library, I do not have to change an
+# import."
+#
+# The manifests already enforce it: no other package declares Lottie or Textual,
+# so the import would not resolve. `PDFKit` is different — it ships with the SDK,
+# like SwiftUI, so nothing but this guard can keep it in its wrapper.
+# ⚠️ `status` is declared here, before the first guard that can set it.
+# It used to be declared between the two loops, so the library check found its
+# violation, set `status=1` — and the next line reset it to 0. The guard ran,
+# reported nothing, and passed. Found by the mutation test, which is the only
+# thing that would have found it.
 status=0
+
+LIBRARIES="Textual Lottie PDFKit"
+for library in $LIBRARIES; do
+  hits="$(grep -rln "^import $library\$" Packages --include="*.swift" 2>/dev/null \
+    | grep -v '^Packages/CoreUI/' || true)"
+  if [ -n "$hits" ]; then
+    echo "✖ $library is imported outside CoreUI:" >&2
+    printf '    %s\n' $hits >&2
+    echo "  Wrap it in CoreUI instead — that is what makes it replaceable." >&2
+    status=1
+  fi
+done
+
 for rule in "${RULES[@]}"; do
   layer="${rule%%:*}"
   IFS=',' read -ra forbidden <<< "${rule#*:}"

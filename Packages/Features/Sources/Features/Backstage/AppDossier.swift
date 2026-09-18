@@ -1,3 +1,4 @@
+import CoreUI
 import Domain
 import Foundation
 import Presentation
@@ -642,7 +643,7 @@ package enum AppDossier {
         .init(actor: "JSONDecoder", does: Bilingual(
           fr: "décode — et son `codingPath` donne gratuitement le chemin du champ fautif",
           en: "decodes — and its `codingPath` hands you the faulty field's path for free")),
-        .init(actor: "PortfolioMapping", does: Bilingual(
+        .init(actor: "PortfolioMapper", does: Bilingual(
           fr: "valide ce que le domaine ne peut pas accepter : un rôle inconnu **lève**, il ne se replie pas",
           en: "validates what the domain cannot accept: an unknown role **throws**, it does not fall back")),
         .init(actor: "PortfolioRepository", does: Bilingual(

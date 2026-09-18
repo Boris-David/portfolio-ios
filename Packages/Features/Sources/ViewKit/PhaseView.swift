@@ -58,13 +58,13 @@ package struct PhaseView<Value: Sendable, Content: View, Skeleton: View>: View {
   private var isPending: Bool { phase.isPending }
 }
 
-package extension PhaseView where Skeleton == LoadingSkeleton {
+package extension PhaseView where Skeleton == LoadingSkeletonView {
   /// The design system's default skeleton.
   init(
     _ phase: ViewPhase<Value>,
     retry: (() -> Void)? = nil,
     @ViewBuilder content: @escaping (Value) -> Content
   ) {
-    self.init(phase, retry: retry, skeleton: { LoadingSkeleton() }, content: content)
+    self.init(phase, retry: retry, skeleton: { LoadingSkeletonView() }, content: content)
   }
 }

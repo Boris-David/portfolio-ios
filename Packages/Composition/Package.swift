@@ -24,10 +24,11 @@ let package = Package(
   dependencies: [
     .package(path: "../Domain"),
     .package(path: "../Networking"),
-    .package(path: "../Persistence"),
+    .package(path: "../Core"),
     .package(path: "../Data"),
     .package(path: "../Presentation"),
     .package(path: "../DesignSystem"),
+    .package(path: "../CoreUI"),
     .package(path: "../Features"),
   ],
   targets: [
@@ -36,10 +37,11 @@ let package = Package(
       dependencies: [
         .product(name: "Domain", package: "Domain"),
         .product(name: "Networking", package: "Networking"),
-        .product(name: "Persistence", package: "Persistence"),
+        .product(name: "Core", package: "Core"),
         .product(name: "Data", package: "Data"),
         .product(name: "Presentation", package: "Presentation"),
         .product(name: "DesignSystem", package: "DesignSystem"),
+        .product(name: "CoreUI", package: "CoreUI"),
         .product(name: "Features", package: "Features"),
       ],
       swiftSettings: .strict

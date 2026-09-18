@@ -1,3 +1,4 @@
+import CoreUI
 import DesignSystem
 import Domain
 import SwiftUI
@@ -48,39 +49,5 @@ package struct RichTextView: View {
     case .code:
       Text(span.text).font(Typography.code).foregroundColor(.accent)
     }
-  }
-}
-
-
-/// A line of **inline** Markdown — bold, italic, code, links.
-///
-/// ## Why not just `Text(string)`
-///
-/// `Text` treats a `String` as literal text: `*is*` shows with its asterisks,
-/// and `` `import` `` with its backticks. The defect was visible on screen, in
-/// the Backstage tab — an app that explains the care it takes over details while
-/// displaying raw markup contradicts itself.
-///
-/// `Text(LocalizedStringKey)` **interprets** inline Markdown, which is exactly
-/// what is needed here. It handles neither lists nor code blocks — for those,
-/// Textual's `StructuredText`, which costs a dependency and is worth its price
-/// in a technical explanation, not in an introductory sentence.
-package struct InlineMarkdown: View {
-  private let source: String
-  private let font: Font
-  private let color: Color
-
-  public init(_ source: String, font: Font = Typography.body, color: Color = .ink2) {
-    self.source = source
-    self.font = font
-    self.color = color
-  }
-
-  public var body: some View {
-    Text(LocalizedStringKey(source))
-      .font(font)
-      .foregroundStyle(color)
-      .fixedSize(horizontal: false, vertical: true)
-      .frame(maxWidth: .infinity, alignment: .leading)
   }
 }

@@ -1,4 +1,5 @@
 import Backstage
+import CoreUI
 import DesignSystem
 import Domain
 import FeatureKit
@@ -27,7 +28,7 @@ struct HeroBlock: View {
         // The stroke draws under the name: a signature, not a decoration. It
         // is **decorative** in the accessibility sense — VoiceOver has nothing
         // to say about it — so it is hidden rather than announced as "image".
-        LottieAnimationView("signature", bundle: .designSystem)
+        LottieAnimation("signature", bundle: .coreUI)
           .frame(height: 34)
           .frame(maxWidth: 260, alignment: .leading)
           .accessibilityHidden(true)
@@ -420,7 +421,7 @@ struct ExpertiseBlock: View {
 }
 
 /// A subject's detail.
-struct ExpertiseDetail: View {
+struct ExpertiseDetailView: View {
   let topic: ExpertiseTopic
 
   var body: some View {

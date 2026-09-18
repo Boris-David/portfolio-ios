@@ -1,8 +1,8 @@
 import Backstage
+import CoreUI
 import DesignSystem
 import Domain
 import FeatureKit
-import PDFKit
 import Presentation
 import SwiftUI
 import ViewKit
@@ -31,7 +31,7 @@ public struct ResumeScreen: View {
         case .failed(let failure):
           FailureView(failure: PhaseFailure(failure, chrome: chrome)) { model.load() }
         case .ready(let document):
-          PDFDocumentView(url: document.fileURL)
+          PDFPreview(url: document.fileURL)
             .ignoresSafeArea(edges: .bottom)
             .backstage(Self.pdfNote)
         }
@@ -289,28 +289,5 @@ final class ResumeModel {
         state = .failed(.unreachable)
       }
     }
-  }
-}
-
-/// The bridge to PDFKit.
-struct PDFDocumentView: UIViewRepresentable {
-  let url: URL
-
-  func makeUIView(context: Context) -> PDFView {
-    let view = PDFView()
-    view.displayMode = .singlePageContinuous
-    view.displayDirection = .vertical
-    view.backgroundColor = .clear
-    view.document = PDFDocument(url: url)
-    // Order matters: `autoScales` measures the current page. Set before the
-    // document, it has nothing to measure and the scale stays at 1.
-    view.autoScales = true
-    return view
-  }
-
-  func updateUIView(_ view: PDFView, context: Context) {
-    guard view.document?.documentURL != url else { return }
-    view.document = PDFDocument(url: url)
-    view.autoScales = true
   }
 }

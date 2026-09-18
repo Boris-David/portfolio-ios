@@ -1,4 +1,5 @@
 import Backstage
+import CoreUI
 import DesignSystem
 import Domain
 import FeatureKit
