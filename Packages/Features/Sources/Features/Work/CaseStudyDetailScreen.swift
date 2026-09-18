@@ -31,7 +31,7 @@ public struct CaseStudyDetailScreen: View {
               ChapterDisclosureView(number: index + 1, chapter: chapter)
             }
           }
-          .backstage(Self.disclosureNote)
+          .backstage(WorkNotes.disclosureNote)
         } else if let chapter = study.chapters.first {
           FlatChapterView(chapter: chapter)
         }
@@ -75,91 +75,6 @@ public struct CaseStudyDetailScreen: View {
     .frame(maxWidth: .infinity, alignment: .leading)
   }
 
-  static let disclosureNote = BackstageNote(
-    id: "work.disclosure",
-    component: "Dépliage sur mesure · clipped",
-    role: Bilingual(
-      fr: "Déplie un chantier sans faire sauter la mise en page autour de lui.",
-      en: "Expands a workstream without making the surrounding layout jump."
-    ),
-    rationale: Bilingual(
-      fr: """
-        Le dépliage anime une **hauteur**, et c'est le cas le plus piégeux de \
-        SwiftUI : animer `frame(height:)` demande de connaître la hauteur finale \
-        avant de l'afficher, ce qu'on ne sait pas d'un texte de longueur \
-        variable.
-
-        La solution ici est de laisser le contenu **exister** en permanence et \
-        de n'animer que ce qui est mesurable : opacité et hauteur nulle, sous un \
-        `.clipped()`. La hauteur réelle est laissée à SwiftUI, qui l'interpole \
-        dès lors que le changement est dans une `withAnimation`.
-
-        Conséquence heureuse : le texte replié est **dans l'arbre de vues**. La \
-        recherche système le trouve, et VoiceOver peut l'atteindre.
-        """,
-      en: """
-        Expansion animates a **height**, the trickiest case in SwiftUI: \
-        animating `frame(height:)` requires knowing the final height before \
-        showing it, which you cannot know for text of variable length.
-
-        The answer here is to let the content **exist** at all times and animate \
-        only what is measurable: opacity and a zero height, under a \
-        `.clipped()`. The real height is left to SwiftUI, which interpolates it \
-        as long as the change happens inside `withAnimation`.
-
-        A happy consequence: the collapsed text is **in the view tree**. System \
-        search finds it, and VoiceOver can reach it.
-        """
-    ),
-    rejected: [
-      .init(
-        Bilingual(fr: "`DisclosureGroup` natif", en: "The built-in `DisclosureGroup`"),
-        because: Bilingual(
-          fr: "son chevron, ses marges et son animation ne se redéfinissent pas assez pour tenir le design, et son étiquette n'accepte pas de mise en page libre",
-          en: "its chevron, insets and animation cannot be redefined enough to hold the design, and its label does not take a free-form layout"
-        )
-      ),
-      .init(
-        Bilingual(fr: "Ajouter et retirer la vue de l'arbre", en: "Adding and removing the view from the tree"),
-        because: Bilingual(
-          fr: "le contenu replié disparaît de la recherche et de VoiceOver, et la transition part de rien — donc elle saute",
-          en: "collapsed content disappears from search and VoiceOver, and the transition starts from nothing — so it jumps"
-        )
-      ),
-      .init(
-        Bilingual(fr: "Animer `frame(height:)` mesuré par `GeometryReader`", en: "Animating `frame(height:)` measured by `GeometryReader`"),
-        because: Bilingual(
-          fr: "une mesure par image, un aller-retour de mise en page à chaque fois, et un saut au premier affichage avant que la mesure n'existe",
-          en: "one measurement per frame, a layout round trip each time, and a jump on first display before the measurement exists"
-        )
-      ),
-    ],
-    whenToUse: Bilingual(
-      fr: """
-        Ce motif dès qu'un bloc de **hauteur inconnue** doit s'ouvrir et se \
-        fermer. Si la hauteur est connue et fixe, animer `frame` directement est \
-        plus simple et parfaitement correct.
-        """,
-      en: """
-        This pattern whenever a block of **unknown height** must open and close. \
-        If the height is known and fixed, animating `frame` directly is simpler \
-        and perfectly correct.
-        """
-    ),
-    pitfall: Bilingual(
-      fr: """
-        Sans `.clipped()`, le contenu replié **déborde** de son conteneur pendant \
-        l'animation et passe par-dessus les cartes voisines. On ne le voit que \
-        sur un appareil lent, ou en enregistrant l'écran au ralenti.
-        """,
-      en: """
-        Without `.clipped()`, collapsed content **overflows** its container \
-        during the animation and paints over neighbouring cards. You only see it \
-        on a slow device, or by recording the screen in slow motion.
-        """
-    ),
-    documentation: URL(string: "https://developer.apple.com/documentation/swiftui/disclosuregroup")
-  )
 }
 
 /// One expandable piece of work.

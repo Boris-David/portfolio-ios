@@ -103,6 +103,25 @@ for symbol in $(grep -rhoE "^public (struct|enum|final class|class|protocol|acto
   fi
 done
 
+# ── Content does not live in a view file ───────────────────────────────────
+#
+# Stated by the author, looking at a diff: *"strings like that, straight in the
+# views — it irritates me no end. Why don't the views only hold keys?"*
+#
+# They now hold neither. Every backstage annotation — bilingual prose about why a
+# component was chosen — lives in a `<Feature>Notes.swift` catalogue, and every
+# interface label lives in `AppChrome`. A screen names one and renders it.
+#
+# The numbers are the argument: `ProfileBlocks.swift` was 524 lines of which 330
+# were prose, and `ProfileScreen.swift` was 118 lines for a 54-line screen.
+#
+# This is what keeps them out.
+for file in $(grep -rln "BackstageNote(" Packages/Features/Sources --include="*.swift" 2>/dev/null \
+                | grep -v "Notes\.swift$" | grep -v "Sources/Backstage/" || true); do
+  echo "✖ $file declares a BackstageNote — content belongs in a <Feature>Notes.swift" >&2
+  status=1
+done
+
 if [ "$status" -ne 0 ]; then
   echo "" >&2
   echo "A layer reached for something it must not see. See Scripts/check-layers.sh." >&2

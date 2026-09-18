@@ -1,8 +1,10 @@
 import Backstage
 import CoreUI
+import Data
 import DesignSystem
 import Domain
 import FeatureKit
+import Foundation
 import Presentation
 import SwiftUI
 import ViewKit
@@ -54,7 +56,15 @@ public struct AppRoot: View {
   /// Launch flags are deliberately **not** a parameter here: they are a
   /// screenshot-automation concern, not something the app target should know how
   /// to pass. The designated initialiser below takes them so the tests can.
-  public init(environment: AppEnvironment = .live()) {
+  public init() {
+    let launch = LaunchArguments.current
+    // The base URL is read from the launch arguments before anything is built,
+    // because it decides which endpoints the whole graph is wired to.
+    let endpoints = launch.apiBaseURL.map(APIEndpoints.init(baseURL:)) ?? .production
+    self.init(environment: .live(endpoints: endpoints), launch: launch)
+  }
+
+  public init(environment: AppEnvironment) {
     self.init(environment: environment, launch: .current)
   }
 

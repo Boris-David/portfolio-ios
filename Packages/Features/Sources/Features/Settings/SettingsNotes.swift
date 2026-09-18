@@ -1,0 +1,189 @@
+import Backstage
+import Domain
+import Foundation
+
+/// The backstage annotations for the Settings screens.
+///
+/// ## Why the content left the view files
+///
+/// Because that is what it is: **content**. `ProfileBlocks.swift` was 524 lines,
+/// of which 330 were bilingual prose about why a component was chosen — a view
+/// file whose majority was not a view.
+///
+/// Stated plainly by the author: *"changing a piece of text should not mean
+/// touching the code of a view or a screen."* It should not, and now it does
+/// not. A screen says `.backstage(SettingsNotes.hero)`; what that note says
+/// lives here, and editing it never reopens a `body`.
+///
+/// ## Why this is not a string catalogue
+///
+/// A `.xcstrings` catalogue follows the **device's** language. This app's
+/// displayed language follows the **content** the source serves, and the two
+/// have disagreed on screen before — French tabs above English text, on the very
+/// first launch. `Bilingual` carries both versions in one declaration, two lines
+/// apart, and a missing translation is a **compile error** rather than a silent
+/// fallback to the key.
+enum SettingsNotes {
+  static let formNote = BackstageNote(
+    id: "settings.form",
+    component: "Form · Section",
+    role: Bilingual(
+      fr: "Donne à cet écran la forme des Réglages du système.",
+      en: "Gives this screen the shape of the system's own Settings."
+    ),
+    rationale: Bilingual(
+      fr: """
+        Un écran de réglages qui ne ressemble pas à celui d'iOS fait travailler \
+        le lecteur pour rien. `Form` apporte le regroupement, les marges, le \
+        retrait des séparateurs, l'évitement du clavier et le comportement en \
+        Dynamic Type — autant de détails qu'on redérive à l'œil et qu'on rate \
+        subtilement.
+        """,
+      en: """
+        A settings screen that does not look like the system's makes the reader \
+        work for nothing. `Form` brings the grouping, the insets, the separator \
+        inset, keyboard avoidance and the Dynamic Type behaviour — all details \
+        otherwise re-derived by eye and got subtly wrong.
+        """
+    ),
+    rejected: [
+      .init(
+        Bilingual(fr: "Une `List` et des lignes maison", en: "A `List` with hand-built rows"),
+        because: Bilingual(
+          fr: "Il faut alors refaire les en-têtes, les bas de section et les marges — et ils dérivent à chaque version d'iOS.",
+          en: "You then rebuild headers, footers and insets — and they drift with every iOS release."
+        )
+      ),
+      .init(
+        Bilingual(fr: "Un cinquième onglet", en: "A fifth tab"),
+        because: Bilingual(
+          fr: "Un onglet est une destination de contenu. Les réglages s'ouvrent, se changent, se referment.",
+          en: "A tab is a content destination. Settings open, change one thing, and close."
+        )
+      ),
+    ],
+    whenToUse: Bilingual(
+      fr: "Dès qu'un écran est une liste de préférences. Pas pour de la mise en page libre, où `Form` impose sa structure.",
+      en: "Whenever a screen is a list of preferences. Not for free-form layout, where `Form` imposes its structure."
+    ),
+    pitfall: Bilingual(
+      fr: "`Form` applique ses propres marges : y poser un conteneur déjà espacé produit un décalage qu'on cherche ensuite dans le mauvais fichier.",
+      en: "`Form` applies its own insets: putting an already-padded container inside produces an offset you then hunt in the wrong file."
+    ),
+    documentation: URL(string: "https://developer.apple.com/documentation/swiftui/form")
+  )
+
+  static let pickerNote = BackstageNote(
+    id: "settings.picker",
+    component: "Picker · .segmented",
+    role: Bilingual(
+      fr: "Trois apparences, toutes visibles, une seule choisie.",
+      en: "Three appearances, all visible, one chosen."
+    ),
+    rationale: Bilingual(
+      fr: """
+        Un segmenté se justifie à **trois choix courts et mutuellement \
+        exclusifs** : tout est lisible d'un coup d'œil, et le choix se fait en \
+        un geste. Au-delà de quatre, les libellés se tronquent et le contrôle \
+        devient une devinette.
+        """,
+      en: """
+        A segmented control earns its place at **three short, mutually \
+        exclusive choices**: everything is legible at a glance, and choosing \
+        takes one gesture. Past four, the labels truncate and the control \
+        becomes a guessing game.
+        """
+    ),
+    rejected: [
+      .init(
+        Bilingual(fr: "Un `Menu` déroulant", en: "A pull-down `Menu`"),
+        because: Bilingual(
+          fr: "Il cache les options : on ne sait ce qu'on peut choisir qu'après avoir tapé.",
+          en: "It hides the options: you only learn what you can choose after tapping."
+        )
+      ),
+      .init(
+        Bilingual(fr: "Un `Toggle` clair/sombre", en: "A light/dark `Toggle`"),
+        because: Bilingual(
+          fr: "Deux états ne peuvent pas exprimer « suivre l'appareil », qui est le défaut et une valeur à part entière.",
+          en: "Two states cannot express “follow the device”, which is the default and a value in its own right."
+        )
+      ),
+    ],
+    whenToUse: Bilingual(
+      fr: "Deux à quatre options courtes qu'on veut toutes montrer. La langue, juste en dessous, emploie une liste : les libellés y sont des noms de langues, et ils s'allongent.",
+      en: "Two to four short options you want all visible. Language, just below, uses a list instead: its labels are language names, and they grow."
+    ),
+    pitfall: Bilingual(
+      fr: """
+        Il **plafonne sa police** : aux tailles d'accessibilité, tout l'écran \
+        grossit et lui reste petit. Ce n'est pas un défaut — c'est ce qui garde \
+        les trois options sur une ligne — mais ça se voit, et ça veut dire qu'un \
+        segmenté ne peut pas porter un libellé qu'on a besoin de lire en grand.
+
+        Vérifié en capture à `accessibility-extra-extra-extra-large`. La note \
+        disait auparavant qu'ils « se chevauchent » : c'était faux, et écrit \
+        avant d'avoir regardé.
+        """,
+      en: """
+        It **caps its own font**: at the accessibility sizes the whole screen \
+        grows and this stays small. That is not a defect — it is what keeps the \
+        three options on one line — but it shows, and it means a segmented \
+        control cannot carry a label somebody needs to read large.
+
+        Verified in a capture at `accessibility-extra-extra-extra-large`. This \
+        note previously claimed the labels "overlap": that was wrong, and \
+        written before anybody looked.
+        """
+    ),
+    documentation: URL(string: "https://developer.apple.com/documentation/swiftui/picker")
+  )
+
+  static let confirmationNote = BackstageNote(
+    id: "settings.confirmation",
+    component: "confirmationDialog",
+    role: Bilingual(
+      fr: "Demande confirmation avant de remettre les réglages à zéro.",
+      en: "Asks before putting the settings back to their defaults."
+    ),
+    rationale: Bilingual(
+      fr: """
+        `alert` et `confirmationDialog` ne disent pas la même chose. Une \
+        **alerte** interrompt pour un choix qu'on ne pourra pas défaire ; un \
+        **dialogue de confirmation** propose des options, monte depuis le \
+        bouton qui l'a déclenché, et se referme d'un geste vers le bas.
+        """,
+      en: """
+        `alert` and `confirmationDialog` do not say the same thing. An **alert** \
+        interrupts for a choice that cannot be undone; a **confirmation \
+        dialog** offers options, rises from the button that triggered it, and \
+        dismisses with a swipe.
+        """
+    ),
+    rejected: [
+      .init(
+        Bilingual(fr: "Une `alert`", en: "An `alert`"),
+        because: Bilingual(
+          fr: "Réinitialiser trois préférences se défait en trois gestes. Une alerte pour ça apprend au lecteur à les ignorer.",
+          en: "Resetting three preferences is undone in three gestures. An alert for that teaches the reader to dismiss them."
+        )
+      ),
+      .init(
+        Bilingual(fr: "Aucune confirmation", en: "No confirmation at all"),
+        because: Bilingual(
+          fr: "Un bouton destructif atteint par erreur doit pouvoir être rattrapé avant, pas après.",
+          en: "A destructive button reached by accident has to be catchable before, not after."
+        )
+      ),
+    ],
+    whenToUse: Bilingual(
+      fr: "Un choix entre plusieurs options, ou une action destructive réversible. Au-delà de trois boutons, c'est un écran.",
+      en: "A choice between several options, or a reversible destructive action. Past three buttons, it is a screen."
+    ),
+    pitfall: Bilingual(
+      fr: "Sur iPad il se rend en popover ancré à la source : sans source identifiable, il apparaît au centre et on ne sait plus ce qu'il concerne.",
+      en: "On iPad it renders as a popover anchored to its source: with no identifiable source it appears centred, and nobody knows what it refers to."
+    ),
+    documentation: URL(string: "https://developer.apple.com/documentation/swiftui/view/confirmationdialog(_:ispresented:titlevisibility:actions:)")
+  )
+}
