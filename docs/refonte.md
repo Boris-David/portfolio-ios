@@ -693,16 +693,35 @@ Découpage :
 - [x] garde de langue : elle ne voyait que les fichiers **suivis**, donc un
       fichier neuf passait au vert
 
+- [x] **§4.3 les animations Lottie** — état vide, injoignable, CV téléchargé,
+      écrites à la main depuis les tokens ; et elles **suivent le thème**, ce que
+      la signature ne faisait pas
+- [x] **§9 le comparatif d'architectures** — MVC · MVP · MVVM · Clean en `Grid`,
+      et trois bases de code avec leurs comptes relevés
+- [x] **§10 les routes iOS** côté API — `/v1/architectures`, `/v1/deep-dives`,
+      `/v1/timeline`, avec deux gardes éditoriales falsifiées
+- [x] **§5 le `popover`** — la provenance du contenu, rattachée au bandeau
+- [x] **api en anglais** (56 fichiers)
+- [x] un drapeau `-route` : la matrice atteignait les racines et les couvertures,
+      jamais un écran **poussé**
+
 **À faire :**
 
-- [ ] convertir **web et api** en anglais (114 fichiers)
-- [ ] §5 le catalogue restant : `popover` iPad, `matchedGeometryEffect`,
-      `symbolEffect` pendant l'attente
-- [ ] §4.3 les animations Lottie
-- [ ] §9 le comparatif d'architectures
-- [ ] §13 la passe d'accessibilité complète, revue en captures
+- [ ] convertir **web** en anglais
+- [ ] §13 la passe d'accessibilité complète, revue capture par capture
 - [ ] fastlane / TestFlight
-- [ ] paysage et écran partagé sur iPad
+- [ ] l'écran partagé sur iPad
+
+### ⚠️ Un ordre de livraison, pas un bug
+
+`architectures` n'est pas déployé. Le DTO iOS le rend **non optionnel**, donc
+l'application ne décode pas la charge de production : elle affiche « contenu
+illisible » en nommant `data.architectures`, et le cache ne la rattrape pas.
+
+C'est l'invariant n° 5 qui fonctionne, pas une régression. La conséquence est une
+**contrainte d'ordre** : l'API part d'abord, l'application ensuite.
+`seed.sh --check` échouera en CI jusque-là, et une garde qui tairait ça serait
+pire qu'une garde rouge.
 
 ---
 
