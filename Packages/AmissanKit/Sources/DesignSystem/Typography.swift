@@ -66,3 +66,23 @@ public extension View {
       .foregroundStyle(Color.ink3)
   }
 }
+
+public extension View {
+  /// Borne la colonne de lecture à une largeur confortable, et la centre.
+  ///
+  /// La règle typographique est ancienne et ne dépend pas de la plateforme : une
+  /// ligne se lit bien autour de **65 caractères**. Au-delà, l'œil perd le début
+  /// de la ligne suivante en revenant à la marge.
+  ///
+  /// Sur iPhone, c'est sans effet : l'écran est déjà plus étroit. Sur iPad, sans
+  /// cette borne, un paragraphe court sur mille points — mesuré, et illisible.
+  /// Le site applique exactement la même règle, en `ch`.
+  ///
+  /// La largeur n'est pas un chiffre rond posé au jugé : `TypeScale.body` × 40
+  /// approche les 65 caractères pour une police proportionnelle, et elle suit
+  /// donc l'échelle si celle-ci change.
+  func readableWidth() -> some View {
+    frame(maxWidth: Tokens.TypeScale.body * 40)
+      .frame(maxWidth: .infinity)
+  }
+}

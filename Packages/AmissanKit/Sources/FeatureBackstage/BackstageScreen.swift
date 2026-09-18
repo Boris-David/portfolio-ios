@@ -27,6 +27,7 @@ public struct BackstageScreen: View {
           DependenciesBlock()
         }
         .padding(.bottom, Tokens.Space.s8)
+        .readableWidth()
       }
     }
   }

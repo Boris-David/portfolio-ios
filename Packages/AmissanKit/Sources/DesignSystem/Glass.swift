@@ -121,43 +121,49 @@ public struct AdaptiveGlassButtonStyle: ButtonStyle {
   }
 
   public func makeBody(configuration: Configuration) -> some View {
-    configuration.label
-      .font(Typography.bodyStrong)
-      .foregroundStyle(prominent ? Color.onAccent : Color.ink)
-      .padding(.horizontal, Tokens.Space.s4)
-      .frame(minHeight: Tokens.Accessibility.minimumTouchTarget)
-      .background { surface }
+    label(configuration)
       // Le retour au toucher est le même dans les deux mondes : c'est une
       // information, pas une décoration, et elle ne dépend pas du matériau.
       .scaleEffect(configuration.isPressed ? 0.97 : 1)
       .animation(Motion.toggle, value: configuration.isPressed)
   }
 
-  /// ⚠️ Un bouton **principal** ne se rend pas pareil dans les deux mondes, et
-  /// ce n'est pas un détail d'esthétique.
+  /// ⚠️ **`glassEffect` s'applique à la vue, jamais à un fond posé derrière.**
   ///
-  /// Sur iOS 26, `Glass.tint(_:)` produit une surface dont le système garantit
-  /// la lisibilité du contenu. Sur iOS 18, poser la même teinte à faible
-  /// opacité sur un matériau translucide donne, en thème clair, **du blanc sur
-  /// du pâle** — mesuré à l'écran, illisible.
+  /// La version précédente mettait le verre dans un `.background { … }`. Ça
+  /// compile, ça ne produit aucun avertissement — et le libellé **disparaît**.
+  /// Le verre d'iOS 26 n'est pas une couche qu'on empile derrière : c'est un
+  /// traitement de la vue à laquelle il est appliqué, et il compose son propre
+  /// contenu. Mis en arrière-plan, il recouvre le texte.
   ///
-  /// Le repli est donc un aplat d'accent. Ce n'est pas « du verre en moins
-  /// bien » : c'est ce qu'iOS 18 emploie lui-même pour une action principale,
-  /// et le contraste y est celui qu'on a choisi dans les tokens.
+  /// Constaté sur iPad, puis retrouvé sur iPhone — où je l'avais pris pour un
+  /// bouton simplement caché derrière la barre d'onglets. Une capture d'écran
+  /// mal lue vaut une régression non vue.
+  ///
+  /// Et un bouton **principal** ne se rend pas pareil dans les deux mondes.
+  /// `Glass.tint(_:)` garantit la lisibilité sur iOS 26 ; la même teinte à
+  /// faible opacité sur un matériau translucide donne, en thème clair sur
+  /// iOS 18, du blanc sur du pâle. Le repli est un aplat d'accent — ce qu'iOS 18
+  /// emploie lui-même pour une action principale.
   @ViewBuilder
-  private var surface: some View {
-    if prominent {
-      if #available(iOS 26.0, *) {
-        Capsule().fill(Color.clear).navigationGlass(
-          in: Capsule(),
-          tint: Color.accent,
-          interactive: true
-        )
-      } else {
-        Capsule().fill(Color.accent)
-      }
+  private func label(_ configuration: Configuration) -> some View {
+    let content = configuration.label
+      .font(Typography.bodyStrong)
+      .foregroundStyle(prominent ? Color.onAccent : Color.ink)
+      .padding(.horizontal, Tokens.Space.s4)
+      .frame(minHeight: Tokens.Accessibility.minimumTouchTarget)
+
+    if #available(iOS 26.0, *) {
+      content.glassEffect(
+        Glass.regular.tint(prominent ? Color.accent : nil).interactive(),
+        in: Capsule()
+      )
+    } else if prominent {
+      content.background(Capsule().fill(Color.accent))
     } else {
-      Capsule().fill(Color.clear).navigationGlass(in: Capsule(), interactive: true)
+      content
+        .background(Capsule().fill(.ultraThinMaterial))
+        .overlay(Capsule().strokeBorder(Color.line, lineWidth: 1))
     }
   }
 }

@@ -43,6 +43,7 @@ public struct ProfileScreen: View {
         ContactBlock(contact: snapshot.portfolio.profile.contact)
       }
       .padding(.bottom, Tokens.Space.s8)
+      .readableWidth()
     }
     // Tirer pour rafraîchir : le geste attendu, et il attend vraiment la fin —
     // un indicateur qui disparaît avant l'arrivée du contenu donne l'impression

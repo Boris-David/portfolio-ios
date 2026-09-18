@@ -51,6 +51,7 @@ public struct WorkScreen: View {
       }
       .padding(.top, Tokens.Space.s4)
       .padding(.bottom, Tokens.Space.s8)
+      .readableWidth()
     }
     .refreshable { await store.refresh() }
   }
