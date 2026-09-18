@@ -74,7 +74,7 @@ Prérequis : Xcode 26 (SDK iOS 26), XcodeGen, Node 22, Python 3 avec Pillow.
 ## Vérifier
 
 ```bash
-./Scripts/test.sh              # 13 suites, 161 tests, sur simulateur
+./Scripts/test.sh              # 13 suites, 157 tests, sur simulateur
 ./Scripts/tokens.mjs --check   # le design descend bien des tokens
 ./Scripts/seed.sh --check      # la graine décrit encore ce que sert l'API
 ./Scripts/assets.py --check    # chaque actif attendu est présent
