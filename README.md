@@ -85,7 +85,7 @@ vert.
 
 Aucun fait. Chiffres, dates, phrases : tout vient de l'API. Ce qui reste dans ce
 dépôt, ce sont les **libellés d'interface** (`AppChrome`) et la **documentation
-d'architecture** (`AppDossier`, `<Feature>Notes`) — qui n'ont aucun sens sans
+d'architecture** (`EngineeringRecord`, `<Feature>Notes`) — qui n'ont aucun sens sans
 l'application.
 
 Et aucune de ces chaînes ne vit dans une vue : un écran nomme une clé typée, le

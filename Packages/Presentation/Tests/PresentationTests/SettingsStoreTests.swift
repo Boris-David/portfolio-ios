@@ -36,7 +36,7 @@ struct SettingsStoreTests {
     let preferences = PreferencesSpy(
       appearance: .dark,
       language: .fixed(.english),
-      isBackstageEnabled: true
+      showsDecisions: true
     )
     let store = makeStore(preferences: preferences)
 
@@ -44,7 +44,7 @@ struct SettingsStoreTests {
 
     #expect(store.appearance == .dark)
     #expect(store.language == .fixed(.english))
-    #expect(store.isBackstageEnabled)
+    #expect(store.showsDecisions)
   }
 
   // ── Resolving "system" ─────────────────────────────────────────────────
@@ -138,7 +138,7 @@ struct SettingsStoreTests {
     #expect(await preferences.writeCount == 0)
   }
 
-  // ── Appearance and backstage ───────────────────────────────────────────
+  // ── Appearance and decision ───────────────────────────────────────────
 
   @Test("the appearance is kept", arguments: [AppearancePreference.light, .dark])
   func appearanceIsPersisted(_ value: AppearancePreference) async {
@@ -164,16 +164,16 @@ struct SettingsStoreTests {
     #expect(await preferences.writeCount == 0)
   }
 
-  @Test("backstage mode is kept, and turning it on twice writes once")
-  func backstageIsPersistedOnce() async {
+  @Test("decision mode is kept, and turning it on twice writes once")
+  func decisionsArePersistedOnce() async {
     let preferences = PreferencesSpy()
     let store = makeStore(preferences: preferences)
 
-    await store.setBackstageEnabled(true)
-    await store.setBackstageEnabled(true)
+    await store.setShowsDecisions(true)
+    await store.setShowsDecisions(true)
 
-    #expect(store.isBackstageEnabled)
-    #expect(await preferences.isBackstageEnabled())
+    #expect(store.showsDecisions)
+    #expect(await preferences.showsDecisions())
     #expect(await preferences.writeCount == 1)
   }
 
@@ -187,7 +187,7 @@ struct SettingsStoreTests {
     let preferences = PreferencesSpy(
       appearance: .dark,
       language: .fixed(.english),
-      isBackstageEnabled: true
+      showsDecisions: true
     )
     let events = EventPublisherSpy()
     let store = makeStore(preferences: preferences, events: events, device: ["fr-FR"])
@@ -197,10 +197,10 @@ struct SettingsStoreTests {
 
     #expect(store.appearance == .system)
     #expect(store.language == .system)
-    #expect(!store.isBackstageEnabled)
+    #expect(!store.showsDecisions)
     #expect(await preferences.appearance() == .system)
     #expect(await preferences.language() == .system)
-    #expect(await preferences.isBackstageEnabled() == false)
+    #expect(await preferences.showsDecisions() == false)
     // English was on screen, French is now: visible, so announced.
     #expect(await events.published == [.languageChanged(.french)])
   }
@@ -215,16 +215,16 @@ actor PreferencesSpy: PreferencesStoring {
   private(set) var writeCount = 0
   private var appearanceValue: AppearancePreference
   private var languageValue: LanguagePreference
-  private var backstageValue: Bool
+  private var decisionsValue: Bool
 
   init(
     appearance: AppearancePreference = .system,
     language: LanguagePreference = .system,
-    isBackstageEnabled: Bool = false
+    showsDecisions: Bool = false
   ) {
     appearanceValue = appearance
     languageValue = language
-    backstageValue = isBackstageEnabled
+    decisionsValue = showsDecisions
   }
 
   func appearance() async -> AppearancePreference { appearanceValue }
@@ -239,9 +239,9 @@ actor PreferencesSpy: PreferencesStoring {
     writeCount += 1
   }
 
-  func isBackstageEnabled() async -> Bool { backstageValue }
-  func setBackstageEnabled(_ value: Bool) async {
-    backstageValue = value
+  func showsDecisions() async -> Bool { decisionsValue }
+  func setShowsDecisions(_ value: Bool) async {
+    decisionsValue = value
     writeCount += 1
   }
 }

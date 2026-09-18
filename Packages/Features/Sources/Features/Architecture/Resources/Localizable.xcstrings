@@ -1,0 +1,166 @@
+{
+  "sourceLanguage": "fr",
+  "strings": {
+    "architecture.comparison.pitfall": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`Grid` measures everything: it is not lazy. Five rows is nothing; a thousand builds a thousand views at once. And a `Divider` dropped between two `GridRow`s does not span the table — it takes a cell that declares how many columns it covers."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`Grid` mesure tout : il n'est pas paresseux. Cinq lignes, aucun problème ; mille, autant de vues construites d'un coup. Et un `Divider` posé entre deux `GridRow` n'occupe pas toute la largeur — il faut une cellule qui déclare le nombre de colonnes qu'elle couvre."
+          }
+        }
+      }
+    },
+    "architecture.comparison.rationale": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A table only compares if “what it costs” starts at the same height for all four patterns. `Grid` measures **every** cell before placing any of them: a column takes the width of its widest cell, a row the height of its tallest. That is the definition of a table, and the one thing a stack cannot do.\n\nAlignment is not a finish here — it is **the argument**. The moment rows drift by a few points, the eye stops scanning across and the table goes back to being four paragraphs side by side."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un tableau ne compare que si « ce qu'il coûte » commence à la même hauteur pour les quatre motifs. `Grid` mesure **toutes** ses cellules avant d'en placer une seule : une colonne prend la largeur de sa cellule la plus large, une ligne la hauteur de sa cellule la plus haute. C'est la définition d'un tableau, et c'est la seule chose qu'un empilement ne sait pas faire.\n\nL'alignement n'est pas ici une finition : c'est **l'argument**. Dès que les lignes dérivent de quelques points, l'œil cesse de balayer horizontalement et le tableau redevient quatre paragraphes côte à côte."
+          }
+        }
+      }
+    },
+    "architecture.comparison.rejected.1.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It flows cells one after another: nothing ties a cell to its row, so a tall cell pushes what follows it rather than its row-mates."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il pose les cellules à la file : rien n'attache une cellule à sa ligne, donc une cellule haute décale ce qui la suit, pas ses voisines."
+          }
+        }
+      }
+    },
+    "architecture.comparison.rejected.1.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A `LazyVGrid`"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un `LazyVGrid`"
+          }
+        }
+      }
+    },
+    "architecture.comparison.rejected.2.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Each row measures alone. The columns then share only the width you impose by hand — and it is wrong the moment a sentence changes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaque ligne se mesure seule. Les colonnes n'ont alors de commun que la largeur qu'on leur impose à la main, et elle est fausse dès qu'un texte change."
+          }
+        }
+      }
+    },
+    "architecture.comparison.rejected.2.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A `VStack` of `HStack`s"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un `VStack` de `HStack`"
+          }
+        }
+      }
+    },
+    "architecture.comparison.rejected.3.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It is a list of selectable data rows, and on iPhone it renders as a single column: the comparison vanishes exactly where it is read."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C'est une liste de données sélectionnables, et sur iPhone elle se rend en une seule colonne : la comparaison disparaît exactement là où on la lit."
+          }
+        }
+      }
+    },
+    "architecture.comparison.rejected.3.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A `Table`"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un `Table`"
+          }
+        }
+      }
+    },
+    "architecture.comparison.role": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lines four patterns up on the same rows, column by column."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aligne quatre motifs sur les mêmes lignes, colonne par colonne."
+          }
+        }
+      }
+    },
+    "architecture.comparison.whenToUse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When the reader compares values **across columns** and the alignment carries the meaning. For a flow of uniform items — an app grid, thumbnails — `LazyVGrid` is the right tool, and cheaper."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand le lecteur compare des valeurs **d'une colonne à l'autre** et que l'alignement porte le sens. Pour un flux d'éléments homogènes — une grille d'applications, des vignettes — `LazyVGrid` est le bon outil, et il est moins cher."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

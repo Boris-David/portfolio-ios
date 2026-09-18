@@ -1,4 +1,4 @@
-import Backstage
+import Decisions
 import CoreUI
 import DesignSystem
 import Domain
@@ -41,7 +41,7 @@ public struct JourneyScreen: View {
           }
         }
         .padding(.horizontal, Tokens.Space.s5)
-        .backstage(JourneyNotes.timelineNote)
+        .decision(JourneyNotes.timelineNote)
 
         TimelineBlock(
           title: chrome.education,

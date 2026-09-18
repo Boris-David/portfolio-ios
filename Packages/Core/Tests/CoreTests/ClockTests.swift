@@ -39,9 +39,9 @@ struct KeyValueStoreTests {
   func roundTrip() {
     let store = InMemoryKeyValueStore()
     store.set("fr", forKey: "language")
-    store.set(true, forKey: "backstage")
+    store.set(true, forKey: "decision")
     #expect(store.string(forKey: "language") == "fr")
-    #expect(store.bool(forKey: "backstage"))
+    #expect(store.bool(forKey: "decision"))
   }
 
   /// A first launch has decided nothing, and the store must say so rather than
@@ -50,7 +50,7 @@ struct KeyValueStoreTests {
   func absentValues() {
     let store = InMemoryKeyValueStore()
     #expect(store.string(forKey: "language") == nil)
-    #expect(store.bool(forKey: "backstage") == false)
+    #expect(store.bool(forKey: "decision") == false)
   }
 
   @Test("a removed value is gone")

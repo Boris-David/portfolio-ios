@@ -1,4 +1,4 @@
-import Backstage
+import Decisions
 import CoreUI
 import DesignSystem
 import Domain
@@ -148,7 +148,7 @@ struct AppsBlock: View {
           AppCell(app: app)
         }
       }
-      .backstage(WorkNotes.gridNote)
+      .decision(WorkNotes.gridNote)
 
       if let note = section?.note {
         Text(note.plain)
@@ -222,7 +222,7 @@ struct AppCell: View {
     .accessibilityElement(children: .combine)
     .accessibilityLabel("\(app.name), \(app.territory)")
     .accessibilityHint(chrome.openInAppStore)
-    .backstage(WorkNotes.contextMenuNote)
+    .decision(WorkNotes.contextMenuNote)
   }
 }
 

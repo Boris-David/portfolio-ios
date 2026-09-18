@@ -1,4 +1,4 @@
-import Backstage
+import Decisions
 import CoreUI
 import Data
 import DesignSystem
@@ -34,7 +34,7 @@ public struct AppRoot: View {
   @State private var store: PortfolioStore
   @State private var settings: SettingsStore
   @State private var toasts = ToastCenter()
-  @State private var backstage = BackstageController()
+  @State private var decision = DecisionController()
   @State private var selection: AppSection
   @State private var sheet: Sheet?
   @State private var cover: FullScreenCover?
@@ -90,7 +90,7 @@ public struct AppRoot: View {
 
   public var body: some View {
     AppTabs(selection: $selection)
-      .backstageAccessory(chrome: chrome, isOn: backstageBinding)
+      .engineeringAccessory(chrome: chrome, isOn: decisionsBinding)
       .toasts(toasts)
       .modifier(sceneEnvironment)
       .sheet(item: $sheet) { sheet in
@@ -112,11 +112,11 @@ public struct AppRoot: View {
       .task {
         await settings.load()
         // Configured once, at launch, before any tip can be evaluated.
-        BackstageTipState.configure()
+        DecisionsTipState.configure()
         // The launch flag wins over the stored preference **for this launch
         // only**, and does not write: a screenshot flag that changes what the
         // reader stored is a bug, and it was one.
-        if launch.isBackstageEnabled { settings.forceBackstage() }
+        if launch.showsDecisions { settings.forceDecisions() }
         if launch.opensSettings { sheet = .settings }
         if launch.opensResume { cover = .resume }
         store.load()
@@ -127,14 +127,14 @@ public struct AppRoot: View {
         connectivity: environment.connectivity,
         events: environment.events
       )
-      .onChange(of: settings.isBackstageEnabled) { _, isOn in
+      .onChange(of: settings.showsDecisions) { _, isOn in
         // The tip has done its job the moment the reader turns the mode on. The
         // rule is declarative, so nothing has to remember to invalidate it from
         // the right place.
-        if isOn { BackstageTipState.markUsed() }
+        if isOn { DecisionsTipState.markUsed() }
         // A note left open after the mode is switched off would be a sheet with
         // no way back to what produced it.
-        if !isOn { backstage.dismiss() }
+        if !isOn { decision.dismiss() }
       }
   }
 
@@ -146,7 +146,7 @@ public struct AppRoot: View {
       portfolio: store,
       settings: settings,
       toasts: toasts,
-      backstage: backstage,
+      decision: decision,
       sheets: resolver,
       openSettings: OpenSettingsAction { sheet = .settings },
       openResume: OpenResumeAction { cover = .resume },
@@ -155,10 +155,10 @@ public struct AppRoot: View {
     )
   }
 
-  private var backstageBinding: Binding<Bool> {
+  private var decisionsBinding: Binding<Bool> {
     Binding(
-      get: { settings.isBackstageEnabled },
-      set: { value in Task { await settings.setBackstageEnabled(value) } }
+      get: { settings.showsDecisions },
+      set: { value in Task { await settings.setShowsDecisions(value) } }
     )
   }
 

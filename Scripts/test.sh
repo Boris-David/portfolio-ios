@@ -29,9 +29,10 @@ SUITES=(
   DataTests
   PresentationTests
   DesignSystemTests
+  LocalizationTests
   CoreUITests
   ViewKitTests
-  BackstageTests
+  DecisionsTests
   CompositionTests
   ArchitectureTests
   Amissan

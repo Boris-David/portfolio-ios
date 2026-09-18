@@ -28,9 +28,9 @@ public struct SettingsChrome: Sendable, Hashable {
   public let languageEnglish: String
   public let languageNote: String
 
-  public let backstageSection: String
-  public let backstageToggle: String
-  public let backstageNote: String
+  public let engineeringSection: String
+  public let decisionsToggle: String
+  public let designDecision: String
 
   public let resetSection: String
   public let reset: String
@@ -56,12 +56,12 @@ public extension SettingsChrome {
     languageFrench: "Français",
     languageEnglish: "English",
     languageNote: "La langue choisie vaut pour l'interface **et** pour le contenu : les deux viennent de la même valeur, donc ils ne peuvent pas se contredire.",
-    backstageSection: "Coulisses",
-    backstageToggle: "Annotations sur les écrans",
-    backstageNote: "Chaque composant reçoit une pastille numérotée qui explique pourquoi il a été choisi, et ce qui a été écarté.",
+    engineeringSection: "Décisions",
+    decisionsToggle: "Annotations sur les écrans",
+    designDecision: "Chaque composant reçoit une pastille numérotée qui explique pourquoi il a été choisi, et ce qui a été écarté.",
     resetSection: "Repartir de zéro",
     reset: "Réinitialiser les réglages",
-    resetQuestion: "Remettre l'apparence, la langue et les coulisses à leurs valeurs d'origine ?",
+    resetQuestion: "Remettre l'apparence, la langue et les décisions à leurs valeurs d'origine ?",
     resetConfirm: "Réinitialiser",
     resetCancel: "Annuler",
     resetDone: "Réglages réinitialisés",
@@ -81,12 +81,12 @@ public extension SettingsChrome {
     languageFrench: "Français",
     languageEnglish: "English",
     languageNote: "The chosen language applies to the interface **and** to the content: both come from the same value, so they cannot contradict each other.",
-    backstageSection: "Backstage",
-    backstageToggle: "Annotations on screens",
-    backstageNote: "Every component gets a numbered pin explaining why it was chosen, and what was ruled out.",
+    engineeringSection: "Decisions",
+    decisionsToggle: "Annotations on screens",
+    designDecision: "Every component gets a numbered pin explaining why it was chosen, and what was ruled out.",
     resetSection: "Start over",
     reset: "Reset settings",
-    resetQuestion: "Put appearance, language and backstage back to their original values?",
+    resetQuestion: "Put appearance, language and decision back to their original values?",
     resetConfirm: "Reset",
     resetCancel: "Cancel",
     resetDone: "Settings reset",

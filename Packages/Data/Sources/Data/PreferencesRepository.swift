@@ -13,7 +13,7 @@ import Domain
 /// So the split runs along that line. `Core` owns *how* a scalar survives a
 /// relaunch — `KeyValueStore`, and the single `UserDefaults` implementation
 /// behind it. This file owns *which* scalars, *under which keys*, and *what they
-/// mean*: an appearance, a language, a backstage toggle.
+/// mean*: an appearance, a language, a decision toggle.
 ///
 /// `Data` is precisely the layer where the domain and the plumbing meet.
 ///
@@ -27,7 +27,7 @@ public actor PreferencesRepository: PreferencesStoring {
   private enum Key {
     static let appearance = "preference.appearance"
     static let language = "preference.language"
-    static let backstage = "preference.backstage"
+    static let decision = "preference.decision"
   }
 
   private let store: any KeyValueStore
@@ -65,11 +65,11 @@ public actor PreferencesRepository: PreferencesStoring {
     }
   }
 
-  public func isBackstageEnabled() async -> Bool {
-    store.bool(forKey: Key.backstage)
+  public func showsDecisions() async -> Bool {
+    store.bool(forKey: Key.decision)
   }
 
-  public func setBackstageEnabled(_ value: Bool) async {
-    store.set(value, forKey: Key.backstage)
+  public func setShowsDecisions(_ value: Bool) async {
+    store.set(value, forKey: Key.decision)
   }
 }

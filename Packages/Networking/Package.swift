@@ -17,7 +17,7 @@ import PackageDescription
 ///
 /// ## Why not Alamofire
 ///
-/// The app explains this out loud in its Backstage section, so the short form:
+/// The app explains this out loud in its Decisions section, so the short form:
 /// Alamofire answered a question `URLSession` used to leave open — request
 /// building, retries, multipart. Since `async/await`, the parts still worth
 /// having are the few hundred lines in this package, and those lines are

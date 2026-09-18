@@ -1,4 +1,4 @@
-import Backstage
+import Decisions
 import DesignSystem
 import Domain
 import FeatureKit
@@ -49,6 +49,6 @@ public struct ProfileScreen: View {
     // end — an indicator that vanishes before the content arrives reads as the
     // gesture having done nothing.
     .refreshable { await store.refresh() }
-    .backstage(ProfileNotes.scrollView)
+    .decision(ProfileNotes.scrollView)
   }
 }

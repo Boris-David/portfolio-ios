@@ -37,6 +37,9 @@ import PackageDescription
 /// architecture tests refuse the edges the compiler would allow.
 let package = Package(
   name: "Features",
+  // The language the catalogues are written in. Which languages are
+  // *supported* is not stated anywhere in Swift — it is whatever the compiled
+  // catalogues turn out to contain.
   defaultLocalization: "fr",
   platforms: [.iOS(.v18)],
   products: [
@@ -48,13 +51,13 @@ let package = Package(
       name: "Features",
       targets: [
         "ViewKit",
-        "Backstage",
+        "Decisions",
         "FeatureKit",
         "FeatureProfile",
         "FeatureWork",
         "FeatureJourney",
         "FeatureResume",
-        "FeatureBackstage",
+        "FeatureEngineering",
         "FeatureContact",
         "FeatureSettings",
         "FeatureArchitecture",
@@ -73,12 +76,22 @@ let package = Package(
     // That is not a review rule — this manifest does not declare Textual, so
     // `import Textual` in a screen answers "no such module".
     .package(path: "../CoreUI"),
+
+    // Reading a string catalogue in the language **on screen**. Declared here
+    // and, deliberately, **not** in `Presentation`: resolving a key is a
+    // rendering concern. A presenter deals in values and keys, never in
+    // sentences — which is what keeps it testable without a language.
+    //
+    // It is a package of its own rather than a corner of `Core` because `Core`
+    // also holds the file store and the connectivity reader, and no screen may
+    // reach those. Interface segregation, held by this line.
+    .package(path: "../Localization"),
   ],
   targets: [
     // ─────────────────────────────────────────────────────────────────────
     // The three shared modules, in a straight line. Each one names what it is
     // for, and each one is below the next: `ViewKit` knows nothing of
-    // annotations, `Backstage` knows nothing of navigation.
+    // annotations, `Decisions` knows nothing of navigation.
     // ─────────────────────────────────────────────────────────────────────
 
     // The SwiftUI vocabulary every screen shares: the content-language
@@ -93,6 +106,7 @@ let package = Package(
         .product(name: "Presentation", package: "Presentation"),
         .product(name: "DesignSystem", package: "DesignSystem"),
         .product(name: "CoreUI", package: "CoreUI"),
+        .product(name: "Localization", package: "Localization"),
       ],
       // The content catalogue: operator logos and product screenshots, named by
       // the public slug the API serves. They live with the layer that draws
@@ -102,19 +116,21 @@ let package = Package(
       swiftSettings: .strict
     ),
 
-    // Backstage: the annotation overlay and its rendering.
+    // Decisions: the annotation overlay and its rendering.
     //
     // Separate from the design system because it is a **feature of this app**,
     // not a visual primitive; separate from the screens because every screen
     // annotates itself.
     .target(
-      name: "Backstage",
+      name: "Decisions",
       dependencies: [
         .product(name: "Domain", package: "Domain"),
         .product(name: "DesignSystem", package: "DesignSystem"),
         .product(name: "CoreUI", package: "CoreUI"),
+        .product(name: "Localization", package: "Localization"),
         "ViewKit",
       ],
+      resources: [.process("Resources")],
       swiftSettings: .strict
     ),
 
@@ -123,8 +139,9 @@ let package = Package(
     // for every tab rather than copied into each.
     .target(
       name: "FeatureKit",
-      dependencies: ["ViewKit", "Backstage"],
+      dependencies: ["ViewKit", "Decisions"],
       path: "Sources/Features/Kit",
+      resources: [.process("Resources")],
       swiftSettings: .strict
     ),
 
@@ -133,17 +150,24 @@ let package = Package(
     // live under `Sources/Features/`, because a flat list of directories stops
     // saying anything about the shape of the project. The explicit `path:` is
     // what lets the two differ.
-    .target(name: "FeatureProfile", dependencies: ["FeatureKit"], path: "Sources/Features/Profile", swiftSettings: .strict),
-    .target(name: "FeatureWork", dependencies: ["FeatureKit"], path: "Sources/Features/Work", swiftSettings: .strict),
-    .target(name: "FeatureJourney", dependencies: ["FeatureKit"], path: "Sources/Features/Journey", swiftSettings: .strict),
-    .target(name: "FeatureResume", dependencies: ["FeatureKit"], path: "Sources/Features/Resume", swiftSettings: .strict),
-    .target(name: "FeatureBackstage", dependencies: ["FeatureKit"], path: "Sources/Features/Backstage", swiftSettings: .strict),
+    .target(name: "FeatureProfile", dependencies: ["FeatureKit"], path: "Sources/Features/Profile", resources: [.process("Resources")], swiftSettings: .strict),
+    .target(name: "FeatureWork", dependencies: ["FeatureKit"], path: "Sources/Features/Work", resources: [.process("Resources")], swiftSettings: .strict),
+    .target(name: "FeatureJourney", dependencies: ["FeatureKit"], path: "Sources/Features/Journey", resources: [.process("Resources")], swiftSettings: .strict),
+    .target(name: "FeatureResume", dependencies: ["FeatureKit"], path: "Sources/Features/Resume", resources: [.process("Resources")], swiftSettings: .strict),
+    .target(name: "FeatureEngineering", dependencies: ["FeatureKit"], path: "Sources/Features/Engineering", swiftSettings: .strict),
     .target(name: "FeatureContact", dependencies: ["FeatureKit"], path: "Sources/Features/Contact", swiftSettings: .strict),
-    .target(name: "FeatureSettings", dependencies: ["FeatureKit"], path: "Sources/Features/Settings", swiftSettings: .strict),
-    .target(name: "FeatureArchitecture", dependencies: ["FeatureKit"], path: "Sources/Features/Architecture", swiftSettings: .strict),
+    .target(name: "FeatureSettings", dependencies: ["FeatureKit"], path: "Sources/Features/Settings", resources: [.process("Resources")], swiftSettings: .strict),
+    .target(name: "FeatureArchitecture", dependencies: ["FeatureKit"], path: "Sources/Features/Architecture", resources: [.process("Resources")], swiftSettings: .strict),
 
     .testTarget(name: "ViewKitTests", dependencies: ["ViewKit"], swiftSettings: .strict),
-    .testTarget(name: "BackstageTests", dependencies: ["Backstage"], swiftSettings: .strict),
+    .testTarget(
+      name: "DecisionsTests",
+      dependencies: ["Decisions"],
+      // A probe catalogue. What is under test is a **catalogue lookup**, and a
+      // hand-built double would have proved that the double works.
+      resources: [.process("Resources")],
+      swiftSettings: .strict
+    ),
   ],
   swiftLanguageModes: [.v6]
 )

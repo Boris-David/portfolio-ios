@@ -76,13 +76,13 @@ SCREENS=(
   "profile|"
   "work|"
   "journey|"
-  "backstage|-backstage"
+  "decision|-decision"
   "profile|-settings"
   "profile|-resume"
   # A pushed screen needs the route flag: a tab flag cannot reach it, and
   # without this the comparison table — the one screen a `Grid` exists for —
   # is the only one the matrix never sees.
-  "backstage|-route architectures"
+  "decision|-route architectures"
 )
 
 # ⚠️ `xcrun simctl ui … content_size` exits **0** on a value it rejects.

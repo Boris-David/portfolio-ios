@@ -1,6 +1,6 @@
 /// What the running OS can do — as a **fact**, never as a sentence.
 ///
-/// Backstage uses it to tell the reader which of the two renderings they are
+/// Decisions uses it to tell the reader which of the two renderings they are
 /// looking at. A compatibility trade-off you cannot observe on screen is a
 /// trade-off you have to take on trust.
 ///

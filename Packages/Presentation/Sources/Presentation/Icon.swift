@@ -29,7 +29,7 @@ public enum Icon: Sendable, Hashable, CaseIterable {
   case profile
   case work
   case journey
-  case backstage
+  case decision
 
   // Outcomes
   case succeeded

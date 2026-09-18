@@ -5,12 +5,12 @@ import Presentation
 ///
 /// ## Why flags exist at all in a portfolio app
 ///
-/// They serve **automated screenshots**. A capture of the backstage overlay, or
+/// They serve **automated screenshots**. A capture of the decision overlay, or
 /// of the Journey tab, cannot be taken without somebody touching the screen —
 /// and a capture that cannot be reproduced never makes it into CI. Two flags
 /// remove the hand:
 ///
-///     xcrun simctl launch <device> dev.amissan.portfolio -backstage
+///     xcrun simctl launch <device> dev.amissan.portfolio -decision
 ///     xcrun simctl launch <device> dev.amissan.portfolio -tab journey
 ///
 /// ## Why a type and not two reads of `ProcessInfo`
@@ -24,7 +24,7 @@ struct LaunchArguments: Sendable {
   static let current = LaunchArguments(ProcessInfo.processInfo.arguments)
 
   let initialSection: AppSection
-  let isBackstageEnabled: Bool
+  let showsDecisions: Bool
   /// Opens the settings sheet on launch. Same reason as the other two: a sheet
   /// cannot be captured without somebody tapping, and a screenshot nobody can
   /// reproduce never reaches CI.
@@ -59,7 +59,7 @@ struct LaunchArguments: Sendable {
   let apiBaseURL: URL?
 
   init(_ arguments: [String]) {
-    isBackstageEnabled = arguments.contains("-backstage")
+    showsDecisions = arguments.contains("-decisions")
     opensSettings = arguments.contains("-settings")
     opensResume = arguments.contains("-resume")
     initialRoute = Self.route(in: arguments)

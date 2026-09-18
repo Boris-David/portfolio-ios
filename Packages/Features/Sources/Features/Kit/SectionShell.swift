@@ -1,4 +1,4 @@
-import Backstage
+import Decisions
 import DesignSystem
 import Presentation
 import SwiftUI
@@ -66,7 +66,7 @@ package struct SectionShell<Content: View>: View {
             }
             .accessibilityLabel(chrome.settings)
             // The one tip in the app, anchored to where the switch lives.
-            .popoverTip(BackstageTip(language: language))
+            .popoverTip(DecisionsTip(language: language))
           }
         }
         .navigationDestination(for: Route.self) { route in
@@ -87,6 +87,6 @@ package struct SectionShell<Content: View>: View {
       router.push(initialRoute)
     }
     .environment(router)
-    .backstageOverlay()
+    .decisionOverlay()
   }
 }

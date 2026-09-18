@@ -1,4 +1,4 @@
-import Backstage
+import Decisions
 import DesignSystem
 import Domain
 import Foundation
@@ -61,7 +61,7 @@ struct PatternComparisonBlock: View {
             criterionRow(criterion)
           }
         }
-        .backstage(ArchitectureNotes.gridNote)
+        .decision(ArchitectureNotes.gridNote)
       }
       // The table bleeds to the screen edge and insets its content instead of
       // being padded: padding would have clipped the scroll, and the last column

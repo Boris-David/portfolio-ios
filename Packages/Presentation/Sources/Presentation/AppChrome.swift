@@ -13,7 +13,7 @@ import Domain
 ///
 /// This is not hypothetical: it is **the defect observed on the first launch**.
 /// The simulator was in English, the API served English, and the tabs read
-/// "Profil · Travail · Parcours · Coulisses" above an English body. An app that
+/// "Profil · Travail · Parcours · Ingénierie" above an English body. An app that
 /// contradicts itself on screen is not redeemed by the quality of the rest.
 ///
 /// Hence the choice: **the chrome follows the content**, not the device. The two
@@ -29,7 +29,7 @@ public struct AppChrome: Sendable, Hashable {
   public let tabProfile: String
   public let tabWork: String
   public let tabJourney: String
-  public let tabBackstage: String
+  public let tabEngineering: String
 
   // Shared actions
   public let close: String
@@ -120,13 +120,13 @@ public struct AppChrome: Sendable, Hashable {
     }
   }
 
-  // Backstage
-  public let backstageEyebrow: String
-  public let backstageTitle: String
-  public let backstageIntro: String
-  public let backstageToggle: String
-  public let backstageShow: String
-  public let backstageHide: String
+  // Decisions
+  public let engineeringEyebrow: String
+  public let engineeringTitle: String
+  public let engineeringIntro: String
+  public let decisionsToggle: String
+  public let decisionsShow: String
+  public let decisionsHide: String
   public let architecture: String
   public let architectureIntro: String
   public let challenges: String
@@ -177,8 +177,8 @@ public struct AppChrome: Sendable, Hashable {
   public let appleDocumentation: String
   public func annotationLabel(_ number: Int, _ component: String) -> String {
     language == .french
-      ? "Coulisses \(number) : \(component)"
-      : "Backstage \(number): \(component)"
+      ? "Décision \(number) : \(component)"
+      : "Decisions \(number): \(component)"
   }
   /// Which of the two renderings the reader is looking at.
   ///
@@ -216,7 +216,7 @@ public extension AppChrome {
     tabProfile: "Profil",
     tabWork: "Travail",
     tabJourney: "Parcours",
-    tabBackstage: "Coulisses",
+    tabEngineering: "Ingénierie",
     close: "Fermer",
     retry: "Réessayer",
     share: "Partager",
@@ -239,15 +239,15 @@ public extension AppChrome {
     unreadableTitle: "Contenu illisible",
     unreachableMessage: "La source n'a pas répondu, et rien n'est encore enregistré sur cet appareil.",
     nothingAvailableMessage: "Aucun contenu disponible hors ligne pour le moment.",
-    backstageEyebrow: "Sous le capot",
-    backstageTitle: "Pourquoi cette application est faite comme ça",
-    backstageIntro: """
+    engineeringEyebrow: "Sous le capot",
+    engineeringTitle: "Pourquoi cette application est faite comme ça",
+    engineeringIntro: """
       Les décisions, ce qu'elles ont écarté, et les pièges qu'elles évitent. \
       Activez les annotations pour voir, écran par écran, quel composant fait quoi.
       """,
-    backstageToggle: "Annotations sur les écrans",
-    backstageShow: "Voir les coulisses",
-    backstageHide: "Masquer les coulisses",
+    decisionsToggle: "Annotations sur les écrans",
+    decisionsShow: "Afficher les décisions",
+    decisionsHide: "Masquer les décisions",
     architecture: "L'architecture",
     architectureIntro: "Chaque couche est un package SPM : une dépendance absente n'est pas une convention, c'est un `import` qui ne résout pas.",
     challenges: "Les défis techniques",
@@ -291,7 +291,7 @@ public extension AppChrome {
     tabProfile: "Profile",
     tabWork: "Work",
     tabJourney: "Journey",
-    tabBackstage: "Backstage",
+    tabEngineering: "Decisions",
     close: "Close",
     retry: "Try again",
     share: "Share",
@@ -314,15 +314,15 @@ public extension AppChrome {
     unreadableTitle: "Content unreadable",
     unreachableMessage: "The source did not respond, and nothing is stored on this device yet.",
     nothingAvailableMessage: "No content available offline right now.",
-    backstageEyebrow: "Under the hood",
-    backstageTitle: "Why this app is built the way it is",
-    backstageIntro: """
+    engineeringEyebrow: "Under the hood",
+    engineeringTitle: "Why this app is built the way it is",
+    engineeringIntro: """
       The decisions, what they ruled out, and the traps they avoid. Turn on \
       annotations to see, screen by screen, what each component does.
       """,
-    backstageToggle: "Annotations on screens",
-    backstageShow: "Show the backstage",
-    backstageHide: "Hide the backstage",
+    decisionsToggle: "Annotations on screens",
+    decisionsShow: "Show the decision",
+    decisionsHide: "Hide the decision",
     architecture: "The architecture",
     architectureIntro: "Every layer is an SPM package: a missing dependency is not a convention, it is an `import` that does not resolve.",
     challenges: "Technical challenges",

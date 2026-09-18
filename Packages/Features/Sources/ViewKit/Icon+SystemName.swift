@@ -17,7 +17,7 @@ extension Icon {
     case .profile: "person.crop.square"
     case .work: "square.stack.3d.up"
     case .journey: "calendar"
-    case .backstage: "wrench.and.screwdriver"
+    case .decision: "wrench.and.screwdriver"
 
     case .succeeded: "checkmark.circle.fill"
     case .failed: "exclamationmark.circle.fill"

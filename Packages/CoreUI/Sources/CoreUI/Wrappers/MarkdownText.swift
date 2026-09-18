@@ -60,7 +60,7 @@ public struct MarkdownText: View {
 ///
 /// `Text` treats a `String` as literal text: `*is*` shows with its asterisks,
 /// and `` `import` `` with its backticks. The defect was visible on screen, in
-/// the Backstage tab — an app that explains the care it takes over details while
+/// the Decisions tab — an app that explains the care it takes over details while
 /// displaying raw markup contradicts itself.
 ///
 /// `Text(LocalizedStringKey)` **interprets** inline Markdown, which is exactly

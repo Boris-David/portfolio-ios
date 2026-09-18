@@ -1,4 +1,4 @@
-import Backstage
+import Decisions
 import CoreUI
 import DesignSystem
 import Domain
@@ -46,7 +46,7 @@ struct HeroBlock: View {
       wash
       content
     }
-    .backstage(ProfileNotes.heroNote)
+    .decision(ProfileNotes.heroNote)
   }
 
   /// A soft accent glow behind the monogram, bleeding past the reading column.
@@ -174,7 +174,7 @@ struct HeroBlock: View {
         .frame(maxWidth: .infinity)
     }
     .buttonStyle(.adaptiveGlassProminent)
-    .backstage(ProfileNotes.actionNote)
+    .decision(ProfileNotes.actionNote)
   }
 
   private var aboutLink: some View {
@@ -209,7 +209,7 @@ struct MetricsBlock: View {
     }
     .padding(.horizontal, Tokens.Space.s5)
     .reveal()
-    .backstage(ProfileNotes.metrics)
+    .decision(ProfileNotes.metrics)
   }
 }
 

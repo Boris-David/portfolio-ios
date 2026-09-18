@@ -3,7 +3,7 @@ public enum AppSection: String, CaseIterable, Hashable, Sendable, Identifiable {
   case profile
   case work
   case journey
-  case backstage
+  case decision
 
   public var id: String { rawValue }
 
@@ -15,7 +15,7 @@ public enum AppSection: String, CaseIterable, Hashable, Sendable, Identifiable {
     case .profile: chrome.tabProfile
     case .work: chrome.tabWork
     case .journey: chrome.tabJourney
-    case .backstage: chrome.tabBackstage
+    case .decision: chrome.tabEngineering
     }
   }
 
@@ -25,7 +25,7 @@ public enum AppSection: String, CaseIterable, Hashable, Sendable, Identifiable {
     case .profile: .profile
     case .work: .work
     case .journey: .journey
-    case .backstage: .backstage
+    case .decision: .decision
     }
   }
 }

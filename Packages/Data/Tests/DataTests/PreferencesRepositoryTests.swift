@@ -33,7 +33,7 @@ struct PreferencesRepositoryTests {
     let preferences = PreferencesRepository(store: InMemoryKeyValueStore())
     #expect(await preferences.appearance() == .system)
     #expect(await preferences.language() == .system)
-    #expect(await preferences.isBackstageEnabled() == false)
+    #expect(await preferences.showsDecisions() == false)
   }
 
   @Test("the appearance survives a relaunch", arguments: AppearancePreference.allCases)
@@ -72,12 +72,12 @@ struct PreferencesRepositoryTests {
     #expect(await PreferencesRepository(store: store).language() == .system)
   }
 
-  /// Backstage mode survives a relaunch on purpose: somebody who turned it on is
+  /// Decisions mode survives a relaunch on purpose: somebody who turned it on is
   /// exploring, and taking it away at every launch would be hostile.
-  @Test("backstage mode survives a relaunch")
-  func backstageRoundTrip() async {
+  @Test("decision mode survives a relaunch")
+  func decisionsRoundTrip() async {
     let store = InMemoryKeyValueStore()
-    await PreferencesRepository(store: store).setBackstageEnabled(true)
-    #expect(await PreferencesRepository(store: store).isBackstageEnabled())
+    await PreferencesRepository(store: store).setShowsDecisions(true)
+    #expect(await PreferencesRepository(store: store).showsDecisions())
   }
 }

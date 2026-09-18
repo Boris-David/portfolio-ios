@@ -14,6 +14,6 @@ public enum Route: Hashable, Sendable {
   /// carry: an opening gives the scale, not the story.
   case about
   /// The comparison of architecture patterns, and the codebases read against
-  /// them. A reading, not a destination — hence a push from the backstage tab.
+  /// them. A reading, not a destination — hence a push from the decision tab.
   case architectures
 }

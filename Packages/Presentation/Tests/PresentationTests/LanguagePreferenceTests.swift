@@ -35,7 +35,7 @@ struct SectionTests {
   func sectionsAreTitled(_ section: AppSection) {
     #expect(!section.title(.french).isEmpty)
     #expect(!section.title(.english).isEmpty)
-    #expect(section.title(.french) != section.title(.english) || section.title(.english) == "Backstage")
+    #expect(section.title(.french) != section.title(.english) || section.title(.english) == "Decisions")
   }
 }
 

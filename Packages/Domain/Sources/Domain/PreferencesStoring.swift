@@ -11,8 +11,8 @@ public protocol PreferencesStoring: Sendable {
   func language() async -> LanguagePreference
   func setLanguage(_ value: LanguagePreference) async
 
-  /// Does backstage mode survive a relaunch? Yes: someone who turned it on is
+  /// Does decision mode survive a relaunch? Yes: someone who turned it on is
   /// exploring, and taking it away at every launch would be hostile.
-  func isBackstageEnabled() async -> Bool
-  func setBackstageEnabled(_ value: Bool) async
+  func showsDecisions() async -> Bool
+  func setShowsDecisions(_ value: Bool) async
 }

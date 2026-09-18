@@ -1,4 +1,4 @@
-import Backstage
+import Decisions
 import CoreUI
 import DesignSystem
 import Domain
@@ -31,7 +31,7 @@ public struct CaseStudyDetailScreen: View {
               ChapterDisclosureView(number: index + 1, chapter: chapter)
             }
           }
-          .backstage(WorkNotes.disclosureNote)
+          .decision(WorkNotes.disclosureNote)
         } else if let chapter = study.chapters.first {
           FlatChapterView(chapter: chapter)
         }

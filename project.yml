@@ -66,6 +66,8 @@ packages:
     path: Packages/Presentation
   DesignSystem:
     path: Packages/DesignSystem
+  Localization:
+    path: Packages/Localization
   CoreUI:
     path: Packages/CoreUI
   Features:

@@ -352,9 +352,9 @@ leurs sources passent sous `Sources/Features/<Nom>/` via le `path:` du manifeste
 ```
 Sources/
   Domain/  Networking/  Persistence/  Data/
-  DesignSystem/  Backstage/
+  DesignSystem/  Decisions/
   Features/
-    Kit/  Profile/  Work/  Journey/  Resume/  Backstage/  Settings/
+    Kit/  Profile/  Work/  Journey/  Resume/  Decisions/  Settings/
   AppComposition/
 ```
 
@@ -517,7 +517,7 @@ plus fort qu'une cible :
 | `DesignSystem` | couleur, typo, mouvement | Lottie |
 | `Data` | DTO, correspondances, dépôts, sources | Domain + les deux techniques |
 | `Presentation` | phases, store, chrome, formatage, routes | Domain |
-| `Features` | `ViewKit` → `Backstage` → `FeatureKit` → les écrans | Domain, Presentation, DesignSystem, Textual |
+| `Features` | `ViewKit` → `Decisions` → `FeatureKit` → les écrans | Domain, Presentation, DesignSystem, Textual |
 | `Composition` | le câblage | tout — et c'est le seul |
 
 ⚠️ **Pas de préfixe `Amissan`** : *« on sait qu'on est dans Amissan, donc pas
@@ -620,7 +620,7 @@ Découpage :
 | `SheetResolver` | feuille → écran |
 | `ContactSheet` | son propre écran, dans sa fonctionnalité |
 | `BackstageAccessory` | l'accessoire de barre |
-| `LaunchArguments` | lire `-tab` et `-backstage` |
+| `LaunchArguments` | lire `-tab` et `-decision` |
 | `AppEnvironment` | construire le graphe de dépendances |
 
 ---

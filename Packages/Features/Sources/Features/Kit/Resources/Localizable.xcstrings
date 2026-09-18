@@ -1,0 +1,134 @@
+{
+  "sourceLanguage": "fr",
+  "strings": {
+    "shared.freshness.pitfall": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Without `presentationCompactAdaptation` it becomes a sheet on iPhone — and half the reason for using one disappears with no warning."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sans `presentationCompactAdaptation`, il devient une feuille sur iPhone — et la moitié de la raison de l'employer disparaît sans prévenir."
+          }
+        }
+      }
+    },
+    "shared.freshness.rationale": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The question — *where did this come from?* — is a **footnote** about what the reader is looking at. A popover **points at** the banner it belongs to; a sheet covers the screen and severs the connection between the question and what prompted it.\n\n`presentationCompactAdaptation(.popover)` keeps that on iPhone. Without it, SwiftUI turns every popover into a sheet in a compact size class — a reasonable default for a menu, the wrong one for a footnote."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La question — *d'où ça vient ?* — est une **note de bas de page** sur ce qu'on est en train de lire. Un popover **pointe** le bandeau auquel il se rapporte ; une feuille couvre l'écran et coupe le lien entre la question et ce qui l'a provoquée.\n\n`presentationCompactAdaptation(.popover)` le maintient sur iPhone. Sans ça, SwiftUI transforme tout popover en feuille en classe de taille compacte — un défaut raisonnable pour un menu, le mauvais pour une note."
+          }
+        }
+      }
+    },
+    "shared.freshness.rejected.1.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It covers the very content whose provenance is being asked about."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elle couvre le contenu dont on demande justement la provenance."
+          }
+        }
+      }
+    },
+    "shared.freshness.rejected.1.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A half-height `sheet`"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une `sheet` à mi-hauteur"
+          }
+        }
+      }
+    },
+    "shared.freshness.rejected.2.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A content fingerprint permanently on every screen is noise for everybody except one person a year."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une empreinte de contenu en permanence sur chaque écran est du bruit pour tout le monde sauf une personne par an."
+          }
+        }
+      }
+    },
+    "shared.freshness.rejected.2.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Showing everything in the banner"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout afficher dans le bandeau"
+          }
+        }
+      }
+    },
+    "shared.freshness.role": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Says where the content on screen came from, and how old it is."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dit d'où vient le contenu affiché, et depuis quand."
+          }
+        }
+      }
+    },
+    "shared.freshness.whenToUse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A short piece of information attached to a precise element. Never for a task: a popover dismisses on the first tap outside it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une information courte rattachée à un élément précis. Jamais pour une tâche : un popover se ferme au premier toucher à côté."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

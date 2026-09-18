@@ -1,4 +1,4 @@
-import Backstage
+import Decisions
 import CoreUI
 import DesignSystem
 import Domain
@@ -8,7 +8,7 @@ import Presentation
 import SwiftUI
 import ViewKit
 
-/// Appearance, language, backstage — and a way back to the defaults.
+/// Appearance, language, decision — and a way back to the defaults.
 ///
 /// ## Why a sheet and not a fifth tab
 ///
@@ -41,7 +41,7 @@ public struct SettingsScreen: View {
       Form {
         appearanceSection
         languageSection
-        backstageSection
+        engineeringSection
         resetSection
       }
       .navigationTitle(chrome.title)
@@ -55,8 +55,8 @@ public struct SettingsScreen: View {
       // fire before the preference was actually written.
       .feedback(.selectionChanged, on: settings.appearance)
       .feedback(.selectionChanged, on: settings.language)
-      .feedback(.selectionChanged, on: settings.isBackstageEnabled)
-      .backstage(SettingsNotes.formNote)
+      .feedback(.selectionChanged, on: settings.showsDecisions)
+      .decision(SettingsNotes.formNote)
     }
     // A settings sheet is a short task, and the screen underneath is worth
     // keeping in view: it is what the reader is about to see change.
@@ -73,7 +73,7 @@ public struct SettingsScreen: View {
         Text(chrome.appearanceDark).tag(AppearancePreference.dark)
       }
       .pickerStyle(.segmented)
-      .backstage(SettingsNotes.pickerNote)
+      .decision(SettingsNotes.pickerNote)
     } header: {
       Label(chrome.appearanceSection, icon: .appearance)
     } footer: {
@@ -120,20 +120,20 @@ public struct SettingsScreen: View {
       set: { value in Task { await settings.setLanguage(value) } }
     )
   }
-  private var backstageSection: some View {
+  private var engineeringSection: some View {
     Section {
-      Toggle(chrome.backstageToggle, isOn: backstageBinding)
+      Toggle(chrome.decisionsToggle, isOn: decisionsBinding)
     } header: {
-      Label(chrome.backstageSection, icon: .annotations)
+      Label(chrome.engineeringSection, icon: .annotations)
     } footer: {
-      InlineMarkdown(chrome.backstageNote, font: Typography.caption, color: .ink3)
+      InlineMarkdown(chrome.designDecision, font: Typography.caption, color: .ink3)
     }
   }
 
-  private var backstageBinding: Binding<Bool> {
+  private var decisionsBinding: Binding<Bool> {
     Binding(
-      get: { settings.isBackstageEnabled },
-      set: { value in Task { await settings.setBackstageEnabled(value) } }
+      get: { settings.showsDecisions },
+      set: { value in Task { await settings.setShowsDecisions(value) } }
     )
   }
 
@@ -163,7 +163,7 @@ public struct SettingsScreen: View {
         }
         Button(chrome.resetCancel, role: .cancel) {}
       }
-      .backstage(SettingsNotes.confirmationNote)
+      .decision(SettingsNotes.confirmationNote)
     } header: {
       Text(chrome.resetSection)
     }

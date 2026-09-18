@@ -56,7 +56,7 @@ struct DependencyGraphTests {
   }
 
   private static let layers = [
-    "Domain", "Networking", "Core", "Data",
+    "Domain", "Networking", "Core", "Localization", "Data",
     "Presentation", "DesignSystem", "CoreUI", "Features", "Composition",
   ]
 
@@ -85,7 +85,7 @@ struct DependencyGraphTests {
 
   /// `Networking` speaks HTTP, not portfolio. `Persistence` writes bytes, not
   /// entities. That is what lets each be tested knowing nothing of the other.
-  @Test("the technical layers ignore the domain", arguments: ["Networking", "Core"])
+  @Test("the technical layers ignore the domain", arguments: ["Networking", "Core", "Localization"])
   func infrastructureIgnoresDomain(_ layer: String) {
     #expect(packages(of: layer).isEmpty)
   }
@@ -105,9 +105,28 @@ struct DependencyGraphTests {
   /// The presentation layer is the one that has to stay renderer-free. It sees
   /// the domain, and that is all: a presenter that can name a colour has started
   /// designing, and one that can name a view cannot be tested without a screen.
+  ///
+  /// `Localization` is deliberately absent too. Resolving a key needs a bundle,
+  /// a compiled catalogue and the language on screen — three delivery details. A
+  /// presenter hands back a `TextKey`; the sentence is assembled by whatever
+  /// draws it. So `import Localization` here answers "no such module", which is
+  /// the only version of that rule that survives a busy afternoon.
   @Test("the presentation layer sees the domain and nothing else")
   func presentationSeesOnlyDomain() {
     #expect(packages(of: "Presentation") == ["Domain"])
+  }
+
+  /// `Localization` reads a string catalogue in a language the caller names, and
+  /// knows nothing else — not the domain, not which languages exist.
+  ///
+  /// It is a package rather than a corner of `Core` for one reason: `Core` also
+  /// holds the file store and the connectivity reader, and the central invariant
+  /// below says no screen may reach those. Filing it there would have bought a
+  /// convenience with disk access for every view in the application.
+  @Test("the localization layer depends on nothing")
+  func localizationIsIndependent() {
+    #expect(packages(of: "Localization").isEmpty)
+    #expect(Self.manifests["Localization"]?.contains("dependencies: []") == true)
   }
 
   /// The design system must never learn what a profile is, nor how anything is
@@ -170,7 +189,7 @@ struct DependencyGraphTests {
 
   private static let screens = [
     "FeatureProfile", "FeatureWork", "FeatureJourney",
-    "FeatureResume", "FeatureBackstage", "FeatureContact",
+    "FeatureResume", "FeatureEngineering", "FeatureContact",
     "FeatureArchitecture",
   ]
 
@@ -190,7 +209,7 @@ struct DependencyGraphTests {
     }
   }
 
-  /// The shared modules form a straight line — `ViewKit`, then `Backstage`,
+  /// The shared modules form a straight line — `ViewKit`, then `Decisions`,
   /// then `FeatureKit` — and a screen only ever mounts on the last of them.
   @Test("every screen is mounted on FeatureKit alone")
   func screensDependOnFeatureKit() {

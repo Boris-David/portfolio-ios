@@ -1,4 +1,4 @@
-import Backstage
+import Decisions
 import DesignSystem
 import Domain
 import Foundation
@@ -25,10 +25,10 @@ import ViewKit
 ///
 /// ## Why it sits in `FeatureKit` and not in `ViewKit`
 ///
-/// Because it carries a backstage annotation, and `Backstage` depends on
-/// `ViewKit`. Declaring a `BackstageNote` down there is a module dependency
+/// Because it carries a decision annotation, and `Decisions` depends on
+/// `ViewKit`. Declaring a `DesignDecision` down there is a module dependency
 /// cycle — which the compiler refused, immediately and by name. The straight
-/// line `ViewKit → Backstage → FeatureKit` is exactly what makes that mistake
+/// line `ViewKit → Decisions → FeatureKit` is exactly what makes that mistake
 /// impossible to ship rather than merely discouraged.
 package struct FreshnessBanner: View {
   private let snapshot: PortfolioSnapshot
@@ -71,7 +71,7 @@ package struct FreshnessBanner: View {
         provenance
           .presentationCompactAdaptation(.popover)
       }
-      .backstage(KitNotes.popoverNote)
+      .decision(KitNotes.popoverNote)
     }
   }
 

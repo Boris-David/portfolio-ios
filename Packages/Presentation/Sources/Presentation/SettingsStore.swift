@@ -31,7 +31,7 @@ import Observation
 public final class SettingsStore {
   public private(set) var appearance: AppearancePreference = .system
   public private(set) var language: LanguagePreference = .system
-  public private(set) var isBackstageEnabled = false
+  public private(set) var showsDecisions = false
 
   /// The language actually served, once "system" has been resolved.
   ///
@@ -61,7 +61,7 @@ public final class SettingsStore {
   public func load() async {
     appearance = await preferences.appearance()
     language = await preferences.language()
-    isBackstageEnabled = await preferences.isBackstageEnabled()
+    showsDecisions = await preferences.showsDecisions()
   }
 
   public func setAppearance(_ value: AppearancePreference) async {
@@ -85,18 +85,18 @@ public final class SettingsStore {
     }
   }
 
-  public func setBackstageEnabled(_ value: Bool) async {
-    guard value != isBackstageEnabled else { return }
-    isBackstageEnabled = value
-    await preferences.setBackstageEnabled(value)
+  public func setShowsDecisions(_ value: Bool) async {
+    guard value != showsDecisions else { return }
+    showsDecisions = value
+    await preferences.setShowsDecisions(value)
   }
 
   /// Turns the annotations on **for this launch only**, without writing.
   ///
-  /// ## Why this is not `setBackstageEnabled(true)`
+  /// ## Why this is not `setShowsDecisions(true)`
   ///
   /// Because a screenshot flag that modifies the reader's stored preferences is
-  /// a bug, and it was one: `-backstage` wrote the setting, so every capture
+  /// a bug, and it was one: `-decision` wrote the setting, so every capture
   /// taken after it in the matrix came out with annotations on — including the
   /// ones meant to show the app at rest. The matrix was not reproducible, and
   /// nothing said so; the images simply looked wrong in a way that was easy to
@@ -104,14 +104,14 @@ public final class SettingsStore {
   ///
   /// It also mattered outside CI: anybody who launched with the flag once found
   /// their app annotated for good.
-  public func forceBackstage() {
-    isBackstageEnabled = true
+  public func forceDecisions() {
+    showsDecisions = true
   }
 
   /// Puts everything back. Announces only if it changed something visible.
   public func reset() async {
     await setAppearance(.system)
     await setLanguage(.system)
-    await setBackstageEnabled(false)
+    await setShowsDecisions(false)
   }
 }

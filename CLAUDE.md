@@ -81,7 +81,7 @@ Après toute modification des tokens : `./Scripts/tokens.mjs`.
 
 ADR 0002. Chiffres, dates, phrases : tout vient de `portfolio-api`. Ce qui reste
 ici, ce sont les **libellés d'interface** (`AppChrome`) et la **documentation
-d'architecture** (`AppDossier`) — qui n'ont aucun sens sans l'application.
+d'architecture** (`EngineeringRecord`) — qui n'ont aucun sens sans l'application.
 
 La graine embarquée (`Packages/Data/Sources/Data/Resources/seed-*.json`) est **générée** par
 `./Scripts/seed.sh`, jamais écrite à la main.
@@ -130,7 +130,7 @@ qui marche : trois défauts de cette base — le mode de compatibilité sans
 illisible sur iOS 18 — ne se voyaient qu'en capture d'écran.
 
 ```bash
-xcrun simctl launch <appareil> dev.amissan.portfolio -backstage
+xcrun simctl launch <appareil> dev.amissan.portfolio -decision
 xcrun simctl launch <appareil> dev.amissan.portfolio -tab journey
 xcrun simctl launch <appareil> dev.amissan.portfolio -settings
 xcrun simctl launch <appareil> dev.amissan.portfolio -resume
@@ -143,7 +143,7 @@ xcrun simctl io <appareil> screenshot capture.png
 Tout un axe de la matrice a été capturé à la mauvaise taille sans que rien ne le
 dise. `screens.sh` relit désormais la valeur au lieu de croire le code de retour.
 
-⚠️ **Un drapeau de capture n'écrit jamais dans les réglages.** `-backstage` le
+⚠️ **Un drapeau de capture n'écrit jamais dans les réglages.** `-decision` le
 faisait, et toutes les captures suivantes sortaient annotées — y compris celles
 censées montrer l'application au repos.
 
@@ -159,7 +159,7 @@ censées montrer l'application au repos.
 | Composants, et Lottie / Textual / PDFKit | `Packages/CoreUI/` |
 | Phases, store, chrome, formatage, routes | `Packages/Presentation/` |
 | Vues partagées, environnement, icônes | `Packages/Features/Sources/ViewKit/` |
-| Annotations de coulisses | `Packages/Features/Sources/Backstage/` |
+| Annotations de coulisses | `Packages/Features/Sources/Decisions/` |
 | Coquille d'écran, résolution de routes | `Packages/Features/Sources/Features/Kit/` |
 | Un écran | `Packages/Features/Sources/Features/<Nom>/` |
 | Le câblage | `Packages/Composition/` |
@@ -204,7 +204,7 @@ API_BASE_URL=http://127.0.0.1:8788 ./Scripts/seed.sh
 
 - **Ajouter une dépendance.** La règle : *ce qui serait pire sans elle, pas ce
   qu'elle rend pratique.* Les arbitrages déjà rendus — Lottie oui, Alamofire
-  non, Textual oui, SwiftData non — sont dans `AppDossier`, et l'application les
+  non, Textual oui, SwiftData non — sont dans `EngineeringRecord`, et l'application les
   affiche. En ajouter une, c'est devoir l'expliquer à l'écran.
 - **Ajouter une cible.** Le graphe est la frontière : une cible de plus est une
   frontière de plus à justifier.

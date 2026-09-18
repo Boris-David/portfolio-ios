@@ -1,7 +1,7 @@
 ---
 paths:
   - "Packages/AmissanKit/Sources/DesignSystem/**"
-  - "Packages/AmissanKit/Sources/Backstage/**"
+  - "Packages/AmissanKit/Sources/Decisions/**"
   - "Packages/AmissanKit/Sources/Feature*/**"
   - "App/**"
 ---
@@ -84,7 +84,7 @@ Sans `.clipped()`, il déborde par-dessus les cartes voisines pendant l'animatio
 
 ## Les coulisses
 
-`.backstage(note)` pose une annotation. La couche `.backstageOverlay()` se pose
+`.decision(note)` pose une annotation. La couche `.decisionOverlay()` se pose
 **une fois par écran**, au niveau le plus haut, là où la géométrie est connue.
 
 ⚠️ **`transformAnchorPreference`, jamais `anchorPreference`.** Le second

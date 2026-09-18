@@ -25,6 +25,19 @@ cd "$ROOT"
 status=0
 
 # ── Every package is declared to the project ───────────────────────────────
+# ⚠️ `.testTarget(name: "X"` on one line is the easy case, and it was the only
+# case this guard could see. A target that needs `resources:` or a long
+# dependency list gets reformatted onto several lines by the formatter, and then
+# it vanished from this check — three suites were invisible here while running
+# perfectly well, which is precisely the drift this file exists to catch.
+#
+# So the name is read from the manifest with the newlines removed.
+test_targets_in() {
+  tr '\n' ' ' < "$1" \
+    | grep -oE '\.testTarget\([[:space:]]*name: "[A-Za-z0-9_]+"' \
+    | sed -E 's/.*"([A-Za-z0-9_]+)"/\1/'
+}
+
 for manifest in Packages/*/Package.swift; do
   package="$(basename "$(dirname "$manifest")")"
   if ! grep -qE "^  $package:\$" project.yml; then
@@ -41,7 +54,7 @@ for manifest in Packages/*/Package.swift; do
       echo "✖ test target '$suite' is declared but never run — add it to Scripts/test.sh" >&2
       status=1
     fi
-  done <<< "$(grep -oE '\.testTarget\(name: "[A-Za-z0-9_]+"' "$manifest" | sed -E 's/.*"([A-Za-z0-9_]+)"/\1/')"
+  done <<< "$(test_targets_in "$manifest")"
 done
 
 if [ "$status" -ne 0 ]; then
@@ -50,5 +63,5 @@ if [ "$status" -ne 0 ]; then
   exit 1
 fi
 
-count="$(grep -ohE '\.testTarget\(name: "[A-Za-z0-9_]+"' Packages/*/Package.swift | wc -l | tr -d ' ')"
+count="$(for manifest in Packages/*/Package.swift; do test_targets_in "$manifest"; done | wc -l | tr -d ' ')"
 echo "✓ $count test targets, all declared and all run."

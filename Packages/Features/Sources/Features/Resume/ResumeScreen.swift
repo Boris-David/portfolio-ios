@@ -1,4 +1,4 @@
-import Backstage
+import Decisions
 import CoreUI
 import DesignSystem
 import Domain
@@ -51,7 +51,7 @@ public struct ResumeScreen: View {
         case .loaded(let document):
           PDFPreview(url: document.fileURL)
             .ignoresSafeArea(edges: .bottom)
-            .backstage(ResumeNotes.pdfNote)
+            .decision(ResumeNotes.pdfNote)
         }
       }
       .background(Color.paper2)
@@ -72,7 +72,7 @@ public struct ResumeScreen: View {
             ) {
               Label(chrome.share, systemImage: "square.and.arrow.up")
             }
-            .backstage(ResumeNotes.shareNote)
+            .decision(ResumeNotes.shareNote)
           }
         }
       }
@@ -93,7 +93,7 @@ public struct ResumeScreen: View {
       guard now, !was else { return }
       toasts.show(chrome.resumeReady, kind: .succeeded, icon: .succeeded)
     }
-    .backstageOverlay()
+    .decisionOverlay()
   }
 
   private func provenance(_ document: ResumeDocument) -> some View {
@@ -116,6 +116,6 @@ public struct ResumeScreen: View {
     .background(.bar)
   }
 
-  // ── Coulisses ──────────────────────────────────────────────────────────
+  // ── Decisions ──────────────────────────────────────────────────────────
 
 }

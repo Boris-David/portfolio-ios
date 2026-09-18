@@ -10,7 +10,7 @@ struct LaunchArgumentsTests {
   func defaults() {
     let launch = LaunchArguments([])
     #expect(launch.initialSection == .profile)
-    #expect(!launch.isBackstageEnabled)
+    #expect(!launch.showsDecisions)
   }
 
   @Test("-tab selects the named section", arguments: AppSection.allCases)
@@ -28,12 +28,12 @@ struct LaunchArgumentsTests {
   /// only CI takes.
   @Test("-tab with nothing after it does not read past the end")
   func tabFlagWithoutValue() {
-    #expect(LaunchArguments(["-backstage", "-tab"]).initialSection == .profile)
+    #expect(LaunchArguments(["-decisions", "-tab"]).initialSection == .profile)
   }
 
-  @Test("-backstage opens in annotations mode")
-  func backstageFlag() {
-    #expect(LaunchArguments(["-backstage"]).isBackstageEnabled)
+  @Test("-decision opens in annotations mode")
+  func decisionsFlag() {
+    #expect(LaunchArguments(["-decisions"]).showsDecisions)
   }
 
   @Test("-settings opens the settings sheet")
@@ -60,15 +60,15 @@ struct LaunchArgumentsTests {
 
   @Test("-route with nothing after it does not read past the end")
   func routeFlagWithoutValue() {
-    #expect(LaunchArguments(["-backstage", "-route"]).initialRoute == nil)
+    #expect(LaunchArguments(["-decisions", "-route"]).initialRoute == nil)
   }
 
   /// The flags compose: a screenshot of the settings sheet with annotations on
   /// is one launch, not two.
   @Test("the flags compose")
   func flagsCompose() {
-    let launch = LaunchArguments(["-backstage", "-settings", "-tab", "journey"])
-    #expect(launch.isBackstageEnabled)
+    let launch = LaunchArguments(["-decisions", "-settings", "-tab", "journey"])
+    #expect(launch.showsDecisions)
     #expect(launch.opensSettings)
     #expect(launch.initialSection == .journey)
   }

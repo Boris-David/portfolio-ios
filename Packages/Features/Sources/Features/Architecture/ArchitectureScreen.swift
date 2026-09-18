@@ -12,7 +12,7 @@ import ViewKit
 ///
 /// It is a **reading**: you go into it, and you come back. A tab is somewhere
 /// you live, and a fifth one would have pushed the bar past the range where its
-/// labels stay legible. It hangs off the backstage tab because that tab already
+/// labels stay legible. It hangs off the decision tab because that tab already
 /// answers "how is this built", and this screen answers the same question about
 /// the codebases behind the career.
 ///

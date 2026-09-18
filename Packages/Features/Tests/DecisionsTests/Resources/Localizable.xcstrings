@@ -1,0 +1,72 @@
+{
+  "sourceLanguage" : "fr",
+  "strings" : {
+    "probe.full.rationale" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Because." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Parce que." } }
+      }
+    },
+    "probe.full.pitfall" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Careful." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Attention." } }
+      }
+    },
+    "probe.full.rejected.1.because" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "no" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "non" } }
+      }
+    },
+    "probe.full.rejected.1.name" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Other" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Autre" } }
+      }
+    },
+    "probe.full.rejected.2.because" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "heavier" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "plus lourd" } }
+      }
+    },
+    "probe.full.rejected.2.name" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Third" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Troisième" } }
+      }
+    },
+    "probe.full.role" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Holds the stack." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Porte la pile." } }
+      }
+    },
+    "probe.full.whenToUse" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Always." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Toujours." } }
+      }
+    },
+    "probe.spare.rationale" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Nothing else fits." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rien d'autre ne convient." } }
+      }
+    },
+    "probe.spare.role" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Draws a line." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Trace un trait." } }
+      }
+    },
+    "probe.spare.whenToUse" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Rarely." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rarement." } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

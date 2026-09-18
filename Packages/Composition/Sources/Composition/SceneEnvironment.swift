@@ -1,4 +1,4 @@
-import Backstage
+import Decisions
 import DesignSystem
 import Domain
 import FeatureKit
@@ -27,7 +27,7 @@ struct SceneEnvironment: ViewModifier {
   let portfolio: PortfolioStore
   let settings: SettingsStore
   let toasts: ToastCenter
-  let backstage: BackstageController
+  let decision: DecisionController
   let sheets: SheetResolver
   let openSettings: OpenSettingsAction
   let openResume: OpenResumeAction
@@ -40,7 +40,7 @@ struct SceneEnvironment: ViewModifier {
       .environment(portfolio)
       .environment(settings)
       .environment(toasts)
-      .environment(backstage)
+      .environment(decision)
       .environment(\.routeResolver, .live(in: zoom))
       .environment(\.sheetResolver, sheets)
       .environment(\.openSettings, openSettings)

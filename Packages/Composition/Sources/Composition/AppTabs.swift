@@ -1,6 +1,6 @@
 import CoreUI
 import DesignSystem
-import FeatureBackstage
+import FeatureEngineering
 import FeatureJourney
 import FeatureProfile
 import FeatureWork
@@ -43,10 +43,10 @@ struct AppTabs: View {
         Label(AppSection.journey.title(chrome), icon: AppSection.journey.icon)
       }
 
-      Tab(value: AppSection.backstage) {
-        BackstageScreen()
+      Tab(value: AppSection.decision) {
+        EngineeringScreen()
       } label: {
-        Label(AppSection.backstage.title(chrome), icon: AppSection.backstage.icon)
+        Label(AppSection.decision.title(chrome), icon: AppSection.decision.icon)
       }
     }
     // The bar shrinks as you read down: the content is what you came for, the
