@@ -10,7 +10,7 @@ extension FullScreenResolver {
     FullScreenResolver { cover in
       switch cover {
       case .resume:
-        AnyView(ResumeScreen(dependencies: environment))
+        AnyView(ResumeScreen())
       }
     }
   }

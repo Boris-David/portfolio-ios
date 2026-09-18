@@ -1,0 +1,886 @@
+{
+  "sourceLanguage": "fr",
+  "strings": {
+    "challenge.boundaries.lesson": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "And the graph itself is under test: `ArchitectureTests` reads all eight manifests and fails if a layer gains a forbidden dependency. Two invariants no manifest can hold — the domain ignores SwiftUI, the presentation does not draw — are refused by `Scripts/check-layers.sh`, because SwiftUI ships with the SDK."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Et le graphe lui-même est sous test : `ArchitectureTests` lit les huit manifestes et échoue si une couche gagne une dépendance interdite. Deux invariants qu'aucun manifeste ne peut tenir — le domaine ignore SwiftUI, la présentation ne dessine pas — sont refusés par `Scripts/check-layers.sh`, parce que SwiftUI vient du SDK."
+          }
+        }
+      }
+    },
+    "challenge.boundaries.problem": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Views must not know about the network” is a team rule. Team rules get bypassed on a Friday evening, and the bypass is invisible in review when the file runs to eight hundred lines."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« Les vues ne doivent pas connaître le réseau » est une règle d'équipe. Les règles d'équipe se contournent le vendredi soir, et le contournement ne se voit pas en revue quand le fichier fait huit cents lignes."
+          }
+        }
+      }
+    },
+    "challenge.boundaries.solution": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every layer is an **SPM package**, with its own manifest. A target would only have got halfway: one line added to the shared manifest and the boundary was gone. A package cannot reach what it does not declare — `Features/Package.swift` never names `Networking`, so `import Networking` answers **“no such module”**."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaque couche est un **package SPM**, avec son propre manifeste. Une cible aurait suffi à moitié : ajouter une ligne au manifeste commun et la frontière tombait. Un package ne peut pas atteindre ce qu'il ne déclare pas — `Features/Package.swift` ne nomme jamais `Networking`, donc `import Networking` répond **« no such module »**."
+          }
+        }
+      }
+    },
+    "challenge.boundaries.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A boundary the compiler holds"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une frontière que le compilateur tient"
+          }
+        }
+      }
+    },
+    "challenge.coalescing.lesson": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It is the same mechanism shipped to production on a transit network's authentication: several requests receiving “unauthorised” at the same time each triggered their own token refresh, and the concurrent refreshes invalidated one another. Remembering the in-flight task ended the unexplained sign-outs."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C'est le même mécanisme que celui posé en production sur l'authentification d'un réseau de transport : plusieurs requêtes recevant un « non autorisé » en même temps déclenchaient chacune leur rafraîchissement de jeton, et les rafraîchissements concurrents s'invalidaient entre eux. Mémoriser la tâche en cours a réglé les déconnexions inexpliquées."
+          }
+        }
+      }
+    },
+    "challenge.coalescing.problem": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All four tabs ask for the content as they appear. With no coordination that is four simultaneous requests, four concurrent cache writes — hence a half-written file — and two possible versions on screen at once.\n\nNobody would ever see it. That is exactly what makes this defect expensive: it shows up once in a hundred runs, on someone else's device."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les quatre onglets demandent le contenu en apparaissant. Sans coordination, ce sont quatre requêtes simultanées, quatre écritures de cache concurrentes — donc un fichier à moitié écrit — et deux versions possibles à l'écran en même temps.\n\nPersonne ne le verrait jamais. C'est précisément ce qui rend ce défaut coûteux : il se manifeste une fois sur cent, chez quelqu'un d'autre."
+          }
+        }
+      }
+    },
+    "challenge.coalescing.solution": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An **actor** holds the repository's state, and it **remembers the in-flight refresh task**. Concurrent callers do not start a new one: they await the same one. A single round trip, however many ask.\n\nA lock would have protected the state provided you remembered to take it everywhere — nothing checks that — and a lock held across an await is a deadlock waiting to happen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un **acteur** porte l'état du dépôt, et il **mémorise la tâche de rafraîchissement en cours**. Les appels concurrents n'en lancent pas une nouvelle : ils attendent la même. Un seul aller-retour, quel que soit le nombre de demandeurs.\n\nUn verrou aurait protégé l'état à condition qu'on pense à le prendre partout — rien ne le vérifie — et un verrou tenu pendant une attente asynchrone est un blocage qui n'attend que son heure."
+          }
+        }
+      }
+    },
+    "challenge.coalescing.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Four screens, one request"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quatre écrans, une seule requête"
+          }
+        }
+      }
+    },
+    "challenge.compat.lesson": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Both renderings are verifiable: the app launches on an iOS 18 simulator **and** on an iOS 26 one, and screenshots of both come from the same command."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les deux rendus sont vérifiables : l'application se lance sur un simulateur iOS 18 **et** sur un iOS 26, et les captures des deux sont produites par la même commande."
+          }
+        }
+      }
+    },
+    "challenge.compat.problem": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The iOS 26 SDK brings a material earlier versions do not have. Scattering `if #available` through the views works — and after thirty screens nobody knows what an iOS 18 user actually sees. The fallback is tested nowhere because it is named nowhere."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le SDK d'iOS 26 apporte un matériau que les versions antérieures n'ont pas. Semer des `if #available` dans les vues fonctionne — et au bout de trente écrans, plus personne ne sait ce que voit un utilisateur d'iOS 18. Le repli n'est testé nulle part parce qu'il n'est nommé nulle part."
+          }
+        }
+      }
+    },
+    "challenge.compat.solution": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The **intent** is named — `.navigationGlass()` says “this is a navigation surface” — and the rendering is decided in a single file. The cost of an evolving SDK is paid once instead of spread everywhere.\n\nOn iOS 18 the fallback is not “the same thing, worse”: it is the material the system itself uses for its bars."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'**intention** est nommée — `.navigationGlass()` dit « ceci est une surface de navigation » — et le rendu est décidé dans un seul fichier. Le coût d'un SDK qui évolue se paie une fois, au lieu d'être réparti partout.\n\nSur iOS 18, le repli n'est pas « la même chose en moins bien » : c'est le matériau que le système emploie lui-même pour ses barres."
+          }
+        }
+      }
+    },
+    "challenge.compat.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liquid Glass on iOS 26, without dropping iOS 18"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liquid Glass sur iOS 26, sans abandonner iOS 18"
+          }
+        }
+      }
+    },
+    "challenge.offline.lesson": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The website, by contrast, **refuses** any fallback: it builds on a machine that has the network, and publishing empty sections would be worse than a red deployment. The same principle — “no silent fallback” — yields opposite decisions depending on context. The principle travels, the decision does not."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le site, lui, **refuse** tout repli : il se construit sur une machine qui a le réseau, et publier des sections vides serait pire qu'un déploiement rouge. Le même principe — « pas de repli silencieux » — donne deux décisions opposées selon le contexte. C'est le principe qui se transporte, pas la décision."
+          }
+        }
+      }
+    },
+    "challenge.offline.problem": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An app that waits for the network before showing anything is useless on the underground — which is exactly where a portfolio gets opened between two interviews."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une application qui attend le réseau pour afficher quoi que ce soit est inutilisable dans un métro — et c'est exactement là qu'on ouvre un portfolio entre deux entretiens."
+          }
+        }
+      }
+    },
+    "challenge.offline.solution": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Three layers, read in this order: the **disk cache** from the last session, the **bundled seed** produced at build time from the API, then the **network**. The screen shows immediately with what it has, then updates.\n\nAnd it **says** what it is showing. An offline app that does not admit it presents stale content with the confidence of fresh content."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trois couches, lues dans cet ordre : le **cache disque** de la dernière session, la **graine embarquée** produite à la construction depuis l'API, puis le **réseau**. L'écran s'affiche immédiatement avec ce qu'il a, puis se met à jour.\n\nEt il **dit** ce qu'il affiche. Une application hors ligne qui ne l'avoue pas montre du vieux contenu avec l'aplomb du neuf."
+          }
+        }
+      }
+    },
+    "challenge.offline.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Showing something in a tunnel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher quelque chose dans un tunnel"
+          }
+        }
+      }
+    },
+    "dependency.alamofire.reasoning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An excellent library — of which nothing would be used here. `async/await` has come from `URLSession` since iOS 15; validation is one status comparison; retry and freshness policy live in the `Data` layer, because retrying is a product decision (“how long does a recruiter wait?”) rather than a transport one; and the app only reads.\n\nWhat it would cost is real: one more dependency to audit on a public repository, a larger binary, an API surface to explain out loud. The `HTTPClient` protocol keeps the choice **reversible**: the day Alamofire's features were needed, one more implementation would do it, without a single view moving."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Excellente bibliothèque — dont on n'utiliserait rien ici. L'`async/await` vient d'`URLSession` depuis iOS 15 ; la validation tient en une comparaison de statut ; le rejeu et la politique de fraîcheur vivent dans la couche `Data`, parce que réessayer est une décision métier (« combien de temps un recruteur attend-il ? ») et pas une décision de transport ; et l'application ne fait que lire.\n\nCe qu'on paierait est réel : une dépendance de plus à auditer sur un dépôt public, un binaire plus gros, une surface d'API à expliquer à l'oral. Le protocole `HTTPClient` rend le choix **réversible** : le jour où il faudrait ce qu'Alamofire apporte, une implémentation de plus suffirait, sans qu'aucune vue ne bouge."
+          }
+        }
+      }
+    },
+    "dependency.lottie.reasoning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Without it you would have to reimplement an After Effects animation interpreter — interpolated Bézier paths, masks, motion along curves. That is not “less convenient”, it is a project of its own. **It really would be worse without.**"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sans elle, il faudrait réimplémenter un interpréteur d'animations After Effects — tracés de Bézier interpolés, masques, trajectoires. Ce n'est pas « moins pratique », c'est un projet à soi seul. **Ce serait réellement pire sans.**"
+          }
+        }
+      }
+    },
+    "dependency.swiftdata.reasoning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There is no relation here, no query, no migration: one payload per language, written whole, read back whole. SwiftData would add a model to describe, a context to manage and a schema to evolve — to replace `Data.write(to:)`.\n\nUsing it because it is the modern framework would be a display choice, not an engineering one. If searching, sorting or relating were ever needed, the decision would be revisited — and `LocalStore` is the protocol that would make that possible without touching the rest."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il n'y a ici ni relation, ni requête, ni migration : une charge utile par langue, écrite en entier, relue en entier. SwiftData apporterait un modèle à décrire, un contexte à gérer et un schéma à faire évoluer — pour remplacer `Data.write(to:)`.\n\nL'employer parce que c'est le framework moderne serait un choix d'affichage, pas d'ingénierie. S'il fallait un jour chercher, trier ou lier, la décision se reprendrait — et `LocalStore` est le protocole qui la rendrait possible sans toucher au reste."
+          }
+        }
+      }
+    },
+    "dependency.textual.reasoning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`AttributedString(markdown:)` handles **inline** only — bold, code, links. It ignores lists and code blocks, which are exactly what a technical explanation needs.\n\nTextual renders to **native** `AttributedString`: you keep Dynamic Type, selection and the system's text engine, instead of a rebuilt view tree. MarkdownUI, by the same author, moved to maintenance mode and points here explicitly.\n\nIt is a **0.x** version: semver promises nothing before 1.0. Hence `upToNextMinor` rather than `from` — patches are accepted, version bumps are **decided**."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`AttributedString(markdown:)` ne gère que l'**inline** — gras, code, liens. Il ignore les listes et les blocs de code, qui sont exactement ce dont une explication technique a besoin.\n\nTextual rend vers `AttributedString` **native** : on garde Dynamic Type, la sélection et le rendu de texte du système, au lieu d'un arbre de vues reconstruit. MarkdownUI, du même auteur, est passé en mode maintenance et renvoie explicitement ici.\n\nC'est une version **0.x** : le semver ne promet rien avant la 1.0. D'où `upToNextMinor` et non `from` — on accepte les correctifs, on **décide** des montées de version."
+          }
+        }
+      }
+    },
+    "layer.composition.responsibility": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wire implementations onto the ports."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brancher les implémentations sur les ports."
+          }
+        }
+      }
+    },
+    "layer.composition.rule": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The only package allowed to see everything, because someone has to decide which concrete object answers which protocol. Its dependency list is long and everybody else's is short: that is exactly what you want to read."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le seul package qui a le droit de tout voir, parce que quelqu'un doit décider quel objet concret répond à quel protocole. Sa liste de dépendances est longue, et celle de tous les autres est courte : c'est exactement ce qu'on veut lire."
+          }
+        }
+      }
+    },
+    "layer.data.responsibility": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The *gateways*: DTOs, mapping, repositories, sources."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les *gateways* : DTO, correspondances, dépôts, sources."
+          }
+        }
+      }
+    },
+    "layer.data.rule": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The one place where domain and plumbing meet. DTOs live here, **never** in `Domain`: an entity carrying `CodingKeys` is an entity that let the network dictate its shape."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le seul endroit où le domaine et la technique se rencontrent. Les DTO vivent ici, **jamais** dans `Domain` : une entité qui porte des `CodingKeys` est une entité qui a laissé le réseau dicter sa forme."
+          }
+        }
+      }
+    },
+    "layer.designsystem.responsibility": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colours, typography, motion, components."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couleurs, typographie, mouvement, composants."
+          }
+        }
+      }
+    },
+    "layer.designsystem.rule": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Knows nothing of the domain either. Its values are **generated** from `design/tokens.json`, the same source as the site's CSS: both render the same hexadecimal value, not “roughly the same”."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne connaît pas le domaine non plus. Ses valeurs sont **générées** depuis `design/tokens.json`, la même source que le CSS du site : les deux affichent la même valeur hexadécimale, pas « à peu près la même »."
+          }
+        }
+      }
+    },
+    "layer.domain.responsibility": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The entities and the ports. What the app *is*."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les entités et les ports. Ce que l'application *est*."
+          }
+        }
+      }
+    },
+    "layer.domain.rule": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depends on **nothing**: no transport, no storage, no SwiftUI, no serialisation format. It is the only layer that would survive replacing all three others."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne dépend de **rien** : ni transport, ni stockage, ni SwiftUI, ni format de sérialisation. C'est la seule couche qui survivrait à un changement complet des trois autres."
+          }
+        }
+      }
+    },
+    "layer.features.responsibility": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One screen, its state, its annotations."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un écran, son état, ses annotations."
+          }
+        }
+      }
+    },
+    "layer.features.rule": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See **neither** `Networking`, **nor** `Persistence`, **nor** `Data`. A view talks to a domain port; what implements it is decided elsewhere. This is not a convention: those three names are absent from this package's manifest, and `import Networking` answers “no such module”."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne voient **ni** `Networking`, **ni** `Persistence`, **ni** `Data`. Une vue parle à un port du domaine ; ce qui l'implémente est décidé ailleurs. Ce n'est pas une convention : ces trois noms sont absents du manifeste de ce package, et `import Networking` répond « no such module »."
+          }
+        }
+      }
+    },
+    "layer.networking.responsibility": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speak HTTP. Nothing else."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parler HTTP. Rien d'autre."
+          }
+        }
+      }
+    },
+    "layer.networking.rule": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Knows nothing of the portfolio. None of its types mentions a profile or a case study — which is what lets it be tested without knowing the domain, and replaced without reopening a line elsewhere."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne connaît pas le portfolio. Aucun de ses types ne mentionne un profil ou une étude de cas — c'est ce qui permet de la tester sans rien savoir du domaine, et de la remplacer sans rouvrir une ligne ailleurs."
+          }
+        }
+      }
+    },
+    "layer.persistence.responsibility": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write and read back bytes, serialised."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écrire et relire des octets, de façon sérialisée."
+          }
+        }
+      }
+    },
+    "layer.persistence.rule": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An actor, not a lock: isolation becomes a property of the type, and forgetting becomes impossible rather than unlikely."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un acteur, pas un verrou : l'isolation devient une propriété du type, et l'oubli devient impossible plutôt qu'improbable."
+          }
+        }
+      }
+    },
+    "layer.presentation.responsibility": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decide what a screen shows — never draw it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Décider ce qu'un écran montre — jamais le dessiner."
+          }
+        }
+      }
+    },
+    "layer.presentation.rule": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "**Does not import SwiftUI.** That is the acid test of a presentation layer: if it draws, it is a view; if it decides what to draw, it belongs here. Direct consequence — phases, failure messages, date formats and routes are tested **with no simulator**."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "**N'importe pas SwiftUI.** C'est le test décisif d'une couche de présentation : si ça dessine, c'est une vue ; si ça décide quoi dessiner, c'est ici. Conséquence directe — phases, messages d'erreur, formats de date et routes se testent **sans simulateur**."
+          }
+        }
+      }
+    },
+    "walkthrough.content.step.1.does": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "consumes a stream: it shows the first element without waiting for the next"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "consomme un flux : il affiche le premier élément sans attendre le suivant"
+          }
+        }
+      }
+    },
+    "walkthrough.content.step.2.does": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "yields the disk cache first, otherwise the bundled seed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "rend d'abord le cache disque, sinon la graine embarquée"
+          }
+        }
+      }
+    },
+    "walkthrough.content.step.3.does": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "starts **one** network request, shared by every simultaneous caller"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lance **une** requête réseau, partagée par tous les appelants simultanés"
+          }
+        }
+      }
+    },
+    "walkthrough.content.step.4.does": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "decodes — and its `codingPath` hands you the faulty field's path for free"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "décode — et son `codingPath` donne gratuitement le chemin du champ fautif"
+          }
+        }
+      }
+    },
+    "walkthrough.content.step.5.does": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "validates what the domain cannot accept: an unknown role **throws**, it does not fall back"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "valide ce que le domaine ne peut pas accepter : un rôle inconnu **lève**, il ne se replie pas"
+          }
+        }
+      }
+    },
+    "walkthrough.content.step.6.does": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "caches the **bytes received**, not a re-encoding — which would drop fields not yet read"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "écrit en cache les **octets reçus**, pas un ré-encodage — qui perdrait les champs pas encore lus"
+          }
+        }
+      }
+    },
+    "walkthrough.content.step.7.does": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "shows the new snapshot, saying where it came from"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "affiche le nouvel instantané, en disant d'où il vient"
+          }
+        }
+      }
+    },
+    "walkthrough.content.summary": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Three layers, one request, and an admission of what is on screen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trois couches, une seule requête, et l'aveu de ce qu'on montre."
+          }
+        }
+      }
+    },
+    "walkthrough.content.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Showing the content"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher le contenu"
+          }
+        }
+      }
+    },
+    "walkthrough.resume.step.1.does": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "asks for the document in the current language — and knows nothing more"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "demande le document dans la langue courante — et ne sait rien de plus"
+          }
+        }
+      }
+    },
+    "walkthrough.resume.step.2.does": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "reads back the known `ETag` and attaches `If-None-Match` to the request"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "relit l'`ETag` déjà connu et joint `If-None-Match` à la requête"
+          }
+        }
+      }
+    },
+    "walkthrough.resume.step.3.does": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "downloads **to a file**, never into memory"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "télécharge **dans un fichier**, jamais en mémoire"
+          }
+        }
+      }
+    },
+    "walkthrough.resume.step.4.does": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "answers `304` — not one byte of body — or `200` with `Content-Disposition`"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "répond `304` — pas un octet de corps — ou `200` avec `Content-Disposition`"
+          }
+        }
+      }
+    },
+    "walkthrough.resume.step.5.does": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "reads the announced name: `filename*` first, `filename` next, and refuses anything resembling a path"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lit le nom annoncé : `filename*` d'abord, `filename` ensuite, et refuse tout ce qui ressemble à un chemin"
+          }
+        }
+      }
+    },
+    "walkthrough.resume.step.6.does": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "moves the file under that name into the cache, and stores the `ETag`"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "déplace le fichier sous ce nom dans le cache, et enregistre l'`ETag`"
+          }
+        }
+      }
+    },
+    "walkthrough.resume.step.7.does": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "opens the URL and reads only the pages being looked at"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ouvre l'URL et ne lit que les pages regardées"
+          }
+        }
+      }
+    },
+    "walkthrough.resume.step.8.does": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "passes the URL — hence the **name** — not anonymous bytes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "transmet l'URL — donc le **nom** — et non des octets anonymes"
+          }
+        }
+      }
+    },
+    "walkthrough.resume.summary": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From the conditional request to the file name the recipient sees."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De la requête conditionnelle au nom de fichier que verra le destinataire."
+          }
+        }
+      }
+    },
+    "walkthrough.resume.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opening the PDF résumé"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir le CV en PDF"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

@@ -61,7 +61,7 @@ struct PatternComparisonBlock: View {
             criterionRow(criterion)
           }
         }
-        .decision(ArchitectureNotes.gridNote)
+        .decision(ArchitectureDecisions.grid)
       }
       // The table bleeds to the screen edge and insets its content instead of
       // being padded: padding would have clipped the scroll, and the last column

@@ -13,20 +13,20 @@ import Localization
 ///
 /// So changing a piece of text never reopens a Swift file, let alone a `body`.
 /// Adding a language adds a column to the catalogue and not one line of code.
-enum WorkNotes {
-  static let gridNote = DesignDecision(
+enum WorkDecisions {
+  static let grid = DesignDecision(
     id: "work.grid",
     component: "LazyVGrid · GridItem(.adaptive)",
     documentation: URL(string: "https://developer.apple.com/documentation/swiftui/griditem"),
     in: .work
   )
-  static let contextMenuNote = DesignDecision(
+  static let contextMenu = DesignDecision(
     id: "work.contextmenu",
     component: "contextMenu · ShareLink",
     documentation: URL(string: "https://developer.apple.com/documentation/swiftui/view/contextmenu(menuitems:)"),
     in: .work
   )
-  static let disclosureNote = DesignDecision(
+  static let disclosure = DesignDecision(
     id: "work.disclosure",
     component: "Dépliage sur mesure · clipped",
     documentation: URL(string: "https://developer.apple.com/documentation/swiftui/disclosuregroup"),

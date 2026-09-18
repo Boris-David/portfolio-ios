@@ -13,20 +13,20 @@ import Localization
 ///
 /// So changing a piece of text never reopens a Swift file, let alone a `body`.
 /// Adding a language adds a column to the catalogue and not one line of code.
-enum SettingsNotes {
-  static let formNote = DesignDecision(
+enum SettingsDecisions {
+  static let form = DesignDecision(
     id: "settings.form",
     component: "Form · Section",
     documentation: URL(string: "https://developer.apple.com/documentation/swiftui/form"),
     in: .settings
   )
-  static let pickerNote = DesignDecision(
+  static let picker = DesignDecision(
     id: "settings.picker",
     component: "Picker · .segmented",
     documentation: URL(string: "https://developer.apple.com/documentation/swiftui/picker"),
     in: .settings
   )
-  static let confirmationNote = DesignDecision(
+  static let confirmation = DesignDecision(
     id: "settings.confirmation",
     component: "confirmationDialog",
     documentation: URL(string: "https://developer.apple.com/documentation/swiftui/view/confirmationdialog(_:ispresented:titlevisibility:actions:)"),

@@ -148,7 +148,7 @@ struct AppsBlock: View {
           AppCell(app: app)
         }
       }
-      .decision(WorkNotes.gridNote)
+      .decision(WorkDecisions.grid)
 
       if let note = section?.note {
         Text(note.plain)
@@ -222,7 +222,7 @@ struct AppCell: View {
     .accessibilityElement(children: .combine)
     .accessibilityLabel("\(app.name), \(app.territory)")
     .accessibilityHint(text(InterfaceText.openInAppStore))
-    .decision(WorkNotes.contextMenuNote)
+    .decision(WorkDecisions.contextMenu)
   }
 }
 

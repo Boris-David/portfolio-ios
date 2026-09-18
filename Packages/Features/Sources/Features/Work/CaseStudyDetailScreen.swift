@@ -31,7 +31,7 @@ public struct CaseStudyDetailScreen: View {
               ChapterDisclosureView(number: index + 1, chapter: chapter)
             }
           }
-          .decision(WorkNotes.disclosureNote)
+          .decision(WorkDecisions.disclosure)
         } else if let chapter = study.chapters.first {
           FlatChapterView(chapter: chapter)
         }

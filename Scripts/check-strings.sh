@@ -182,6 +182,46 @@ for file in $(find Packages/Features/Sources -name "*.swift" \
   fi
 done
 
+
+# -- Nobody outside the two resolvers ever names a language -------------------
+#
+# The language on screen is set **once**, by the scene, and read by exactly two
+# property wrappers: `Localized`, for catalogue keys, and `LocalizedDecision`,
+# for a decision's own sentences.
+#
+# Any other reader is a type that *could* branch on a language, and every one
+# that existed did eventually pass it somewhere else: `DecisionSheet` threaded it
+# through five calls, `ResumeScreen` handed it to a store that should have held
+# its own, `SectionShell` passed it to a tip. None of them was wrong; all of them
+# were a language being managed outside the one place that manages languages.
+ALLOWED="Localization/Localized.swift Decisions/DecisionText.swift ViewKit/ContentLanguage.swift Composition/SceneEnvironment.swift"
+while read -r found; do
+  [ -z "$found" ] && continue
+  file="${found%%:*}"
+  keep=false
+  for allowed in $ALLOWED; do
+    case "$file" in *"$allowed") keep=true ;; esac
+  done
+  $keep && continue
+  echo "X $found" >&2
+  echo "  the language is read by the resolvers, and by nothing else" >&2
+  status=1
+done <<< "$(grep -rn 'Environment(\\.contentLanguage)' Packages/*/Sources --include="*.swift" 2>/dev/null || true)"
+
+# And no type at all enumerates the languages that exist: that list is whatever
+# the compiled catalogue contains. A `case .french` is a third language that
+# will not compile.
+while read -r found; do
+  [ -z "$found" ] && continue
+  case "${found%%:*}" in
+    */Domain/Language.swift|*/Domain/LanguagePreference.swift) continue ;;
+  esac
+  echo "X $found" >&2
+  echo "  a language is a catalogue column, not a case to switch on" >&2
+  status=1
+done <<< "$(grep -rn 'case \.french\|case \.english\|== \.french\|== \.english' \
+             Packages/*/Sources --include="*.swift" 2>/dev/null || true)"
+
 if [ "$status" -ne 0 ]; then
   echo "" >&2
   echo "Text lives in a catalogue. A view names a key." >&2

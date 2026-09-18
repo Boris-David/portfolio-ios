@@ -21,12 +21,12 @@ struct ResumeStoreTests {
   @Test("the first load goes from initial, through loading, to loaded")
   func firstLoadWalksThePhases() async {
     let reading = ResumeReadingSpy(.document(.stub), isGated: true)
-    let store = ResumeStore(reading: reading)
+    let store = ResumeStore(reading: reading, language: .french)
 
     // Nothing has been asked for yet: the screen shows nothing, not a skeleton.
     #expect(store.phase == .initial)
 
-    let load = Task { await store.load(in: .french) }
+    let load = Task { await store.load() }
     await reading.waitUntilCalled()
     #expect(store.phase == .loading)
 
@@ -44,9 +44,9 @@ struct ResumeStoreTests {
   /// read from the catalogue by whatever draws it.
   @Test("a failure carries its cause, not its wording", arguments: Language.allCases)
   func failureCarriesItsCause(_ language: Language) async {
-    let store = ResumeStore(reading: ResumeReadingSpy(.unavailable(.unreachable)))
+    let store = ResumeStore(reading: ResumeReadingSpy(.unavailable(.unreachable)), language: language)
 
-    await store.load(in: language)
+    await store.load()
 
     guard case .failed(let failure) = store.phase else {
       Issue.record("expected a failure, got \(store.phase)")
@@ -68,10 +68,11 @@ struct ResumeStoreTests {
     let store = ResumeStore(
       reading: ResumeReadingSpy(
         .unavailable(.malformed(path: "resume.fileName", reason: .missingField))
-      )
+      ),
+      language: .english
     )
 
-    await store.load(in: .english)
+    await store.load()
 
     guard case .failed(let failure) = store.phase else {
       Issue.record("expected a failure, got \(store.phase)")
@@ -90,9 +91,9 @@ struct ResumeStoreTests {
   /// which is the one outcome worse than an error.
   @Test("an error the domain does not name is still worded, never swallowed")
   func unnamedErrorStillReachesTheScreen() async {
-    let store = ResumeStore(reading: ResumeReadingSpy(.unexpected(URLError(.timedOut))))
+    let store = ResumeStore(reading: ResumeReadingSpy(.unexpected(URLError(.timedOut))), language: .french)
 
-    await store.load(in: .french)
+    await store.load()
 
     guard case .failed(let failure) = store.phase else {
       Issue.record("expected a failure, got \(store.phase)")
@@ -113,22 +114,23 @@ struct ResumeStoreTests {
   @Test("loading again keeps what is already on screen")
   func reloadDoesNotFallBackToASkeleton() async {
     let reading = ResumeReadingSpy(.document(.stub), isGated: true)
-    let store = ResumeStore(reading: reading)
+    let store = ResumeStore(reading: reading, language: .french)
 
-    let first = Task { await store.load(in: .french) }
+    let first = Task { await store.load() }
     await reading.waitUntilCalled()
     await reading.release()
     await first.value
     #expect(store.phase == .loaded(.stub))
 
-    let second = Task { await store.load(in: .english) }
+    let second = Task { await store.setLanguage(.english) }
     await reading.waitUntilCalled()
     #expect(store.phase == .loaded(.stub), "a reload replaced the document with a skeleton")
 
     await reading.release()
     await second.value
-    // The second read really did ask for the other language: the language is a
-    // parameter of `load` precisely so that it can change between two calls.
+    // The second read really did ask for the other language: the store holds the
+    // language and `setLanguage` reloads, precisely so it can change while the
+    // sheet is open.
     #expect(await reading.languages == [.french, .english])
   }
 }

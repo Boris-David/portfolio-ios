@@ -32,6 +32,7 @@ import ViewKit
 /// composition root is.
 public struct AppRoot: View {
   @State private var store: PortfolioStore
+  @State private var resume: ResumeStore
   @State private var settings: SettingsStore
   @State private var toasts = ToastCenter()
   @State private var decision = DecisionController()
@@ -73,6 +74,14 @@ public struct AppRoot: View {
     _store = State(initialValue: PortfolioStore(
       reading: environment.portfolio,
       language: settings.resolvedLanguage,
+    ))
+    // Long-lived on purpose: it holds the downloaded document and its `ETag`,
+    // so reopening the resume does not fetch it again. Built here rather than
+    // inside the screen because the language it serves is decided here, and
+    // nowhere else.
+    _resume = State(initialValue: ResumeStore(
+      reading: environment.resume,
+      language: settings.resolvedLanguage
     ))
     _selection = State(initialValue: launch.initialSection)
   }
@@ -133,6 +142,7 @@ public struct AppRoot: View {
     SceneEnvironment(
       language: settings.resolvedLanguage,
       portfolio: store,
+      resume: resume,
       settings: settings,
       toasts: toasts,
       decision: decision,
@@ -161,6 +171,7 @@ public struct AppRoot: View {
     for await event in await environment.events.events {
       guard case .languageChanged(let language) = event else { continue }
       store.setLanguage(language)
+      await resume.setLanguage(language)
     }
   }
 }

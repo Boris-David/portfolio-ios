@@ -75,7 +75,7 @@ public struct EngineeringScreen: View {
 /// The layers, and what each one is **not** allowed to know.
 struct LayersBlock: View {
   @Localized(.interface) private var text
-  @Environment(\.contentLanguage) private var language
+  @Localized(.engineering) private var record
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
       Text(text(InterfaceText.architecture)).eyebrowStyle()
@@ -95,11 +95,11 @@ struct LayersBlock: View {
                 }
               }
               InlineMarkdown(
-                layer.responsibility(language),
+                record(layer.responsibilityKey),
                 font: Typography.bodyStrong,
                 color: .ink
               )
-              MarkdownText(layer.rule(language), font: Typography.secondary, color: .ink2)
+              MarkdownText(record(layer.ruleKey), font: Typography.secondary, color: .ink2)
               if !layer.dependsOn.isEmpty {
                 WrappingRow {
                   ForEach(layer.dependsOn, id: \.self) { Chip($0) }
@@ -118,7 +118,7 @@ struct LayersBlock: View {
 /// The challenges, expandable.
 struct ChallengesBlock: View {
   @Localized(.interface) private var text
-  @Environment(\.contentLanguage) private var language
+  @Localized(.engineering) private var record
   @State private var opened: Set<String> = []
   @ReducedMotion private var reducedMotion
 
@@ -140,7 +140,7 @@ struct ChallengesBlock: View {
                 }
               } label: {
                 HStack(alignment: .top, spacing: Tokens.Space.s3) {
-                  Text(challenge.title(language))
+                  Text(record(challenge.titleKey))
                     .font(Typography.heading)
                     .foregroundStyle(Color.ink)
                     .multilineTextAlignment(.leading)
@@ -161,9 +161,9 @@ struct ChallengesBlock: View {
 
               VStack(alignment: .leading, spacing: Tokens.Space.s4) {
                 Divider().overlay(Color.line)
-                labelled(text(InterfaceText.theProblem), challenge.problem(language))
-                labelled(text(InterfaceText.theSolution), challenge.solution(language))
-                labelled(text(InterfaceText.theLesson), challenge.lesson(language))
+                labelled(text(InterfaceText.theProblem), record(challenge.problemKey))
+                labelled(text(InterfaceText.theSolution), record(challenge.solutionKey))
+                labelled(text(InterfaceText.theLesson), record(challenge.lessonKey))
               }
               .padding(.horizontal, Tokens.Space.s4)
               .padding(.bottom, Tokens.Space.s4)
@@ -192,7 +192,7 @@ struct ChallengesBlock: View {
 /// The end-to-end walkthroughs: who does what, in order.
 struct WalkthroughsBlock: View {
   @Localized(.interface) private var text
-  @Environment(\.contentLanguage) private var language
+  @Localized(.engineering) private var record
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
       Text(text(InterfaceText.endToEnd)).eyebrowStyle()
@@ -200,13 +200,13 @@ struct WalkthroughsBlock: View {
       ForEach(EngineeringRecord.walkthroughs) { walkthrough in
         Surface {
           VStack(alignment: .leading, spacing: Tokens.Space.s3) {
-            Text(walkthrough.title(language))
+            Text(record(walkthrough.titleKey))
               .font(Typography.heading)
               .foregroundStyle(Color.ink)
-            InlineMarkdown(walkthrough.summary(language), font: Typography.secondary)
+            InlineMarkdown(record(walkthrough.summaryKey), font: Typography.secondary)
 
             VStack(alignment: .leading, spacing: Tokens.Space.s3) {
-              ForEach(Array(walkthrough.steps.enumerated()), id: \.offset) { index, step in
+              ForEach(Array(walkthrough.components.enumerated()), id: \.offset) { index, component in
                 HStack(alignment: .top, spacing: Tokens.Space.s3) {
                   Text("\(index + 1)")
                     .font(.system(size: Tokens.Icon.badge, weight: .bold, design: .rounded))
@@ -215,10 +215,10 @@ struct WalkthroughsBlock: View {
                     .frame(width: Tokens.Layout.stepBadge, height: Tokens.Layout.stepBadge)
                     .background(Circle().fill(Color.accent))
                   VStack(alignment: .leading, spacing: 1) {
-                    Text(step.actor)
+                    Text(component)
                       .font(Typography.code)
                       .foregroundStyle(Color.accent)
-                    MarkdownText(step.does(language), font: Typography.secondary, color: .ink2)
+                    MarkdownText(record(walkthrough.stepKey(index + 1)), font: Typography.secondary, color: .ink2)
                   }
                 }
                 .accessibilityElement(children: .combine)
@@ -237,23 +237,23 @@ struct WalkthroughsBlock: View {
 /// The dependencies: the ones taken, the ones declined, and why.
 struct DependenciesBlock: View {
   @Localized(.interface) private var text
-  @Environment(\.contentLanguage) private var language
+  @Localized(.engineering) private var record
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
       Text(text(InterfaceText.dependencies)).eyebrowStyle()
       InlineMarkdown(text(InterfaceText.dependenciesRule))
 
-      ForEach(EngineeringRecord.dependencies) { call in
+      ForEach(EngineeringRecord.dependencies) { decision in
         Surface {
           VStack(alignment: .leading, spacing: Tokens.Space.s2) {
             HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s2) {
-              Text(call.name)
+              Text(decision.name)
                 .font(Typography.heading)
                 .foregroundStyle(Color.ink)
               Spacer(minLength: Tokens.Space.s2)
-              verdict(call.verdict)
+              outcome(decision.outcome)
             }
-            MarkdownText(call.reasoning(language), font: Typography.secondary, color: .ink2)
+            MarkdownText(record(decision.reasoningKey), font: Typography.secondary, color: .ink2)
           }
         }
       }
@@ -263,8 +263,8 @@ struct DependenciesBlock: View {
   }
 
   @ViewBuilder
-  private func verdict(_ verdict: EngineeringRecord.DependencyCall.Verdict) -> some View {
-    switch verdict {
+  private func outcome(_ outcome: EngineeringRecord.DependencyDecision.Outcome) -> some View {
+    switch outcome {
     case .adopted(let version):
       Label(version, systemImage: "checkmark.circle.fill")
         .font(Typography.caption)

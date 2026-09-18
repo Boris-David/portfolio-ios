@@ -154,7 +154,7 @@ let package = Package(
     .target(name: "FeatureWork", dependencies: ["FeatureKit"], path: "Sources/Features/Work", resources: [.process("Resources")], swiftSettings: .strict),
     .target(name: "FeatureJourney", dependencies: ["FeatureKit"], path: "Sources/Features/Journey", resources: [.process("Resources")], swiftSettings: .strict),
     .target(name: "FeatureResume", dependencies: ["FeatureKit"], path: "Sources/Features/Resume", resources: [.process("Resources")], swiftSettings: .strict),
-    .target(name: "FeatureEngineering", dependencies: ["FeatureKit"], path: "Sources/Features/Engineering", swiftSettings: .strict),
+    .target(name: "FeatureEngineering", dependencies: ["FeatureKit"], path: "Sources/Features/Engineering", resources: [.process("Resources")], swiftSettings: .strict),
     .target(name: "FeatureContact", dependencies: ["FeatureKit"], path: "Sources/Features/Contact", swiftSettings: .strict),
     .target(name: "FeatureSettings", dependencies: ["FeatureKit"], path: "Sources/Features/Settings", resources: [.process("Resources")], swiftSettings: .strict),
     .target(name: "FeatureArchitecture", dependencies: ["FeatureKit"], path: "Sources/Features/Architecture", resources: [.process("Resources")], swiftSettings: .strict),

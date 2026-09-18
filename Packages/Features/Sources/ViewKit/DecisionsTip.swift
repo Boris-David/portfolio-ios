@@ -25,14 +25,14 @@ import TipKit
 /// is the only feature in the app that is genuinely invisible until somebody
 /// points at it.
 package struct DecisionsTip: Tip {
-  /// The language of the content on screen.
+  /// The two sentences, already read from the catalogue.
   ///
-  /// Carried on the tip rather than read from a global: `Tip`'s members are
-  /// nonisolated, so a main-actor static would not compile — and a
-  /// `nonisolated(unsafe)` one would be a data race waiting for the day a tip is
-  /// evaluated off the main actor. TipKit identifies tips by **type**, so a
-  /// stored property costs nothing.
-  package let language: Language
+  /// A `Tip` is not a `View`, so it cannot resolve a key itself — its members
+  /// are nonisolated, and there is no environment to read. So the screen that
+  /// presents it resolves them and hands them over, which keeps the rule intact:
+  /// no type outside the view layer ever names a language.
+  private let titleText: String
+  private let messageText: String
 
   /// Shown once, and never again after the reader has turned the mode on.
   ///
@@ -40,25 +40,18 @@ package struct DecisionsTip: Tip {
   /// remember to call `invalidate` from the right place.
   @Parameter package static var hasBeenUsed: Bool = false
 
-  package init(language: Language) {
-    self.language = language
+  package init(title: String, message: String) {
+    self.titleText = title
+    self.messageText = message
   }
 
   package var rules: [Rule] {
     #Rule(Self.$hasBeenUsed) { $0 == false }
   }
 
-  package var title: Text {
-    Text(language == .french ? "Les décisions" : "The decisions")
-  }
+  package var title: Text { Text(titleText) }
 
-  package var message: Text? {
-    Text(
-      language == .french
-        ? "Activez les annotations : chaque composant explique pourquoi il a été choisi, et ce qui a été écarté."
-        : "Turn on annotations: every component explains why it was chosen, and what was ruled out."
-    )
-  }
+  package var message: Text? { Text(messageText) }
 
   package var image: Image? { Image(Icon.annotations) }
 }

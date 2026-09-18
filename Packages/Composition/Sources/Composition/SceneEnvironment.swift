@@ -25,6 +25,7 @@ import SwiftUI
 struct SceneEnvironment: ViewModifier {
   let language: Language
   let portfolio: PortfolioStore
+  let resume: ResumeStore
   let settings: SettingsStore
   let toasts: ToastCenter
   let decision: DecisionController
@@ -38,6 +39,7 @@ struct SceneEnvironment: ViewModifier {
     content
       .environment(\.contentLanguage, language)
       .environment(portfolio)
+      .environment(resume)
       .environment(settings)
       .environment(toasts)
       .environment(decision)

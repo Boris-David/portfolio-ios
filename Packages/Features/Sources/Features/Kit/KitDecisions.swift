@@ -13,8 +13,8 @@ import Localization
 ///
 /// So changing a piece of text never reopens a Swift file, let alone a `body`.
 /// Adding a language adds a column to the catalogue and not one line of code.
-enum KitNotes {
-  static let popoverNote = DesignDecision(
+enum KitDecisions {
+  static let popover = DesignDecision(
     id: "shared.freshness",
     component: "popover · presentationCompactAdaptation",
     documentation: URL(string: "https://developer.apple.com/documentation/swiftui/view/presentationcompactadaptation(_:)"),

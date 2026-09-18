@@ -46,7 +46,7 @@ struct HeroBlock: View {
       wash
       content
     }
-    .decision(ProfileNotes.heroNote)
+    .decision(ProfileDecisions.hero)
   }
 
   /// A soft accent glow behind the monogram, bleeding past the reading column.
@@ -174,7 +174,7 @@ struct HeroBlock: View {
         .frame(maxWidth: .infinity)
     }
     .buttonStyle(.adaptiveGlassProminent)
-    .decision(ProfileNotes.actionNote)
+    .decision(ProfileDecisions.action)
   }
 
   private var aboutLink: some View {
@@ -209,7 +209,7 @@ struct MetricsBlock: View {
     }
     .padding(.horizontal, Tokens.Space.s5)
     .reveal()
-    .decision(ProfileNotes.metrics)
+    .decision(ProfileDecisions.metrics)
   }
 }
 

@@ -13,8 +13,8 @@ import Localization
 ///
 /// So changing a piece of text never reopens a Swift file, let alone a `body`.
 /// Adding a language adds a column to the catalogue and not one line of code.
-enum JourneyNotes {
-  static let timelineNote = DesignDecision(
+enum JourneyDecisions {
+  static let timeline = DesignDecision(
     id: "journey.timeline",
     component: "DateFormatter · shortMonthSymbols",
     documentation: URL(string: "https://developer.apple.com/documentation/foundation/dateformatter"),

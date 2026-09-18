@@ -13,14 +13,14 @@ import Localization
 ///
 /// So changing a piece of text never reopens a Swift file, let alone a `body`.
 /// Adding a language adds a column to the catalogue and not one line of code.
-enum ResumeNotes {
-  static let pdfNote = DesignDecision(
+enum ResumeDecisions {
+  static let pdf = DesignDecision(
     id: "resume.pdf",
     component: "PDFKit · PDFView",
     documentation: URL(string: "https://developer.apple.com/documentation/pdfkit/pdfview"),
     in: .resume
   )
-  static let shareNote = DesignDecision(
+  static let share = DesignDecision(
     id: "resume.share",
     component: "ShareLink",
     documentation: URL(string: "https://developer.apple.com/documentation/swiftui/sharelink"),

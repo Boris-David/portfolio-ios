@@ -21,7 +21,6 @@ package struct SectionShell<Content: View>: View {
   @Environment(\.openSettings) private var openSettings
   @Environment(\.openResume) private var openResume
   @Environment(\.initialRoute) private var initialRoute
-  @Environment(\.contentLanguage) private var language
   @Localized(.interface) private var text
   @State private var router = Router()
 
@@ -66,7 +65,7 @@ package struct SectionShell<Content: View>: View {
             }
             .accessibilityLabel(text(InterfaceText.settings))
             // The one tip in the app, anchored to where the switch lives.
-            .popoverTip(DecisionsTip(language: language))
+            .popoverTip(DecisionsTip(title: text(InterfaceText.tipTitle), message: text(InterfaceText.tipMessage)))
           }
         }
         .navigationDestination(for: Route.self) { route in

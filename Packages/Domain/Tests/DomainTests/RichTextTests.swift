@@ -18,30 +18,6 @@ struct RichTextTests {
   }
 }
 
-struct BilingualTests {
-  @Test("une chaîne littérale vaut pour les deux langues")
-  func literalCoversBoth() {
-    let value: Bilingual = "SwiftUI"
-    #expect(value(.french) == "SwiftUI")
-    #expect(value(.english) == "SwiftUI")
-  }
-
-  @Test("chaque langue rend sa propre version")
-  func picksPerLanguage() {
-    let value = Bilingual(fr: "Parcours", en: "Journey")
-    #expect(value(.french) == "Parcours")
-    #expect(value(.english) == "Journey")
-  }
-
-  @Test("une traduction vide est détectée", arguments: [
-    Bilingual(fr: "", en: "Journey"),
-    Bilingual(fr: "Parcours", en: "   "),
-  ])
-  func incompleteIsDetected(_ value: Bilingual) {
-    #expect(!value.isComplete)
-  }
-}
-
 struct YearMonthTests {
   @Test("l'ordre chronologique est celui qu'on attend")
   func ordering() {

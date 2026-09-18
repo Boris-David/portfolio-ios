@@ -13,14 +13,14 @@ import Localization
 ///
 /// So changing a piece of text never reopens a Swift file, let alone a `body`.
 /// Adding a language adds a column to the catalogue and not one line of code.
-enum ProfileNotes {
-  static let heroNote = DesignDecision(
+enum ProfileDecisions {
+  static let hero = DesignDecision(
     id: "profile.hero",
     component: "ZStack · ViewThatFits",
     documentation: URL(string: "https://developer.apple.com/documentation/swiftui/viewthatfits"),
     in: .profile
   )
-  static let actionNote = DesignDecision(
+  static let action = DesignDecision(
     id: "profile.action",
     component: "Button · adaptiveGlassProminent",
     documentation: URL(string: "https://developer.apple.com/documentation/swiftui/buttonstyle"),

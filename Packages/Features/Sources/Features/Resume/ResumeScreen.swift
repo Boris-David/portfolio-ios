@@ -13,15 +13,12 @@ import ViewKit
 /// server (ADR 0004). Two templates would be two résumés that drift — and it is
 /// the one nobody looks at that would end up wrong.
 public struct ResumeScreen: View {
-  @State private var store: ResumeStore
+  @Environment(ResumeStore.self) private var store
   @Environment(\.dismiss) private var dismiss
-  @Environment(\.contentLanguage) private var language
   @Environment(ToastCenter.self) private var toasts
   @Localized(.interface) private var text
 
-  public init(dependencies: some ResumeDependencies) {
-    _store = State(initialValue: ResumeStore(reading: dependencies.resume))
-  }
+  public init() {}
 
   public var body: some View {
     NavigationStack {
@@ -44,11 +41,11 @@ public struct ResumeScreen: View {
           .accessibilityElement(children: .combine)
           .accessibilityLabel(text(InterfaceText.resumeLoading))
         case .failed(let failure):
-          FailureView(failure: failure) { Task { await store.load(in: language) } }
+          FailureView(failure: failure) { Task { await store.load() } }
         case .loaded(let document):
           PDFPreview(url: document.fileURL)
             .ignoresSafeArea(edges: .bottom)
-            .decision(ResumeNotes.pdfNote)
+            .decision(ResumeDecisions.pdf)
         }
       }
       .background(Color.paper2)
@@ -69,7 +66,7 @@ public struct ResumeScreen: View {
             ) {
               Label(text(InterfaceText.share), systemImage: "square.and.arrow.up")
             }
-            .decision(ResumeNotes.shareNote)
+            .decision(ResumeDecisions.share)
           }
         }
       }
@@ -79,7 +76,7 @@ public struct ResumeScreen: View {
         }
       }
     }
-    .task { await store.load(in: language) }
+    .task { await store.load() }
     // The confirmation fires on the **phase**, not on the tap that started the
     // download: a haptic tied to the intent would buzz before the document had
     // arrived, and lie the day it never does.

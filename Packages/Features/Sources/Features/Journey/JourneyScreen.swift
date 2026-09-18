@@ -41,7 +41,7 @@ public struct JourneyScreen: View {
           }
         }
         .padding(.horizontal, Tokens.Space.s5)
-        .decision(JourneyNotes.timelineNote)
+        .decision(JourneyDecisions.timeline)
 
         TimelineBlock(
           title: text(InterfaceText.education),

@@ -1241,6 +1241,38 @@
         }
       }
     },
+    "interface.tip.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on annotations: every component explains why it was chosen, and what was ruled out."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activez les annotations : chaque composant explique pourquoi il a été choisi, et ce qui a été écarté."
+          }
+        }
+      }
+    },
+    "interface.tip.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The decisions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les décisions"
+          }
+        }
+      }
+    },
     "interface.unavailableTitle": {
       "localizations": {
         "en": {

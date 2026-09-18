@@ -71,7 +71,7 @@ package struct FreshnessBanner: View {
         provenance
           .presentationCompactAdaptation(.popover)
       }
-      .decision(KitNotes.popoverNote)
+      .decision(KitDecisions.popover)
     }
   }
 

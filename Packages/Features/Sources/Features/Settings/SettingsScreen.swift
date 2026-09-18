@@ -55,7 +55,7 @@ public struct SettingsScreen: View {
       .feedback(.selectionChanged, on: settings.appearance)
       .feedback(.selectionChanged, on: settings.language)
       .feedback(.selectionChanged, on: settings.showsDecisions)
-      .decision(SettingsNotes.formNote)
+      .decision(SettingsDecisions.form)
     }
     // A settings sheet is a short task, and the screen underneath is worth
     // keeping in view: it is what the reader is about to see change.
@@ -72,7 +72,7 @@ public struct SettingsScreen: View {
         Text(text(SettingsText.appearanceDark)).tag(AppearancePreference.dark)
       }
       .pickerStyle(.segmented)
-      .decision(SettingsNotes.pickerNote)
+      .decision(SettingsDecisions.picker)
     } header: {
       Label(text(SettingsText.appearanceSection), icon: .appearance)
     } footer: {
@@ -162,7 +162,7 @@ public struct SettingsScreen: View {
         }
         Button(text(SettingsText.resetCancel), role: .cancel) {}
       }
-      .decision(SettingsNotes.confirmationNote)
+      .decision(SettingsDecisions.confirmation)
     } header: {
       Text(text(SettingsText.resetSection))
     }

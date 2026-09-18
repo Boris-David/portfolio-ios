@@ -111,6 +111,8 @@ package enum InterfaceText {
   package static let criterionBreaksWhere: TextKey = "interface.criterion.breaksWhere"
   package static let renderingLiquidGlass: TextKey = "interface.rendering.liquidGlass"
   package static let renderingFallback: TextKey = "interface.rendering.fallback"
+  package static let tipTitle: TextKey = "interface.tip.title"
+  package static let tipMessage: TextKey = "interface.tip.message"
 }
 
 /// The keys for the settings screen.
