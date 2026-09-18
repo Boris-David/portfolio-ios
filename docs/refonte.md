@@ -711,9 +711,11 @@ Découpage :
 - [x] **l'API déployée** — `architectures` et `deepDives` sont en production,
       `seed.sh --check` est vert
 
-**À faire :**
+- [x] **convertir web en anglais** (76 fichiers) — et, au passage, Tailwind
+      retiré : 87 sélecteurs employés, 87 définis par le CSS maison, 0 utilitaire
+      Tailwind ; rendu vérifié identique au pixel sur les deux langues
 
-- [ ] convertir **web** en anglais
+**À faire :**
 - [ ] §13 la passe d'accessibilité complète, revue capture par capture
 - [ ] fastlane / TestFlight
 - [ ] l'écran partagé sur iPad
