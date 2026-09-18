@@ -217,6 +217,7 @@ struct GalleryView: View {
             Text(item.caption)
               .font(Typography.caption)
               .foregroundStyle(Color.ink3)
+              .fixedSize(horizontal: false, vertical: true)
           }
         }
       }

@@ -135,10 +135,16 @@ struct ExperienceCard: View {
           .font(Typography.heading)
           .foregroundStyle(Color.ink)
           .multilineTextAlignment(.leading)
+          // Served content: the source decides its length, not this file, so
+          // it wraps instead of truncating. Without it the text is cut with an
+          // ellipsis, and only at the accessibility sizes — which is why
+          // reading the code never catches it, and a capture does.
+          .fixedSize(horizontal: false, vertical: true)
         Text("\(job.organisation) · \(job.location)")
           .font(Typography.secondary)
           .foregroundStyle(Color.ink2)
           .multilineTextAlignment(.leading)
+          .fixedSize(horizontal: false, vertical: true)
 
         if !job.sideRoles.isEmpty {
           WrappingRow {
@@ -258,6 +264,7 @@ struct SkillsBlock: View {
           Text(group.title)
             .font(Typography.bodyStrong)
             .foregroundStyle(Color.ink)
+            .fixedSize(horizontal: false, vertical: true)
           WrappingRow {
             ForEach(group.items, id: \.self) { Chip($0) }
           }

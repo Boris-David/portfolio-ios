@@ -44,6 +44,7 @@ public struct AboutScreen: View {
             Text(fact.text)
               .font(Typography.secondary)
               .foregroundStyle(Color.ink2)
+              .fixedSize(horizontal: false, vertical: true)
           }
           .accessibilityElement(children: .combine)
         }

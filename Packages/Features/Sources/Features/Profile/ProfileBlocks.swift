@@ -138,6 +138,15 @@ struct IdentityBlock: View {
       Text(profile.headline)
         .font(Typography.secondary)
         .foregroundStyle(Color.ink2)
+        // ⚠️ Truncates rather than wraps without this, and only at the
+        // accessibility sizes: "Ingénieur iOS senior" came out as "Ingénieur
+        // iOS s…" — the one line on the first screen that says what he does.
+        //
+        // Third time this exact omission has cost something in this codebase.
+        // The name above it and the availability line below it both had it;
+        // this one sat between two correct neighbours, which is precisely why
+        // reading the file does not catch it. The capture does.
+        .fixedSize(horizontal: false, vertical: true)
     }
   }
 
@@ -238,6 +247,7 @@ struct ExpertiseBlock: View {
                 Text(topic.title)
                   .font(Typography.heading)
                   .foregroundStyle(Color.ink)
+                  .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: Tokens.Space.s3)
                 Image(systemName: "chevron.right")
                   .font(.footnote.weight(.semibold))

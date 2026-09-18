@@ -52,6 +52,7 @@ package struct FreshnessBanner: View {
             .font(.footnote)
           Text(message)
             .font(Typography.caption)
+            .fixedSize(horizontal: false, vertical: true)
           Spacer(minLength: 0)
           Image(systemName: "info.circle")
             .font(.footnote)
