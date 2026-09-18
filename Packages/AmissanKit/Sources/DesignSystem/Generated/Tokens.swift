@@ -1,0 +1,188 @@
+// Généré par Scripts/tokens.mjs depuis design/tokens.json — NE PAS ÉDITER.
+//
+// Source unique du design. Le CSS du web, le gabarit du CV PDF et le paquet Swift du design system se GÉNÈRENT d'ici — aucune valeur n'est recopiée. Voir ADR 0003 et 0004.
+//
+// Toute modification à la main sera écrasée, et `./Scripts/tokens.mjs --check`
+// la refusera en CI avant même qu'elle n'atteigne une branche.
+import CoreGraphics
+
+public enum Tokens {}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Couleurs
+// ─────────────────────────────────────────────────────────────────────────────
+
+extension Tokens {
+  /// Les composantes sRGB d'une couleur, sans dépendre d'un framework d'interface.
+  ///
+  /// Le paquet ne connaît ici ni SwiftUI ni UIKit : `DesignSystem/Colors.swift`
+  /// se charge de la conversion. Ça garde le fichier généré lisible, testable,
+  /// et indépendant de la plateforme sur laquelle on le compile.
+  public struct Components: Sendable, Hashable {
+    public let red: Double
+    public let green: Double
+    public let blue: Double
+  }
+
+  /// Une couleur et son équivalent en thème sombre — les deux, toujours.
+  ///
+  /// Le type rend impossible ce qui arrive systématiquement autrement : une
+  /// couleur définie pour un seul thème, qui devient illisible sur l'autre.
+  public struct Palette: Sendable, Hashable {
+    public let light: Components
+    public let dark: Components
+  }
+
+  public enum Color {
+    /// `#FAF8F3` en clair, `#14120F` en sombre.
+    public static let paper = Palette(
+      light: Components(red: 0.9804, green: 0.9725, blue: 0.9529),
+      dark: Components(red: 0.0784, green: 0.0706, blue: 0.0588)
+    )
+    /// `#F1EDE3` en clair, `#1C1915` en sombre.
+    public static let paper2 = Palette(
+      light: Components(red: 0.9451, green: 0.9294, blue: 0.8902),
+      dark: Components(red: 0.1098, green: 0.0980, blue: 0.0824)
+    )
+    /// `#E7E1D6` en clair, `#262119` en sombre.
+    public static let paper3 = Palette(
+      light: Components(red: 0.9059, green: 0.8824, blue: 0.8392),
+      dark: Components(red: 0.1490, green: 0.1294, blue: 0.0980)
+    )
+    /// `#E0D9CC` en clair, `#2E2921` en sombre.
+    public static let line = Palette(
+      light: Components(red: 0.8784, green: 0.8510, blue: 0.8000),
+      dark: Components(red: 0.1804, green: 0.1608, blue: 0.1294)
+    )
+    /// `#C9C1B1` en clair, `#3E3930` en sombre.
+    public static let line2 = Palette(
+      light: Components(red: 0.7882, green: 0.7569, blue: 0.6941),
+      dark: Components(red: 0.2431, green: 0.2235, blue: 0.1882)
+    )
+    /// `#1A1712` en clair, `#F3EFE7` en sombre.
+    public static let ink = Palette(
+      light: Components(red: 0.1020, green: 0.0902, blue: 0.0706),
+      dark: Components(red: 0.9529, green: 0.9373, blue: 0.9059)
+    )
+    /// `#3E3930` en clair, `#D2CBBC` en sombre.
+    public static let ink2 = Palette(
+      light: Components(red: 0.2431, green: 0.2235, blue: 0.1882),
+      dark: Components(red: 0.8235, green: 0.7961, blue: 0.7373)
+    )
+    /// `#5B5546` en clair, `#9A9384` en sombre.
+    public static let ink3 = Palette(
+      light: Components(red: 0.3569, green: 0.3333, blue: 0.2745),
+      dark: Components(red: 0.6039, green: 0.5765, blue: 0.5176)
+    )
+    /// `#2743D6` en clair, `#93A5FF` en sombre.
+    public static let accent = Palette(
+      light: Components(red: 0.1529, green: 0.2627, blue: 0.8392),
+      dark: Components(red: 0.5765, green: 0.6471, blue: 1.0000)
+    )
+    /// `#1C2F9C` en clair, `#B6C1FF` en sombre.
+    public static let accentD = Palette(
+      light: Components(red: 0.1098, green: 0.1843, blue: 0.6118),
+      dark: Components(red: 0.7137, green: 0.7569, blue: 1.0000)
+    )
+    /// `#CBD3FF` en clair, `#1E2650` en sombre.
+    public static let accentW = Palette(
+      light: Components(red: 0.7961, green: 0.8275, blue: 1.0000),
+      dark: Components(red: 0.1176, green: 0.1490, blue: 0.3137)
+    )
+    /// `#FFFFFF` en clair, `#0E1330` en sombre.
+    public static let onAccent = Palette(
+      light: Components(red: 1.0000, green: 1.0000, blue: 1.0000),
+      dark: Components(red: 0.0549, green: 0.0745, blue: 0.1882)
+    )
+    /// `#1E7F4F` en clair, `#4FBE86` en sombre.
+    public static let ok = Palette(
+      light: Components(red: 0.1176, green: 0.4980, blue: 0.3098),
+      dark: Components(red: 0.3098, green: 0.7451, blue: 0.5255)
+    )
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Espacements — une échelle de 4 points, comme sur le site
+// ─────────────────────────────────────────────────────────────────────────────
+
+extension Tokens {
+  public enum Space {
+    /// `4` points.
+    public static let s1: CGFloat = 4
+    /// `8` points.
+    public static let s2: CGFloat = 8
+    /// `12` points.
+    public static let s3: CGFloat = 12
+    /// `16` points.
+    public static let s4: CGFloat = 16
+    /// `24` points.
+    public static let s5: CGFloat = 24
+    /// `32` points.
+    public static let s6: CGFloat = 32
+    /// `48` points.
+    public static let s7: CGFloat = 48
+    /// `72` points.
+    public static let s8: CGFloat = 72
+    /// `104` points.
+    public static let s9: CGFloat = 104
+  }
+
+  public enum Radius {
+    public static let sm: CGFloat = 7
+    public static let md: CGFloat = 12
+    public static let lg: CGFloat = 14
+    public static let pill: CGFloat = 999
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Mouvement
+// ─────────────────────────────────────────────────────────────────────────────
+
+extension Tokens {
+  /// Une courbe de Bézier cubique, dans la forme qu'attendent CSS **et**
+  /// `Animation.timingCurve`. Les deux plateformes partagent donc la même
+  /// sensation de mouvement, à la valeur près.
+  public struct Curve: Sendable, Hashable {
+    public let x1: Double
+    public let y1: Double
+    public let x2: Double
+    public let y2: Double
+  }
+
+  public enum Ease {
+    /// `cubic-bezier(.22,1,.36,1)` — la même courbe que sur le site.
+    public static let out = Curve(x1: 0.22, y1: 1, x2: 0.36, y2: 1)
+    /// `cubic-bezier(.16,1,.3,1)` — la même courbe que sur le site.
+    public static let soft = Curve(x1: 0.16, y1: 1, x2: 0.3, y2: 1)
+    /// `cubic-bezier(.65,.02,.28,1)` — la même courbe que sur le site.
+    public static let io = Curve(x1: 0.65, y1: 0.02, x2: 0.28, y2: 1)
+    /// `cubic-bezier(.34,1.42,.64,1)` — la même courbe que sur le site.
+    public static let back = Curve(x1: 0.34, y1: 1.42, x2: 0.64, y2: 1)
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Typographie
+//
+// Échelle alignée sur l'échelle Dynamic Type d'iOS — base 17.
+// ─────────────────────────────────────────────────────────────────────────────
+
+extension Tokens {
+  public enum TypeScale {
+    public static let caption: CGFloat = 13
+    public static let subhead: CGFloat = 15
+    public static let body: CGFloat = 17
+    public static let title3: CGFloat = 21
+    public static let title1: CGFloat = 28
+    public static let large: CGFloat = 34
+  }
+
+  public enum Accessibility {
+    /// La plus petite cible tactile admissible, en points.
+    public static let minimumTouchTarget: CGFloat = 44
+    /// Le niveau de contraste visé.
+    public static let contrastLevel = "AA"
+  }
+}

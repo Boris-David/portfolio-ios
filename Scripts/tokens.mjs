@@ -1,0 +1,230 @@
+#!/usr/bin/env node
+/**
+ * `./Scripts/tokens.mjs`          écrit le Swift dérivé de design/tokens.json
+ * `./Scripts/tokens.mjs --check`  échoue s'il diverge, ou si la copie des
+ *                                 tokens a dérivé du hub
+ *
+ * Le design a **une** source : `design/tokens.json`, dans le dépôt hub. Le CSS
+ * du site, le gabarit du CV en PDF et ce fichier Swift en descendent — aucune
+ * valeur n'est recopiée à la main nulle part.
+ *
+ * Le mode `--check` est ce qui transforme « on régénère après avoir touché aux
+ * tokens » d'une discipline en une garde : la CI l'exécute, et une divergence
+ * casse la construction au lieu de se découvrir à l'œil sur un écran — c'est-à-
+ * dire trop tard, et seulement sur le thème qu'on avait ouvert.
+ */
+import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve, relative } from "node:path";
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const TOKENS = resolve(ROOT, "design/tokens.json");
+/** Le hub, quand on travaille depuis le workspace `portfolio`. */
+const UPSTREAM = resolve(ROOT, "../design/tokens.json");
+const OUTPUT = resolve(ROOT, "Packages/AmissanKit/Sources/DesignSystem/Generated/Tokens.swift");
+
+const check = process.argv.includes("--check");
+
+const readOr = async (path, fallback) => {
+  try {
+    return await readFile(path, "utf8");
+  } catch {
+    return fallback;
+  }
+};
+
+const source = await readFile(TOKENS, "utf8");
+const tokens = JSON.parse(source);
+
+// ── Petites conversions ────────────────────────────────────────────────────
+
+/** `#FAF8F3` → `(red: 0.98, green: 0.972, blue: 0.953)`, en composantes sRGB. */
+function rgb(hex) {
+  const value = hex.replace("#", "");
+  const channel = (index) => parseInt(value.slice(index * 2, index * 2 + 2), 16) / 255;
+  return [0, 1, 2].map((index) => channel(index).toFixed(4));
+}
+
+/** `cubic-bezier(.22,1,.36,1)` → `[0.22, 1, 0.36, 1]`. */
+function bezier(css) {
+  const numbers = css.match(/-?\d*\.?\d+/g);
+  if (numbers?.length !== 4) {
+    throw new Error(`Courbe « ${css} » illisible : quatre nombres attendus.`);
+  }
+  return numbers.map((n) => (n.startsWith(".") ? `0${n}` : n));
+}
+
+/** `paper-2` → `paper2`, `on-accent` → `onAccent` : un nom d'identifiant Swift. */
+const camel = (name) => name.replace(/-(.)/g, (_, c) => c.toUpperCase());
+
+const swiftName = (name) => (/^\d/.test(name) ? `s${name}` : camel(name));
+
+// ── Génération ─────────────────────────────────────────────────────────────
+
+const colorCases = Object.entries(tokens.color).map(([name, pair]) => {
+  const [lr, lg, lb] = rgb(pair.light);
+  const [dr, dg, db] = rgb(pair.dark);
+  return `    /// \`${pair.light}\` en clair, \`${pair.dark}\` en sombre.
+    public static let ${swiftName(name)} = Palette(
+      light: Components(red: ${lr}, green: ${lg}, blue: ${lb}),
+      dark: Components(red: ${dr}, green: ${dg}, blue: ${db})
+    )`;
+});
+
+const spaceCases = Object.entries(tokens.space).map(
+  ([step, value]) => `    /// \`${value}\` points.\n    public static let s${step}: CGFloat = ${value}`,
+);
+
+const radiusCases = Object.entries(tokens.radius).map(
+  ([name, value]) => `    public static let ${swiftName(name)}: CGFloat = ${value}`,
+);
+
+const easeCases = Object.entries(tokens.ease).map(([name, css]) => {
+  const [x1, y1, x2, y2] = bezier(css);
+  return `    /// \`${css}\` — la même courbe que sur le site.
+    public static let ${swiftName(name)} = Curve(x1: ${x1}, y1: ${y1}, x2: ${x2}, y2: ${y2})`;
+});
+
+const typeCases = Object.entries(tokens.type)
+  .filter(([name]) => !name.startsWith("$"))
+  .map(([name, value]) => `    public static let ${swiftName(name)}: CGFloat = ${value}`);
+
+const generated = `// Généré par Scripts/tokens.mjs depuis design/tokens.json — NE PAS ÉDITER.
+//
+// ${tokens.$comment}
+//
+// Toute modification à la main sera écrasée, et \`./Scripts/tokens.mjs --check\`
+// la refusera en CI avant même qu'elle n'atteigne une branche.
+import CoreGraphics
+
+public enum Tokens {}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Couleurs
+// ─────────────────────────────────────────────────────────────────────────────
+
+extension Tokens {
+  /// Les composantes sRGB d'une couleur, sans dépendre d'un framework d'interface.
+  ///
+  /// Le paquet ne connaît ici ni SwiftUI ni UIKit : \`DesignSystem/Colors.swift\`
+  /// se charge de la conversion. Ça garde le fichier généré lisible, testable,
+  /// et indépendant de la plateforme sur laquelle on le compile.
+  public struct Components: Sendable, Hashable {
+    public let red: Double
+    public let green: Double
+    public let blue: Double
+  }
+
+  /// Une couleur et son équivalent en thème sombre — les deux, toujours.
+  ///
+  /// Le type rend impossible ce qui arrive systématiquement autrement : une
+  /// couleur définie pour un seul thème, qui devient illisible sur l'autre.
+  public struct Palette: Sendable, Hashable {
+    public let light: Components
+    public let dark: Components
+  }
+
+  public enum Color {
+${colorCases.join("\n")}
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Espacements — une échelle de 4 points, comme sur le site
+// ─────────────────────────────────────────────────────────────────────────────
+
+extension Tokens {
+  public enum Space {
+${spaceCases.join("\n")}
+  }
+
+  public enum Radius {
+${radiusCases.join("\n")}
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Mouvement
+// ─────────────────────────────────────────────────────────────────────────────
+
+extension Tokens {
+  /// Une courbe de Bézier cubique, dans la forme qu'attendent CSS **et**
+  /// \`Animation.timingCurve\`. Les deux plateformes partagent donc la même
+  /// sensation de mouvement, à la valeur près.
+  public struct Curve: Sendable, Hashable {
+    public let x1: Double
+    public let y1: Double
+    public let x2: Double
+    public let y2: Double
+  }
+
+  public enum Ease {
+${easeCases.join("\n")}
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Typographie
+//
+// ${tokens.type.$comment}
+// ─────────────────────────────────────────────────────────────────────────────
+
+extension Tokens {
+  public enum TypeScale {
+${typeCases.join("\n")}
+  }
+
+  public enum Accessibility {
+    /// La plus petite cible tactile admissible, en points.
+    public static let minimumTouchTarget: CGFloat = ${tokens.a11y.minTouchTarget}
+    /// Le niveau de contraste visé.
+    public static let contrastLevel = "${tokens.a11y.contrast}"
+  }
+}
+`;
+
+const shortPath = (path) => relative(ROOT, path);
+
+if (!check) {
+  await mkdir(dirname(OUTPUT), { recursive: true });
+  await writeFile(OUTPUT, generated, "utf8");
+  console.log(`✓ ${shortPath(OUTPUT)} écrit depuis design/tokens.json`);
+  process.exit(0);
+}
+
+const failures = [];
+
+const current = await readOr(OUTPUT, null);
+if (current === null) {
+  failures.push(`${shortPath(OUTPUT)} est absent — lancer ./Scripts/tokens.mjs`);
+} else if (current !== generated) {
+  failures.push(
+    `${shortPath(OUTPUT)} diverge de design/tokens.json.\n` +
+      "  Il a été modifié à la main, ou les tokens ont changé sans régénération.\n" +
+      "  Corriger : ./Scripts/tokens.mjs",
+  );
+}
+
+/**
+ * La copie d'amont ne se vérifie que si l'amont est là. Sur un clone isolé de
+ * `portfolio-ios` — donc en CI — il n'y a rien à comparer : on le dit, on ne
+ * casse pas. Une garde qui échoue faute de contexte finit désactivée.
+ */
+const upstream = await readOr(UPSTREAM, null);
+if (upstream === null) {
+  console.log("· hub absent — la copie des tokens n'a pas été comparée.");
+} else if (upstream !== source) {
+  failures.push(
+    "design/tokens.json a dérivé du hub.\n" +
+      "  Le design a une seule source, et c'est celle du hub.\n" +
+      "  Corriger : cp ../design/tokens.json design/tokens.json && ./Scripts/tokens.mjs",
+  );
+} else {
+  console.log("✓ design/tokens.json est identique au hub.");
+}
+
+if (failures.length > 0) {
+  for (const failure of failures) console.error(`✖ ${failure}`);
+  process.exit(1);
+}
+console.log("✓ les artefacts de design dérivent bien de design/tokens.json.");

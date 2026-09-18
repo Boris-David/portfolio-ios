@@ -1,0 +1,33 @@
+# ── Xcode ────────────────────────────────────────────────────────────────
+# Le projet est GÉNÉRÉ par XcodeGen depuis `project.yml` : le versionner
+# reviendrait à versionner un artefact, et à rouvrir un conflit de fusion
+# illisible à chaque branche qui ajoute un fichier.
+*.xcodeproj/
+*.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.moved-aside
+.swiftpm/
+Packages/*/.build/
+
+# ── Signature — rien de tout ça n'entre dans un dépôt public ─────────────
+*.mobileprovision
+*.p12
+*.p8
+*.cer
+*.certSigningRequest
+ExportOptions.plist
+
+# ── fastlane ─────────────────────────────────────────────────────────────
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output/
+fastlane/README.md
+
+# ── macOS ────────────────────────────────────────────────────────────────
+.DS_Store

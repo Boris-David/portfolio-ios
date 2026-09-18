@@ -1,0 +1,136 @@
+name: Amissan
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Le projet Xcode est GÉNÉRÉ depuis ce fichier, et n'est pas versionné.
+#
+# Un `.xcodeproj` est un format binaire-ish où chaque fichier ajouté produit
+# trois lignes d'identifiants opaques. Deux branches qui ajoutent chacune un
+# écran produisent un conflit de fusion que personne ne sait lire, et qu'on
+# résout en écrasant le travail de l'autre.
+#
+# Ici, ajouter un fichier n'exige rien : les sources sont déclarées par
+# répertoire. Et la configuration du projet — cibles, réglages, capacités — se
+# relit comme du texte, se compare dans une pull request, et se commente.
+#
+#   xcodegen generate     régénère Amissan.xcodeproj
+# ─────────────────────────────────────────────────────────────────────────────
+
+options:
+  bundleIdPrefix: dev.amissan
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: false
+  # Les schémas sont générés d'ici : versionner des `.xcscheme` revient à
+  # versionner un artefact, avec les mêmes conflits que le projet lui-même.
+  xcodeVersion: "26.1"
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    # Un avertissement qu'on tolère est un avertissement qu'on cesse de lire.
+    # Sur un dépôt que des recruteurs ouvrent, la barre est à zéro.
+    SWIFT_TREAT_WARNINGS_AS_ERRORS: true
+    GCC_TREAT_WARNINGS_AS_ERRORS: true
+    ENABLE_USER_SCRIPT_SANDBOXING: true
+    DEAD_CODE_STRIPPING: true
+    ENABLE_MODULE_VERIFIER: true
+
+packages:
+  AmissanKit:
+    path: Packages/AmissanKit
+
+targets:
+  Amissan:
+    type: application
+    platform: iOS
+    sources:
+      - path: App/Sources
+      - path: App/Resources
+        buildPhase: resources
+    dependencies:
+      - package: AmissanKit
+        product: AppComposition
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.amissan.portfolio
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        # L'icône est déclarée par son nom d'ensemble dans le catalogue.
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # Portrait seulement : l'application est une lecture, et une mise en
+        # page éditoriale en paysage sur iPhone n'apporte rien qu'on ait voulu.
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: >-
+          UIInterfaceOrientationPortrait
+          UIInterfaceOrientationPortraitUpsideDown
+          UIInterfaceOrientationLandscapeLeft
+          UIInterfaceOrientationLandscapeRight
+        INFOPLIST_KEY_CFBundleDisplayName: Amissan
+        # Le français est la langue de la source ; l'anglais suit le contenu
+        # servi par l'API.
+        INFOPLIST_KEY_CFBundleDevelopmentRegion: fr
+        # Aucune capture, aucun micro, aucune localisation : l'application ne
+        # demande **aucune** permission, et le fichier le montre par son vide.
+        SUPPORTS_MACCATALYST: false
+        TARGETED_DEVICE_FAMILY: "1,2"
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        # ⚠️ Déclaré explicitement, et pas laissé à la génération implicite.
+        #
+        # Sans `UILaunchScreen`, iOS exécute l'application en **mode de
+        # compatibilité** : le contenu est rendu à une taille logique réduite,
+        # avec des bandes noires en haut et en bas. Mesuré sur un iPhone 17 Pro :
+        # 603 points utilisés sur 874. Rien n'avertit — ni la construction, ni
+        # l'exécution, et à l'œil on croit à un défaut de mise en page qu'on
+        # cherche du mauvais côté.
+        #
+        # Un dictionnaire vide suffit : il dit « écran de lancement vide »,
+        # ce qui est le bon choix pour une application qui affiche du contenu
+        # dès la première image.
+        UILaunchScreen: {}
+    entitlements:
+      path: App/Amissan.entitlements
+      properties:
+        com.apple.developer.associated-domains:
+          - applinks:amissan.dev
+
+  AmissanTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: App/Tests
+    dependencies:
+      - target: Amissan
+    settings:
+      base:
+        # Les tests ne traitent pas leurs avertissements en erreurs : un test
+        # qui exerce une API dépréciée à dessein doit pouvoir le faire.
+        SWIFT_TREAT_WARNINGS_AS_ERRORS: false
+        # Un bundle de tests doit être signé, donc porter un Info.plist. Le
+        # faire générer évite d'en versionner un qui ne contiendrait que des
+        # valeurs par défaut.
+        GENERATE_INFOPLIST_FILE: true
+
+schemes:
+  Amissan:
+    build:
+      targets:
+        Amissan: all
+        AmissanTests: [test]
+    test:
+      gatherCoverageData: true
+      coverageTargets:
+        - Amissan
+      targets:
+        - AmissanTests
+    run:
+      config: Debug
+    archive:
+      config: Release
