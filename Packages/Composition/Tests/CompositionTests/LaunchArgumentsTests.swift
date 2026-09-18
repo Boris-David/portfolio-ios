@@ -35,4 +35,20 @@ struct LaunchArgumentsTests {
   func backstageFlag() {
     #expect(LaunchArguments(["-backstage"]).isBackstageEnabled)
   }
+
+  @Test("-settings opens the settings sheet")
+  func settingsFlag() {
+    #expect(LaunchArguments(["-settings"]).opensSettings)
+    #expect(!LaunchArguments([]).opensSettings)
+  }
+
+  /// The flags compose: a screenshot of the settings sheet with annotations on
+  /// is one launch, not two.
+  @Test("the flags compose")
+  func flagsCompose() {
+    let launch = LaunchArguments(["-backstage", "-settings", "-tab", "journey"])
+    #expect(launch.isBackstageEnabled)
+    #expect(launch.opensSettings)
+    #expect(launch.initialSection == .journey)
+  }
 }

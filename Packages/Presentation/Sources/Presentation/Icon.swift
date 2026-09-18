@@ -30,4 +30,21 @@ public enum Icon: Sendable, Hashable, CaseIterable {
   case work
   case journey
   case backstage
+
+  // Outcomes
+  case succeeded
+  case failed
+  case informed
+
+  // Actions and settings
+  case settings
+  case language
+  case appearance
+  case resume
+  case contact
+  case share
+  case close
+  case annotations
+  case reset
+  case link
 }

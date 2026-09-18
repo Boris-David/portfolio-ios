@@ -67,7 +67,12 @@ check "Packages/Networking/Sources/Networking"    "Request|Response|Client|Error
 # A screen reads the app's state; everything else receives what it draws. Both
 # say so in their name, and the list is closed on purpose — a new role has to
 # justify joining it, which is the point of having one.
-VIEW_ROLES="Screen|View|Block|Card|Cell|Row|Sheet|Overlay|Banner|Shell|Style|Group"
+# `Image` joined the list on 2026-09-18 for `ContentImage`, and the reasoning is
+# the bar for joining it: it names a kind of view exactly as `Card` and `Banner`
+# do, and `ContentImageView` would say "view" twice. A role that cannot be
+# argued for does not get added — a list widened whenever it fires is a list
+# that stops meaning anything.
+VIEW_ROLES="Screen|View|Block|Card|Cell|Row|Sheet|Overlay|Banner|Shell|Style|Group|Image"
 for name in $(grep -rhoE "^(public |package |private )?struct [A-Za-z0-9_]+(<[^>]*>)?: (View|ViewModifier)" \
                 Packages/Features/Sources --include="*.swift" \
                 | sed -E 's/.*struct ([A-Za-z0-9_]+).*/\1/' | sort -u); do

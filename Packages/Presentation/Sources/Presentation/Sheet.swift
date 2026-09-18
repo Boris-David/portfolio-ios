@@ -2,6 +2,7 @@
 public enum Sheet: Identifiable, Hashable, Sendable {
   case resume
   case contact
+  case settings
 
   public var id: Self { self }
 }

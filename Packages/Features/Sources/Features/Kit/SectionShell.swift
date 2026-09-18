@@ -2,6 +2,7 @@ import Backstage
 import DesignSystem
 import Presentation
 import SwiftUI
+import ViewKit
 
 /// The shell every tab is mounted in: a stack, its destinations, its sheets,
 /// and the annotation layer.
@@ -14,8 +15,10 @@ package struct SectionShell<Content: View>: View {
   private let title: String
   private let content: Content
 
-  @Environment(\.routeDestinations) private var routes
-  @Environment(\.sheetDestinations) private var sheets
+  @Environment(\.routeResolver) private var routes
+  @Environment(\.sheetResolver) private var sheets
+  @Environment(\.openSettings) private var openSettings
+  @Chrome private var chrome
   @State private var router = Router()
 
   public init(title: String, @ViewBuilder content: () -> Content) {
@@ -34,6 +37,17 @@ package struct SectionShell<Content: View>: View {
         // scroll moves the layout while you are reading, and the app already has
         // its own section headers.
         .navigationBarTitleDisplayMode(.inline)
+        // The gear sits on every tab root rather than on one screen: settings
+        // belong to the app, and a reader who wants them should not have to
+        // remember which section hides them.
+        .toolbar {
+          ToolbarItem(placement: .topBarTrailing) {
+            Button { openSettings() } label: {
+              Label(chrome.settings, icon: .settings)
+            }
+            .accessibilityLabel(chrome.settings)
+          }
+        }
         .navigationDestination(for: Route.self) { route in
           routes(route)
             // The tab bar hides on pushed screens: they are a reading, not a

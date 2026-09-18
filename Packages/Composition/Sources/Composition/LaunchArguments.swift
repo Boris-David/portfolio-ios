@@ -25,9 +25,16 @@ struct LaunchArguments: Sendable {
 
   let initialSection: AppSection
   let isBackstageEnabled: Bool
+  /// Opens the settings sheet on launch. Same reason as the other two: a sheet
+  /// cannot be captured without somebody tapping, and a screenshot nobody can
+  /// reproduce never reaches CI.
+  ///
+  ///     xcrun simctl launch <device> dev.amissan.portfolio -settings
+  let opensSettings: Bool
 
   init(_ arguments: [String]) {
     isBackstageEnabled = arguments.contains("-backstage")
+    opensSettings = arguments.contains("-settings")
     initialSection = Self.section(in: arguments) ?? .profile
   }
 

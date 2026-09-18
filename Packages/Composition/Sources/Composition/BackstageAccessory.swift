@@ -10,15 +10,15 @@ import SwiftUI
 /// whole navigation — which is exactly what an annotations mode is.
 extension View {
   @ViewBuilder
-  func backstageAccessory(controller: BackstageController, chrome: AppChrome) -> some View {
+  func backstageAccessory(chrome: AppChrome, isOn: Binding<Bool>) -> some View {
     if #available(iOS 26.0, *) {
       tabViewBottomAccessory {
         Button {
-          controller.toggle()
+          isOn.wrappedValue.toggle()
         } label: {
           Label(
-            controller.isEnabled ? chrome.backstageHide : chrome.backstageShow,
-            systemImage: controller.isEnabled ? "number.circle.fill" : "number.circle"
+            isOn.wrappedValue ? chrome.backstageHide : chrome.backstageShow,
+            systemImage: isOn.wrappedValue ? "number.circle.fill" : "number.circle"
           )
           .font(Typography.secondary)
           .frame(maxWidth: .infinity)

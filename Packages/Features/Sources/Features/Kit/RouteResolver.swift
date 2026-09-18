@@ -24,7 +24,7 @@ import SwiftUI
 ///
 /// This is the third. The price is one `AnyView` at the navigation boundary: one
 /// indirection per push, on a path that is neither hot nor frequent.
-public struct RouteDestinations: Sendable {
+public struct RouteResolver: Sendable {
   private let build: @MainActor @Sendable (Route) -> AnyView
 
   public init(build: @escaping @MainActor @Sendable (Route) -> AnyView) {
@@ -40,5 +40,5 @@ public struct RouteDestinations: Sendable {
 public extension EnvironmentValues {
   /// Nothing by default — an app that forgot to wire the resolution would show
   /// empty screens, which is obvious on the very first try.
-  @Entry var routeDestinations = RouteDestinations { _ in AnyView(EmptyView()) }
+  @Entry var routeResolver = RouteResolver { _ in AnyView(EmptyView()) }
 }

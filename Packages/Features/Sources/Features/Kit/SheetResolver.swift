@@ -2,7 +2,7 @@ import Presentation
 import SwiftUI
 
 /// Who knows how to present a sheet.
-public struct SheetDestinations: Sendable {
+public struct SheetResolver: Sendable {
   private let build: @MainActor @Sendable (Sheet) -> AnyView
 
   public init(build: @escaping @MainActor @Sendable (Sheet) -> AnyView) {
@@ -16,5 +16,5 @@ public struct SheetDestinations: Sendable {
 }
 
 public extension EnvironmentValues {
-  @Entry var sheetDestinations = SheetDestinations { _ in AnyView(EmptyView()) }
+  @Entry var sheetResolver = SheetResolver { _ in AnyView(EmptyView()) }
 }

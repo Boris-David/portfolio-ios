@@ -13,7 +13,7 @@ import ViewKit
 /// **decisions** — and a decision is judged by what it ruled out as much as by
 /// what it kept.
 public struct BackstageScreen: View {
-  @Environment(BackstageController.self) private var backstage
+  @Environment(SettingsStore.self) private var settings
   @Chrome private var chrome
 
   public init() {}
@@ -43,10 +43,10 @@ public struct BackstageScreen: View {
       )
 
       Toggle(isOn: Binding(
-        get: { backstage.isEnabled },
-        set: { _ in backstage.toggle() }
+        get: { settings.isBackstageEnabled },
+        set: { value in Task { await settings.setBackstageEnabled(value) } }
       )) {
-        Label(chrome.backstageToggle, systemImage: "number.circle")
+        Label(chrome.backstageToggle, icon: .annotations)
           .font(Typography.bodyStrong)
       }
       .tint(Color.accent)

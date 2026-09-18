@@ -12,7 +12,7 @@ import ViewKit
 /// modules are **siblings** — neither may import the other, which is exactly
 /// what we want. So each feature declares a *value*, and this resolver, in the
 /// only module that sees everything, turns it into a view.
-struct RouteResolver: View {
+struct RouteScreen: View {
   let route: Route
 
   @Environment(PortfolioStore.self) private var store
@@ -40,10 +40,10 @@ struct RouteResolver: View {
   }
 }
 
-extension RouteDestinations {
+extension RouteResolver {
   /// The resolution the application installs into the environment.
   @MainActor
-  static let live = RouteDestinations { route in
-    AnyView(RouteResolver(route: route))
+  static let live = RouteResolver { route in
+    AnyView(RouteScreen(route: route))
   }
 }

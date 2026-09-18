@@ -1,4 +1,5 @@
 import Backstage
+import CoreUI
 import DesignSystem
 import Domain
 import FeatureKit
@@ -8,69 +9,135 @@ import ViewKit
 
 /// Assembles the scene — and nothing else.
 ///
-/// ## What it deliberately no longer does
+/// ## What it deliberately does not do
 ///
-/// This file used to hold seven things: the tab bar, route resolution, sheet
+/// This file once held seven things: the tab bar, route resolution, sheet
 /// resolution, the contact screen, the bar accessory, the launch-flag reading
-/// and the environment wiring. "Root" had become a synonym for "wherever it
-/// did not fit".
+/// and the environment wiring. "Root" had become a synonym for "wherever it did
+/// not fit". Each is now a type that can be named, moved and tested on its own.
 ///
-/// Each of those is now a type that can be named, moved and tested on its own:
-/// `AppTabs`, `RouteResolver`, `SheetResolver`, `ContactScreen`,
-/// `backstageAccessory`, `LaunchArguments`, `AppEnvironment`. What is left here
-/// is the only thing a root is for: creating the long-lived objects and putting
-/// them where the screens can find them.
+/// What is left is what a root is for: creating the long-lived objects, putting
+/// them where the screens can find them, and connecting the few facts that
+/// cross the whole app.
+///
+/// ## The one piece of logic that stayed, and why
+///
+/// A language change has to reach the content: the chrome follows the reader's
+/// choice instantly, but the text comes from the API and must be re-fetched.
+/// `SettingsStore` will not call `PortfolioStore` — that would tie the two
+/// together forever, for one line — so it **publishes a fact**, and this root
+/// subscribes. It is the only place that sees both, which is precisely what a
+/// composition root is.
 public struct AppRoot: View {
   @State private var store: PortfolioStore
-  @State private var backstage: BackstageController
+  @State private var settings: SettingsStore
+  @State private var toasts = ToastCenter()
+  @State private var backstage = BackstageController()
   @State private var selection: AppSection
+  @State private var sheet: Sheet?
 
   private let environment: AppEnvironment
+  private let launch: LaunchArguments
 
   /// The chrome is derived **here**, without going through the environment.
   ///
   /// `AppRoot` is the view that *installs* `\.contentLanguage`, and a view does
   /// not read back a value it sets itself — `.environment()` only applies to
-  /// descendants. The defect was visible on screen: English content under
-  /// French tabs.
-  private var chrome: AppChrome { .for(environment.language) }
+  /// descendants. The defect was visible on screen: English content under French
+  /// tabs.
+  private var chrome: AppChrome { .for(settings.resolvedLanguage) }
 
-  /// The application's entry point into the scene.
+  /// The app's entry point into the scene.
   ///
   /// Launch flags are deliberately **not** a parameter here: they are a
-  /// screenshot-automation concern, not something the app target should know
-  /// how to pass. The designated initialiser below takes them so the tests can.
+  /// screenshot-automation concern, not something the app target should know how
+  /// to pass. The designated initialiser below takes them so the tests can.
   public init(environment: AppEnvironment = .live()) {
     self.init(environment: environment, launch: .current)
   }
 
   init(environment: AppEnvironment, launch: LaunchArguments) {
     self.environment = environment
-    let language = environment.language
+    self.launch = launch
+
+    let settings = SettingsStore(
+      preferences: environment.preferences,
+      events: environment.events
+    )
+    _settings = State(initialValue: settings)
     _store = State(initialValue: PortfolioStore(
       reading: environment.portfolio,
-      language: language,
+      language: settings.resolvedLanguage,
       // The store needs the chrome to turn a domain failure into something a
       // view can show. It takes a closure rather than a value so a language
       // change is reflected without rebuilding the store.
-      chrome: { AppChrome.for(language) }
+      chrome: { [weak settings] in AppChrome.for(settings?.resolvedLanguage ?? .french) }
     ))
-    _backstage = State(initialValue: BackstageController(isEnabled: launch.isBackstageEnabled))
     _selection = State(initialValue: launch.initialSection)
   }
 
   public var body: some View {
     AppTabs(selection: $selection)
-      .backstageAccessory(controller: backstage, chrome: chrome)
-      .environment(\.contentLanguage, environment.language)
-      .environment(store)
-      .environment(backstage)
-      .environment(\.routeDestinations, .live)
-      .environment(\.sheetDestinations, SheetResolver.live(
-        resume: environment.resume,
-        language: environment.language
-      ))
-      .tint(Color.accent)
-      .task { store.load() }
+      .backstageAccessory(chrome: chrome, isOn: backstageBinding)
+      .toasts(toasts)
+      .modifier(sceneEnvironment)
+      .sheet(item: $sheet) { sheet in
+        // The same environment, applied again: a sheet is hosted outside the
+        // presenting view's tree and inherits nothing from it.
+        resolver(sheet)
+          .modifier(sceneEnvironment)
+      }
+      // `nil` means "follow the device", which is what `preferredColorScheme`
+      // expects for that case — not a third scheme.
+      .preferredColorScheme(settings.appearance.isDarkForced.map { $0 ? .dark : .light })
+      .task {
+        await settings.load()
+        // The launch flag wins over the stored preference, and only for this
+        // launch: it exists so CI can capture the annotations without anybody
+        // touching the screen.
+        if launch.isBackstageEnabled { await settings.setBackstageEnabled(true) }
+        if launch.opensSettings { sheet = .settings }
+        store.load()
+      }
+      .task { await followLanguageChanges() }
+      .onChange(of: settings.isBackstageEnabled) { _, isOn in
+        // A note left open after the mode is switched off would be a sheet with
+        // no way back to what produced it.
+        if !isOn { backstage.dismiss() }
+      }
+  }
+
+  private var resolver: SheetResolver { .live(environment) }
+
+  private var sceneEnvironment: SceneEnvironment {
+    SceneEnvironment(
+      language: settings.resolvedLanguage,
+      portfolio: store,
+      settings: settings,
+      toasts: toasts,
+      backstage: backstage,
+      sheets: resolver,
+      openSettings: OpenSettingsAction { sheet = .settings }
+    )
+  }
+
+  private var backstageBinding: Binding<Bool> {
+    Binding(
+      get: { settings.isBackstageEnabled },
+      set: { value in Task { await settings.setBackstageEnabled(value) } }
+    )
+  }
+
+  /// Re-fetches the content when the language actually served changes.
+  ///
+  /// A `for await` over the bus rather than an `onChange` on the store: the fact
+  /// is published once, by whoever knows it happened, and this is simply one
+  /// subscriber. A second one — a widget, an analytics sink — costs nothing and
+  /// requires no change here.
+  private func followLanguageChanges() async {
+    for await event in await environment.events.events {
+      guard case .languageChanged(let language) = event else { continue }
+      store.setLanguage(language)
+    }
   }
 }

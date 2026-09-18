@@ -13,24 +13,28 @@ import ViewKit
 /// server (ADR 0004). Two templates would be two résumés that drift — and it is
 /// the one nobody looks at that would end up wrong.
 public struct ResumeScreen: View {
-  @State private var model: ResumeModel
+  @State private var store: ResumeStore
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.contentLanguage) private var language
   @Chrome private var chrome
 
-  public init(reading: any ResumeReading, language: Language) {
-    _model = State(initialValue: ResumeModel(reading: reading, language: language))
+  public init(dependencies: some ResumeDependencies) {
+    _store = State(initialValue: ResumeStore(
+      reading: dependencies.resume,
+      chrome: { AppChrome.for(.french) }
+    ))
   }
 
   public var body: some View {
     NavigationStack {
       Group {
-        switch model.state {
-        case .loading:
+        switch store.phase {
+        case .initial, .loading:
           ProgressView(chrome.resumeLoading)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         case .failed(let failure):
-          FailureView(failure: PhaseFailure(failure, chrome: chrome)) { model.load() }
-        case .ready(let document):
+          FailureView(failure: failure) { Task { await store.load(in: language) } }
+        case .loaded(let document):
           PDFPreview(url: document.fileURL)
             .ignoresSafeArea(edges: .bottom)
             .backstage(Self.pdfNote)
@@ -44,7 +48,7 @@ public struct ResumeScreen: View {
           Button(chrome.close) { dismiss() }
         }
         ToolbarItem(placement: .primaryAction) {
-          if case .ready(let document) = model.state {
+          if case .loaded(let document) = store.phase {
             // `ShareLink` with a **file URL**: that is the file name the
             // recipient will see. Sharing anonymous `Data` would land it under
             // a name the system invented.
@@ -59,12 +63,12 @@ public struct ResumeScreen: View {
         }
       }
       .safeAreaInset(edge: .bottom) {
-        if case .ready(let document) = model.state {
+        if case .loaded(let document) = store.phase {
           provenance(document)
         }
       }
     }
-    .task { model.load() }
+    .task { await store.load(in: language) }
     .backstageOverlay()
   }
 
@@ -257,37 +261,4 @@ public struct ResumeScreen: View {
     ),
     documentation: URL(string: "https://developer.apple.com/documentation/swiftui/sharelink")
   )
-}
-
-/// The résumé's state.
-@Observable
-@MainActor
-final class ResumeModel {
-  enum State {
-    case loading
-    case ready(ResumeDocument)
-    case failed(ContentUnavailable)
-  }
-
-  private(set) var state: State = .loading
-  private let reading: any ResumeReading
-  private let language: Language
-
-  init(reading: any ResumeReading, language: Language) {
-    self.reading = reading
-    self.language = language
-  }
-
-  func load() {
-    state = .loading
-    Task { [reading, language] in
-      do {
-        state = .ready(try await reading.resume(in: language))
-      } catch let failure as ContentUnavailable {
-        state = .failed(failure)
-      } catch {
-        state = .failed(.unreachable)
-      }
-    }
-  }
 }

@@ -19,6 +19,7 @@ import ViewKit
 /// what you read.
 package struct BackstageOverlay: ViewModifier {
   @Environment(BackstageController.self) private var backstage
+  @Environment(SettingsStore.self) private var settings
   @ReducedMotion private var reducedMotion
   @Environment(\.contentLanguage) private var language
 
@@ -50,9 +51,9 @@ package struct BackstageOverlay: ViewModifier {
               )
           }
         }
-        .allowsHitTesting(backstage.isEnabled)
-        .opacity(backstage.isEnabled ? 1 : 0)
-        .animation(reducedMotion ? nil : Motion.toggle, value: backstage.isEnabled)
+        .allowsHitTesting(settings.isBackstageEnabled)
+        .opacity(settings.isBackstageEnabled ? 1 : 0)
+        .animation(reducedMotion ? nil : Motion.toggle, value: settings.isBackstageEnabled)
       }
       .sheet(item: Binding(
         get: { backstage.presented },

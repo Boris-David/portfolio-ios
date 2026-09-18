@@ -17,6 +17,21 @@ extension Icon {
     case .work: "square.stack.3d.up"
     case .journey: "calendar"
     case .backstage: "wrench.and.screwdriver"
+
+    case .succeeded: "checkmark.circle.fill"
+    case .failed: "exclamationmark.circle.fill"
+    case .informed: "info.circle"
+
+    case .settings: "gearshape"
+    case .language: "globe"
+    case .appearance: "circle.lefthalf.filled"
+    case .resume: "doc.text"
+    case .contact: "envelope"
+    case .share: "square.and.arrow.up"
+    case .close: "xmark"
+    case .annotations: "number.circle"
+    case .reset: "arrow.counterclockwise"
+    case .link: "link"
     }
   }
 }
