@@ -430,7 +430,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "declined"
+            "value": "ruled out"
           }
         },
         "fr": {
@@ -510,13 +510,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Under the hood"
+            "value": "Technical decisions"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sous le capot"
+            "value": "Décisions techniques"
           }
         }
       }
@@ -548,7 +548,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pourquoi cette application est faite comme ça"
+            "value": "Pourquoi cette application est construite ainsi"
           }
         }
       }
@@ -1486,7 +1486,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Every component gets a numbered pin explaining why it was chosen, and what was ruled out."
+            "value": "Every component gets a numbered badge explaining why it was chosen, and what was ruled out."
           }
         },
         "fr": {

@@ -68,7 +68,17 @@ struct PatternComparisonBlock: View {
       // would have ended flush against the bezel with nothing to show it was the
       // last one.
       .contentMargins(.horizontal, Tokens.Space.s5, for: .scrollContent)
-      .scrollIndicators(.hidden)
+      // ⚠️ The indicator stays **visible**, and that is the fix to a real
+      // defect rather than a preference.
+      //
+      // The arithmetic does not fit and is not meant to: a margin, the label
+      // column, a gap and one pattern column come to 408 points on a 402-point
+      // phone. The first column is therefore cut, on purpose — that is what
+      // "the table keeps its real width and the reader moves along it" means.
+      //
+      // Hidden, the cut read as a rendering bug: a sentence stopping mid-word at
+      // the bezel, with nothing to say a gesture would finish it. The scroll bar
+      // costs two pixels and turns a defect into an affordance.
     }
   }
 

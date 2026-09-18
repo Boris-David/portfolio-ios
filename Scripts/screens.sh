@@ -76,7 +76,7 @@ SCREENS=(
   "profile|"
   "work|"
   "journey|"
-  "decision|-decision"
+  "decision|-decisions"
   "profile|-settings"
   "profile|-resume"
   # A pushed screen needs the route flag: a tab flag cannot reach it, and
