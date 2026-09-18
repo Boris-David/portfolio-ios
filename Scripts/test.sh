@@ -9,10 +9,10 @@
 # package do not enter an app scheme's `test` action. Each suite has its own
 # scheme, and this is where they are gathered.
 #
-# `DesignSystemTests` lives in a *separate package* and has no declared scheme:
-# XcodeGen cannot declare one for a package test target — it reads `A/B` as
-# `project/target`. `xcodebuild` resolves it as an implicit scheme anyway, which
-# is why it is listed here and works.
+# None of these has a declared scheme: XcodeGen cannot declare one for a package
+# test target — it reads `A/B` as `project/target` and rejects the spec.
+# `xcodebuild` resolves package test targets as implicit schemes anyway, which is
+# why listing them here works.
 #
 # Le code de retour est celui du **premier échec**, pas celui de la dernière
 # commande : sans ça, une suite rouge suivie d'une verte rendrait zéro.
@@ -26,9 +26,12 @@ SUITES=(
   DomainTests
   NetworkingTests
   PersistenceTests
-  AdaptersTests
-  BackstageTests
+  DataTests
+  PresentationTests
   DesignSystemTests
+  ViewKitTests
+  BackstageTests
+  CompositionTests
   ArchitectureTests
   Amissan
 )

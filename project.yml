@@ -37,18 +37,33 @@ settings:
     ENABLE_MODULE_VERIFIER: true
 
 packages:
-  AmissanKit:
-    path: Packages/AmissanKit
-  # Declared directly, although only `AmissanKit` reaches it.
+  # One package per layer, and the boundary is the manifest.
   #
-  # XcodeGen cannot declare a scheme for a *package* test target — it reads
-  # `A/B` as `project/target` and rejects the spec. But `xcodebuild` resolves
-  # package test targets as implicit schemes, so
-  # `xcodebuild test -scheme DesignSystemTests` works from the command line,
-  # which is what CI uses. Declaring the package here is what makes Xcode
-  # surface it in the IDE as well.
-  AmissanDesignSystem:
-    path: Packages/AmissanDesignSystem
+  # A target can see a sibling's `public` types the moment somebody adds a line
+  # to the manifest — one line, and the layering is gone. A package cannot reach
+  # what it does not declare: `Features/Package.swift` never names `Networking`,
+  # so `import Networking` in a screen is not a review comment, it is
+  # "no such module".
+  #
+  # Only `Composition` is referenced by the app target. It is the composition
+  # root, and it pulls the rest transitively — the app itself has no way to
+  # import `Networking` either.
+  Domain:
+    path: Packages/Domain
+  Networking:
+    path: Packages/Networking
+  Persistence:
+    path: Packages/Persistence
+  Data:
+    path: Packages/Data
+  Presentation:
+    path: Packages/Presentation
+  DesignSystem:
+    path: Packages/DesignSystem
+  Features:
+    path: Packages/Features
+  Composition:
+    path: Packages/Composition
 
 targets:
   Amissan:
@@ -59,8 +74,8 @@ targets:
       - path: App/Resources
         buildPhase: resources
     dependencies:
-      - package: AmissanKit
-        product: AppComposition
+      - package: Composition
+        product: Composition
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.amissan.portfolio

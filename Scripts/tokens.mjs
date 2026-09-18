@@ -39,7 +39,7 @@ const SHARED = resolve(ROOT, "design/tokens.json");
 const PLATFORM = resolve(ROOT, "design/tokens.ios.json");
 /** Le hub, quand on travaille depuis le workspace `portfolio`. */
 const UPSTREAM = resolve(ROOT, "../design/tokens.json");
-const OUTPUT = resolve(ROOT, "Packages/AmissanDesignSystem/Sources/DesignSystem/Generated/Tokens.swift");
+const OUTPUT = resolve(ROOT, "Packages/DesignSystem/Sources/DesignSystem/Generated/Tokens.swift");
 
 const check = process.argv.includes("--check");
 

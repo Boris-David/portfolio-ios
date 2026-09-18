@@ -465,38 +465,112 @@ fuite de visibilité **impossible** plutôt qu'improbable.
 
 ---
 
-## 18. Chaque couche est un package
+## 18. Chaque couche est un package — **fait**
 
 **Demandé :** *« Je veux aussi que chaque couche puisse avoir des dépendances !
 Ce qui fera qu'on pourra bloquer par dépendances le fait que certaines couches se
 connaissent ou non. »*
 
-C'est le prolongement logique de ce qui a été fait pour le design system, et
-c'est plus fort qu'une cible :
+C'est le prolongement de ce qui avait été fait pour le design system, et c'est
+plus fort qu'une cible :
 
-- une **cible** d'un même package peut voir les types `public` de ses sœurs dès
-  qu'on ajoute la dépendance au manifeste — une ligne, et la frontière tombe ;
-- un **package** a son propre manifeste, ses propres dépendances, et il ne peut
-  pas accéder à ce qu'il ne déclare pas. La frontière n'est plus une règle, c'est
-  la structure du projet.
+- une **cible** d'un même package voit les types `public` de ses sœurs dès qu'on
+  ajoute la dépendance au manifeste — une ligne, et la frontière tombe ;
+- un **package** a son propre manifeste et ne peut pas atteindre ce qu'il ne
+  déclare pas. `Features/Package.swift` ne nomme jamais `Networking` : dans un
+  écran, `import Networking` ne donne pas une remarque en revue, il donne
+  « no such module ».
 
-Découpage visé :
+### Le découpage retenu
 
-```
-Packages/
-  AmissanDomain/         entités + ports. Zéro dépendance.          [fait]
-  AmissanNetworking/     HTTP. Ne connaît pas le domaine.
-  AmissanPersistence/    octets. Ne connaît pas le domaine.
-  AmissanDesignSystem/   couleurs, typo, mouvement.                 [fait]
-  AmissanAdapters/       DTO, mapping, dépôts. Domain + les deux techniques.
-  AmissanFeatures/       les écrans. Domain + DesignSystem, rien d'autre.
-  AmissanApp/            la composition. Le seul qui voit tout.
-```
+| Package | Ce qu'il contient | Ce qu'il déclare |
+|---|---|---|
+| `Domain` | entités, ports | **rien** |
+| `Networking` | HTTP | rien |
+| `Persistence` | octets sur disque | rien |
+| `DesignSystem` | couleur, typo, mouvement | Lottie |
+| `Data` | DTO, correspondances, dépôts, sources | Domain + les deux techniques |
+| `Presentation` | phases, store, chrome, formatage, routes | Domain |
+| `Features` | `ViewKit` → `Backstage` → `FeatureKit` → les écrans | Domain, Presentation, DesignSystem, Textual |
+| `Composition` | le câblage | tout — et c'est le seul |
 
-Le test d'architecture change de nature : il ne lit plus un manifeste pour
-vérifier une convention, il constate un graphe que le compilateur impose déjà.
-Il reste utile — pour refuser qu'on **ajoute** une dépendance interdite au
-manifeste.
+⚠️ **Pas de préfixe `Amissan`** : *« on sait qu'on est dans Amissan, donc pas
+besoin de re-préfixer partout »*. Le nom du package est celui du module.
+
+### Ce que le découpage rend possible
+
+`package` — le niveau de visibilité qu'on oublie — **veut enfin dire quelque
+chose**. Dans `Features`, un type partagé entre `ViewKit` et `FeatureKit` se
+déclare `package` : les écrans le voient, l'application non. Avec un package par
+cible, il aurait fallu le passer `public`, donc l'exposer à tout le monde pour
+satisfaire un voisin.
+
+---
+
+## 18 bis. `Data` n'est pas `Adapters` — le renommage était une faute
+
+**Relevé par l'auteur le 2026-09-18 :** *« Tu as renommé data en adapters ? Non,
+on y est pas ! Pour moi ce sont deux choses différentes. […] Pour moi la couche
+adapter c'est ce qui prépare les données pour la partie UI ; la couche data,
+c'est autre chose. »*
+
+Il a raison, et la correction a produit une couche de plus.
+
+**« Adapter » est un rôle, pas un étage.** Tout ce qui convertit entre la forme
+de l'application et celle d'une technologie en est un — `URLSessionHTTPClient`
+en est un, et il vit dans `Networking` ; `PortfolioStore` en est un aussi, de
+l'autre côté. Appeler `Adapters` le seul étage des dépôts revendiquait un rôle
+qu'il ne détient pas seul.
+
+**Dans le vocabulaire canonique**, l'anneau *Interface Adapters* de la Clean
+Architecture contient **deux moitiés** qui n'ont rien à faire ensemble :
+
+| Moitié | Ce qu'elle fait | Ici |
+|---|---|---|
+| **Gateways** | obtenir et écrire la donnée | `Data` |
+| **Presenters** | préparer la donnée pour l'écran | `Presentation` |
+
+L'intuition de l'auteur — « l'adapter, c'est ce qui prépare pour l'UI » —
+désigne exactement la seconde. Elle **existait**, éparpillée dans `FeatureKit`,
+mêlée à des vues SwiftUI, et **sans nom**. Ce qui n'a pas de nom ne peut pas
+être dépendu volontairement, ni défendu en revue.
+
+### `Presentation` — ce qui en sort et pourquoi
+
+`ViewPhase`, `PhaseFailure`, `PortfolioStore`, `AppChrome`, `DateStyle`,
+`Route`, `Sheet`, `AppSection`, `Router`.
+
+**L'invariant : rien n'y importe SwiftUI.** C'est le test décisif d'une couche de
+présentation — si ça dessine, c'est une vue ; si ça décide quoi dessiner, c'est
+ici. Conséquence directe : tout s'y teste **sans simulateur et sans rendu**.
+
+SwiftUI venant du SDK, aucun manifeste ne peut l'interdire : c'est
+`Scripts/check-layers.sh` qui le refuse, et il est mutation-testé.
+
+### `Icon` — le prix de l'invariant, et ce qu'il rapporte
+
+Un `PhaseFailure` portant `"wifi.slash"` échoue au test ci-dessus : c'est une
+instruction à un moteur de rendu précis. Il porte donc un **sens** — `.offline` —
+et `ViewKit` décide du glyphe. Trois gains :
+
+- la présentation se teste sans rendu : affirmer `.offline` est exact, affirmer
+  `"wifi.slash"` teste une orthographe ;
+- le jeu d'icônes change dans **un** fichier ;
+- **un symbole SF mal orthographié n'affiche rien, en silence.** Un cas
+  d'énumération ne peut pas être mal orthographié — et `IconTests` vérifie que
+  chacun existe réellement (`UIImage(systemName:)` rend `nil` sinon).
+
+### Le défaut que l'extraction a mis au jour
+
+Deux traductions **divergentes** de la même erreur coexistaient :
+`PortfolioStore` rendait `.nothingAvailable` avec une icône de bac vide, et une
+seconde copie du même `switch` — écrite dans une vue — avec un symbole de wifi
+barré. La même panne avait deux visages selon l'écran où l'on se trouvait.
+
+Aucune des deux n'était fausse isolément, ce qui est précisément pourquoi
+personne ne l'avait vu. **Une logique de présentation dupliquée ne se signale pas
+en cassant : elle se signale en dérivant.** Il n'en reste qu'une,
+`PhaseFailure.init(_:chrome:)`.
 
 ---
 

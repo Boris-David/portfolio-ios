@@ -2,9 +2,30 @@
 # Le projet est GÉNÉRÉ par XcodeGen depuis `project.yml` : le versionner
 # reviendrait à versionner un artefact, et à rouvrir un conflit de fusion
 # illisible à chaque branche qui ajoute un fichier.
-*.xcodeproj/
-*.xcworkspace/
-!*.xcworkspace/contents.xcworkspacedata
+#
+# ⚠️ UNE exception, et elle se justifie : `Package.resolved`. Ce n'est pas un
+# artefact de génération — `project.yml` ne le produit pas et ne le décrit pas.
+# C'est le **verrou de versions**, l'équivalent d'un `package-lock.json`, et
+# Xcode impose son emplacement à l'intérieur du projet. Sans lui, une
+# construction propre résout au plus récent qui satisfait la plage : Lottie
+# passerait de 4.6 à 4.7 sans que personne l'ait demandé, et la CI ne
+# construirait pas ce que la machine construit.
+#
+# D'où la chaîne de ré-inclusion ci-dessous : on exclut le **contenu** des
+# répertoires (`dir/*`) plutôt que les répertoires eux-mêmes, parce que git ne
+# sait pas ré-inclure un fichier dont un répertoire parent est exclu.
+*.xcodeproj/*
+!*.xcodeproj/project.xcworkspace/
+*.xcodeproj/project.xcworkspace/*
+!*.xcodeproj/project.xcworkspace/xcshareddata/
+*.xcodeproj/project.xcworkspace/xcshareddata/*
+!*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/*
+!*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+# Ancré à la racine : sans le `/`, ce motif reprendrait le
+# `project.xcworkspace` ré-inclus juste au-dessus — les motifs se lisent dans
+# l'ordre, et le dernier qui matche gagne.
+/*.xcworkspace/
 
 build/
 DerivedData/

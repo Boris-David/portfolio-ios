@@ -1,15 +1,15 @@
-import AppComposition
+import Composition
 import SwiftUI
 
-/// Le point d'entrée.
+/// The entry point.
 ///
-/// Volontairement minuscule : douze lignes. Tout ce qui pourrait y vivre —
-/// construction des dépendances, choix de la langue, composition des écrans —
-/// vit dans `AppComposition`, donc dans un module **testable** et compilable
-/// sans simulateur.
+/// Deliberately tiny: twelve lines. Everything that could live here — building
+/// the dependencies, choosing the language, composing the screens — lives in
+/// `Composition`, which is a module that **builds and tests without a
+/// simulator**.
 ///
-/// Un `@main` qui grossit est un `@main` qu'on ne peut plus tester : rien de ce
-/// qu'il contient n'est atteignable autrement qu'en lançant l'application.
+/// A `@main` that grows is a `@main` that cannot be tested: nothing it contains
+/// is reachable except by launching the app.
 @main
 struct AmissanApp: App {
   var body: some Scene {

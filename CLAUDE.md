@@ -30,15 +30,35 @@ rien. `docs/` et le contenu de l'application restent en français.
 
 `./Scripts/check-language.sh` le refuse en CI.
 
-### 1. Le graphe de modules est la frontière
+### 1. Une couche = un package. Le manifeste **est** la frontière
 
-Chaque couche est une **cible SPM**. `FeatureProfile` ne déclare pas
-`Networking` : `import Networking` ne compile pas. Ce n'est pas une convention,
-c'est une erreur de compilation.
+Chaque couche a son `Package.swift`, donc ses propres dépendances. `Features` ne
+déclare jamais `Networking` : dans un écran, `import Networking` ne donne pas une
+remarque en revue, il donne **« no such module »**.
 
-`Domain` ne dépend de rien. Aucune fonctionnalité ne voit `Networking`,
-`Persistence` ni `Data`. Aucune fonctionnalité n'en importe une autre.
-`ArchitectureTests` lit le manifeste et échoue si le graphe dérive.
+```
+Domain        rien                                    ← zéro dépendance, et c'est le point
+Networking    rien          Persistence    rien
+DesignSystem  Lottie
+Data          Domain + Networking + Persistence       ← le seul qui voie les deux côtés
+Presentation  Domain                                  ← et SURTOUT pas SwiftUI
+Features      Domain + Presentation + DesignSystem + Textual
+Composition   tout                                    ← le seul, et il n'a aucune logique
+```
+
+Deux invariants qu'aucun manifeste ne peut tenir, parce que SwiftUI vient du
+SDK : **le domaine ignore qu'une interface existe**, et **la présentation ne
+dessine pas**. C'est `./Scripts/check-layers.sh` qui les refuse.
+
+`ArchitectureTests` lit tous les manifestes et échoue si le graphe dérive.
+
+⚠️ **`Data` n'est pas `Adapters`.** Un « adapter » est un *rôle* — `URLSessionHTTPClient`
+en est un, `PortfolioStore` aussi. L'anneau *Interface Adapters* a deux moitiés :
+les **gateways** (`Data`) et les **presenters** (`Presentation`). Ne pas refondre
+les deux sous un seul nom : l'erreur a déjà été faite et corrigée le 2026-09-18.
+
+⚠️ **Pas de préfixe `Amissan` sur les packages.** Le nom du package est celui du
+module.
 
 ### 2. Aucune valeur de design écrite à la main
 
@@ -54,7 +74,7 @@ ADR 0002. Chiffres, dates, phrases : tout vient de `portfolio-api`. Ce qui reste
 ici, ce sont les **libellés d'interface** (`AppChrome`) et la **documentation
 d'architecture** (`AppDossier`) — qui n'ont aucun sens sans l'application.
 
-La graine embarquée (`Sources/Data/Resources/seed-*.json`) est **générée** par
+La graine embarquée (`Packages/Data/Sources/Data/Resources/seed-*.json`) est **générée** par
 `./Scripts/seed.sh`, jamais écrite à la main.
 
 ### 4. La langue affichée est celle du contenu, pas celle de l'appareil
@@ -82,12 +102,13 @@ Il se génère depuis `project.yml` (`xcodegen generate`). Ne jamais committer
 
 ```bash
 xcodegen generate
-./Scripts/test.sh              # les 8 suites, sur simulateur
+./Scripts/test.sh              # les 11 suites, sur simulateur
 ./Scripts/tokens.mjs --check   # le design descend bien des tokens
 ./Scripts/seed.sh --check      # la graine décrit encore ce que sert l'API
 ./Scripts/assets.py --check    # chaque actif attendu est présent
 ./Scripts/check-secrets.sh     # dépôt public
 ./Scripts/check-language.sh    # le source Swift est en anglais
+./Scripts/check-layers.sh      # aucune couche ne voit ce qu'elle ne doit pas
 ```
 
 **Et on regarde l'écran.** Une application qui compile n'est pas une application
@@ -104,15 +125,26 @@ xcrun simctl io <appareil> screenshot capture.png
 
 | Quoi | Où |
 |---|---|
-| Entités et ports | `Packages/AmissanKit/Sources/Domain/` |
-| Transport, stockage | `Sources/Networking/`, `Sources/Persistence/` |
-| DTO, correspondances, dépôts | `Sources/Data/` |
-| Couleurs, typo, mouvement, composants | `Sources/DesignSystem/` |
-| Annotations de coulisses | `Sources/Backstage/` |
-| Un écran | `Sources/Feature*/` |
-| Le câblage | `Sources/AppComposition/` |
+| Entités et ports | `Packages/Domain/Sources/Domain/` |
+| Transport, stockage | `Packages/Networking/`, `Packages/Persistence/` |
+| DTO, correspondances, dépôts | `Packages/Data/Sources/Data/` |
+| Couleurs, typo, mouvement, composants | `Packages/DesignSystem/` |
+| Phases, store, chrome, formatage, routes | `Packages/Presentation/` |
+| Vues partagées, environnement, icônes | `Packages/Features/Sources/ViewKit/` |
+| Annotations de coulisses | `Packages/Features/Sources/Backstage/` |
+| Coquille d'écran, résolution de routes | `Packages/Features/Sources/Features/Kit/` |
+| Un écran | `Packages/Features/Sources/Features/<Nom>/` |
+| Le câblage | `Packages/Composition/` |
 | Configuration du projet | `project.yml` |
 | Générateurs et gardes | `Scripts/` |
+
+**Un fichier par type.** Un type public porte le nom de son fichier. Les
+exceptions sont étroites : un type imbriqué reste avec son parent, une extension
+de conformité courte reste avec le type, un `#Preview` reste avec sa vue.
+
+**`private` par défaut.** On ne monte d'un cran qu'avec une raison nommée.
+`package` est le niveau qu'on oublie : un type partagé entre deux modules d'un
+même package n'a aucune raison d'être visible depuis l'application.
 
 ## Ce qui se discute avant d'être fait
 
