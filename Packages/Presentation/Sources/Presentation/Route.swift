@@ -5,11 +5,14 @@
 /// `NavigationLink(destination:)` would couple each row to the screen it opens
 /// — the row could never be reused elsewhere, and that screen could never be
 /// opened from a deep link.
+/// ⚠️ **Every case must render something.** `RouteScreen` switches without a
+/// `default:`, so adding a case here does not compile until a screen exists for
+/// it. That is not ceremony: `experience` and `allApps` sat in this enum for
+/// weeks, resolved by a `default: EmptyView()`, and `expertise` — which the
+/// profile screen pushes on a tap — opened a **black screen** in production.
 public enum Route: Hashable, Sendable {
   case caseStudy(slug: String)
-  case experience(slug: String)
   case expertise(id: String)
-  case allApps
   /// The long-form introduction, which the first screen deliberately does not
   /// carry: an opening gives the scale, not the story.
   case about

@@ -69,10 +69,17 @@ package struct SectionShell<Content: View>: View {
           }
         }
         .navigationDestination(for: Route.self) { route in
+          // ⚠️ The tab bar **stays**, and it used to be hidden here.
+          //
+          // The argument for hiding it was that a pushed screen is a reading.
+          // The argument against is what a reader actually does with this app:
+          // they arrive from a link, read one case study, and want the other
+          // three sections — and a bar that vanishes turns "look at the rest"
+          // into "find the back button first".
+          //
+          // Stated by the author, and it wins over the general rule: this is a
+          // portfolio somebody browses, not a flow they descend into.
           routes(route)
-            // The tab bar hides on pushed screens: they are a reading, not a
-            // destination you navigate between.
-            .toolbar(.hidden, for: .tabBar)
         }
     }
     .sheet(item: $router.sheet) { sheets($0) }

@@ -69,6 +69,7 @@ extension Portfolio {
     metrics: [], sections: [], caseStudies: [],
     apps: AppCatalogue(verifiedOn: "2026-01-01", items: []),
     expertise: [],
+    deepDives: [],
     architectures: ArchitectureStudy(
       verifiedOn: "2026-01-01", intro: "i", patterns: [], projects: []
     ),

@@ -45,7 +45,6 @@ struct LaunchArgumentsTests {
   @Test("-route pushes a screen that no tab flag can reach", arguments: [
     ("about", Route.about),
     ("architectures", Route.architectures),
-    ("allApps", Route.allApps),
   ])
   func routeFlag(_ pair: (String, Route)) {
     #expect(LaunchArguments(["-route", pair.0]).initialRoute == pair.1)

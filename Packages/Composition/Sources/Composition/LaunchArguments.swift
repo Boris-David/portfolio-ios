@@ -86,15 +86,41 @@ struct LaunchArguments: Sendable {
 
   private static func route(in arguments: [String]) -> Route? {
     guard let name = Self.value(after: "-route", in: arguments) else { return nil }
-    return switch name {
+
+    // A route that takes an argument is written `name:value`.
+    //
+    // ⚠️ These used to be unreachable: only the no-argument routes were
+    // accepted, on the reasoning that a slug the app does not have would match
+    // nothing. The cost of that reasoning was that the capture matrix could
+    // never open a case study or a deep dive — and the deep dive turned out to
+    // render **nothing at all**, for weeks, on a screen a reader reaches by
+    // touching a card.
+    //
+    // A value that matches nothing is not silent either: the resolver shows
+    // "content not there", which is the honest answer and a capturable one.
+    let (kind, value) = name.split(separator: ":", maxSplits: 1).map(String.init).pairOrFirst
+
+    return switch kind {
     case "about": .about
     case "architectures": .architectures
-    case "allApps": .allApps
+    case "caseStudy": value.map { Route.caseStudy(slug: $0) }
+    case "expertise": value.map { Route.expertise(id: $0) }
     default: nil
     }
   }
 
   private static func section(in arguments: [String]) -> AppSection? {
     Self.value(after: "-tab", in: arguments).flatMap(AppSection.init(rawValue:))
+  }
+}
+
+private extension [String] {
+  /// The first element, and the second when there is one.
+  ///
+  /// A named helper rather than two index reads: an index past the end is the
+  /// crash `-tab` already had once, before the first frame, on the one path only
+  /// CI took.
+  var pairOrFirst: (String, String?) {
+    (self.first ?? "", count > 1 ? self[1] : nil)
   }
 }

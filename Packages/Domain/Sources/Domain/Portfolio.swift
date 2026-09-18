@@ -11,6 +11,8 @@ public struct Portfolio: Sendable, Hashable {
   public let caseStudies: [CaseStudy]
   public let apps: AppCatalogue
   public let expertise: [ExpertiseTopic]
+  /// One per topic, in the same order. What makes each topic checkable.
+  public let deepDives: [DeepDive]
   public let architectures: ArchitectureStudy
   public let experience: [Experience]
   public let background: Background
@@ -23,6 +25,7 @@ public struct Portfolio: Sendable, Hashable {
     caseStudies: [CaseStudy],
     apps: AppCatalogue,
     expertise: [ExpertiseTopic],
+    deepDives: [DeepDive],
     architectures: ArchitectureStudy,
     experience: [Experience],
     background: Background,
@@ -34,6 +37,7 @@ public struct Portfolio: Sendable, Hashable {
     self.caseStudies = caseStudies
     self.apps = apps
     self.expertise = expertise
+    self.deepDives = deepDives
     self.architectures = architectures
     self.experience = experience
     self.background = background
@@ -64,5 +68,17 @@ extension Portfolio {
 
   public func section(_ id: String) -> Section? {
     sections.first { $0.id == id }
+  }
+}
+
+public extension Portfolio {
+  /// The dive that belongs to a topic, when the source published one.
+  ///
+  /// A lookup rather than a stored link on `ExpertiseTopic`: the topic comes
+  /// from `/v1/expertise` and the dive from `/v1/deep-dives`, and joining them
+  /// in the entity would mean deciding here what happens when one is missing.
+  /// Answering `nil` says it plainly, once, where the screen can act on it.
+  func deepDive(for topic: String) -> DeepDive? {
+    deepDives.first { $0.expertise == topic }
   }
 }

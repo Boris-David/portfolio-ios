@@ -30,7 +30,7 @@ Actions** du dépôt.
 |---|---|
 | `APP_STORE_CONNECT_KEY_ID` | App Store Connect → Users and Access → Integrations → App Store Connect API. Créer une clé **App Manager**. C'est l'identifiant à dix caractères affiché à côté. |
 | `APP_STORE_CONNECT_ISSUER_ID` | Sur la même page, en haut : un UUID, le même pour tout le compte. |
-| `APP_STORE_CONNECT_KEY` | Le fichier `.p8` téléchargé à la création — **une seule fois, Apple ne le redonne pas**. À coller en base64 : `base64 -i AuthKey_XXXXXXXXXX.p8 \| pbcopy`. C'est bien le **contenu**, pas un chemin. |
+| `APP_STORE_CONNECT_KEY` | Le fichier `.p8` téléchargé à la création — **une seule fois, Apple ne le redonne pas**. À coller en base64 : `base64 -i AuthKey_<KEY_ID>.p8 \| pbcopy`. C'est bien le **contenu**, pas un chemin. |
 | `MATCH_PASSWORD` | La phrase choisie au premier `fastlane certificates`. C'est elle qui déchiffre le dépôt de certificats ; perdue, il faut tout régénérer. |
 
 Plus un accès en lecture au dépôt de certificats :

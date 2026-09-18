@@ -87,35 +87,19 @@ extension CaseStudy {
     /// The heading comes from the source: "Decision" here, "Decisions and
     /// deliveries" there. It is content, not an interface constant.
     public let heading: String
-    public let blocks: [Block]
+    public let blocks: [ProseBlock]
 
-    public init(kind: Kind, heading: String, blocks: [Block]) {
+    public init(kind: Kind, heading: String, blocks: [ProseBlock]) {
       self.kind = kind
       self.heading = heading
       self.blocks = blocks
     }
 
     /// The technical chips, when the panel carries any.
-    public var tags: [String] {
-      blocks.compactMap { if case .tags(let items) = $0 { items } else { nil } }.flatMap(\.self)
-    }
+    public var tags: [String] { blocks.tags }
 
-    /// The written body, lists flattened: in a single column, a list and a run
-    /// of paragraphs read the same.
-    public var prose: [RichText] {
-      blocks.flatMap { block -> [RichText] in
-        switch block {
-        case .paragraph(let text): [text]
-        case .list(let items): items
-        case .tags: []
-        }
-      }
-    }
+    /// The written body, lists flattened.
+    public var prose: [RichText] { blocks.prose }
   }
 
-  public enum Block: Sendable, Hashable {
-    case paragraph(RichText)
-    case list([RichText])
-    case tags([String])
-  }
 }

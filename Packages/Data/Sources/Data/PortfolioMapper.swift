@@ -20,6 +20,7 @@ enum PortfolioMapper {
       caseStudies: dto.caseStudies.map(caseStudy),
       apps: try appCatalogue(from: dto.apps),
       expertise: dto.expertise.map(expertise),
+      deepDives: dto.deepDives.map(deepDive),
       architectures: try architectureStudy(from: dto.architectures),
       experience: try dto.experience.map(experience),
       background: try background(from: dto.background),
@@ -133,13 +134,7 @@ enum PortfolioMapper {
     return CaseStudy.Panel(
       kind: kind,
       heading: dto.heading,
-      blocks: dto.blocks.map { block in
-        switch block {
-        case .paragraph(let spans): .paragraph(richText(spans))
-        case .list(let items): .list(items.map(richText))
-        case .tags(let items): .tags(items)
-        }
-      }
+      blocks: dto.blocks.map(block)
     )
   }
 
@@ -168,6 +163,42 @@ enum PortfolioMapper {
 
   static func expertise(_ dto: ExpertiseDTO) -> ExpertiseTopic {
     ExpertiseTopic(id: dto.id, title: dto.title, body: richText(dto.body))
+  }
+
+  /// A block, whatever carries it.
+  ///
+  /// Shared by the case studies and the deep dives: the source publishes one
+  /// block vocabulary, so there is one mapping of it.
+  static func block(_ dto: ProseBlockDTO) -> ProseBlock {
+    switch dto {
+    case .paragraph(let spans): .paragraph(richText(spans))
+    case .list(let items): .list(items.map(richText))
+    case .tags(let items): .tags(items)
+    }
+  }
+
+  // -- Deep dives ---------------------------------------------------------
+
+  /// No validation beyond the shape, deliberately.
+  ///
+  /// A dive whose `expertise` names no topic is not an error the reader can be
+  /// shown anything useful about: it simply never opens, because nothing links
+  /// to it. `Portfolio.deepDive(for:)` answers `nil` and the screen says so.
+  static func deepDive(_ dto: DeepDiveDTO) -> DeepDive {
+    DeepDive(
+      expertise: dto.expertise,
+      lede: richText(dto.lede),
+      sections: dto.sections.map { section in
+        DeepDive.Section(
+          slug: section.slug,
+          heading: section.heading,
+          blocks: section.blocks.map(block)
+        )
+      },
+      evidence: dto.evidence.map {
+        DeepDive.Evidence(caseStudy: $0.caseStudy, chapter: $0.chapter)
+      }
+    )
   }
 
   // ── Architectures ──────────────────────────────────────────────────────

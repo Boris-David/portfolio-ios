@@ -48,7 +48,7 @@ struct RouterTests {
   @Test("pushing then popping to root clears the stack")
   func pushAndPopToRoot() {
     let router = Router()
-    router.push(.allApps)
+    router.push(.about)
     router.push(.caseStudy(slug: "kcalories"))
     #expect(router.path.count == 2)
     router.popToRoot()

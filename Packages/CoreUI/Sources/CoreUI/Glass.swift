@@ -73,16 +73,20 @@ public extension View {
     }
   }
 
-  /// The tab bar shrinks as you read down the content.
+  /// The tab bar stays put while you read.
   ///
-  /// iOS 26 only: on iOS 18 the bar stays, which is its normal behaviour and not
-  /// a defect.
-  @ViewBuilder
-  func minimizingTabBarOnScroll() -> some View {
-    if #available(iOS 26.0, *) {
-      self.tabBarMinimizeBehavior(.onScrollDown)
-    } else {
-      self
-    }
-  }
+  /// ## Why `.onScrollDown` was removed
+  ///
+  /// iOS 26 can shrink the bar as the reader scrolls, and it is the right
+  /// default for an app whose content is the point and whose navigation is a
+  /// means — a feed, a player, a document.
+  ///
+  /// It is the wrong one here. Every screen in this app is long-form, so the
+  /// reader scrolls **constantly**, and the bar spent most of its life
+  /// collapsed. The four sections are not a means: they are the argument, and a
+  /// reader who cannot see that there are three more has been told less.
+  ///
+  /// Kept as a named no-op rather than deleted at the call site, so the decision
+  /// is written where somebody would otherwise re-add the modifier.
+  func minimizingTabBarOnScroll() -> some View { self }
 }

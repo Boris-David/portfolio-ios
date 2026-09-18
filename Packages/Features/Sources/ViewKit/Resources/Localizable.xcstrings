@@ -473,6 +473,22 @@
         }
       }
     },
+    "interface.depthEyebrow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In depth"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approfondissement"
+          }
+        }
+      }
+    },
     "interface.education": {
       "localizations": {
         "en": {
@@ -821,6 +837,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Projets ouverts"
+          }
+        }
+      }
+    },
+    "interface.provenLink": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read the case study"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lire l'étude de cas"
+          }
+        }
+      }
+    },
+    "interface.provenTitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Where this was applied"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Où c'est appliqué"
           }
         }
       }
