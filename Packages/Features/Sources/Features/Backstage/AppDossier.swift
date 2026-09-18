@@ -2,26 +2,25 @@ import Domain
 import Foundation
 import Presentation
 
-/// Ce que cette application dit d'elle-même.
+/// What this app says about itself.
 ///
-/// ## Pourquoi ce contenu-là n'est pas dans l'API
+/// ## Why this particular content is not in the API
 ///
-/// Le critère est le même que pour le site : *est du contenu ce qui resterait
-/// vrai si ce client n'existait pas.* Un fait du parcours reste vrai sans
-/// l'application — il va à l'API. « Pourquoi un acteur plutôt qu'un verrou dans
-/// **cette** application » n'a aucun sens sans elle : c'est de la documentation
-/// d'architecture, elle vit avec le code qu'elle décrit, et elle devient fausse
-/// dans le même commit que lui.
-public enum AppDossier {
+/// The test is the same as for the website: *content is what would still be true
+/// if this client did not exist.* A fact about his career stays true without the
+/// app — it goes to the API. "Why an actor rather than a lock in **this** app"
+/// means nothing without it: that is architecture documentation, it lives with
+/// the code it describes, and it becomes wrong in the same commit.
+package enum AppDossier {
   // ───────────────────────────────────────────────────────────────────────
-  // Les couches
+  // The layers
   // ───────────────────────────────────────────────────────────────────────
 
   public struct Layer: Identifiable, Sendable, Hashable {
     public let id: String
     public let name: String
     public let responsibility: Bilingual
-    /// Ce dont elle dépend — et rien de plus. Le manifeste SPM l'impose.
+    /// What it depends on — and nothing more. The SPM manifest enforces it.
     public let dependsOn: [String]
     public let rule: Bilingual
   }
@@ -89,8 +88,8 @@ public enum AppDossier {
       id: "data",
       name: "Data",
       responsibility: Bilingual(
-        fr: "Les adaptateurs : DTO, correspondances, dépôts.",
-        en: "The adapters: DTOs, mapping, repositories."
+        fr: "Les *gateways* : DTO, correspondances, dépôts, sources.",
+        en: "The *gateways*: DTOs, mapping, repositories, sources."
       ),
       dependsOn: ["Domain", "Networking", "Persistence"],
       rule: Bilingual(
@@ -128,53 +127,79 @@ public enum AppDossier {
       )
     ),
     Layer(
+      id: "presentation",
+      name: "Presentation",
+      responsibility: Bilingual(
+        fr: "Décider ce qu'un écran montre — jamais le dessiner.",
+        en: "Decide what a screen shows — never draw it."
+      ),
+      dependsOn: ["Domain"],
+      rule: Bilingual(
+        fr: """
+          **N'importe pas SwiftUI.** C'est le test décisif d'une couche de \
+          présentation : si ça dessine, c'est une vue ; si ça décide quoi \
+          dessiner, c'est ici. Conséquence directe — phases, messages d'erreur, \
+          formats de date et routes se testent **sans simulateur**.
+          """,
+        en: """
+          **Does not import SwiftUI.** That is the acid test of a presentation \
+          layer: if it draws, it is a view; if it decides what to draw, it \
+          belongs here. Direct consequence — phases, failure messages, date \
+          formats and routes are tested **with no simulator**.
+          """
+      )
+    ),
+    Layer(
       id: "features",
-      name: "Feature*",
+      name: "Features",
       responsibility: Bilingual(
         fr: "Un écran, son état, ses annotations.",
         en: "One screen, its state, its annotations."
       ),
-      dependsOn: ["FeatureKit"],
+      dependsOn: ["Domain", "Presentation", "DesignSystem"],
       rule: Bilingual(
         fr: """
           Ne voient **ni** `Networking`, **ni** `Persistence`, **ni** `Data`. \
           Une vue parle à un port du domaine ; ce qui l'implémente est décidé \
-          ailleurs. Ce n'est pas une convention : ces modules ne figurent pas \
-          dans leurs dépendances, et l'`import` ne compile pas.
+          ailleurs. Ce n'est pas une convention : ces trois noms sont absents du \
+          manifeste de ce package, et `import Networking` répond « no such \
+          module ».
           """,
         en: """
           See **neither** `Networking`, **nor** `Persistence`, **nor** `Data`. A \
           view talks to a domain port; what implements it is decided elsewhere. \
-          This is not a convention: those modules are absent from their \
-          dependencies, and the `import` does not compile.
+          This is not a convention: those three names are absent from this \
+          package's manifest, and `import Networking` answers “no such module”.
           """
       )
     ),
     Layer(
       id: "composition",
-      name: "AppComposition",
+      name: "Composition",
       responsibility: Bilingual(
         fr: "Brancher les implémentations sur les ports.",
         en: "Wire implementations onto the ports."
       ),
-      dependsOn: ["Data", "Feature*"],
+      dependsOn: ["Domain", "Networking", "Persistence", "Data", "Presentation", "DesignSystem", "Features"],
       rule: Bilingual(
         fr: """
-          Le seul module qui a le droit de tout voir, parce que quelqu'un doit \
-          décider quel objet concret répond à quel protocole. C'est aussi le \
-          seul qu'il faut rouvrir pour remplacer une implémentation.
+          Le seul package qui a le droit de tout voir, parce que quelqu'un doit \
+          décider quel objet concret répond à quel protocole. Sa liste de \
+          dépendances est longue, et celle de tous les autres est courte : \
+          c'est exactement ce qu'on veut lire.
           """,
         en: """
-          The only module allowed to see everything, because someone has to \
-          decide which concrete object answers which protocol. It is also the \
-          only one to reopen when swapping an implementation.
+          The only package allowed to see everything, because someone has to \
+          decide which concrete object answers which protocol. Its dependency \
+          list is long and everybody else's is short: that is exactly what you \
+          want to read.
           """
       )
     ),
   ]
 
   // ───────────────────────────────────────────────────────────────────────
-  // Les défis
+  // The challenges
   // ───────────────────────────────────────────────────────────────────────
 
   public struct Challenge: Identifiable, Sendable, Hashable {
@@ -375,34 +400,41 @@ public enum AppDossier {
       ),
       solution: Bilingual(
         fr: """
-          Chaque couche est une **cible SPM**. `FeatureProfile` ne déclare pas \
-          `Networking` dans ses dépendances : `import Networking` **ne compile \
-          pas**. La règle cesse d'être une convention.
+          Chaque couche est un **package SPM**, avec son propre manifeste. Une \
+          cible aurait suffi à moitié : ajouter une ligne au manifeste commun \
+          et la frontière tombait. Un package ne peut pas atteindre ce qu'il ne \
+          déclare pas — `Features/Package.swift` ne nomme jamais `Networking`, \
+          donc `import Networking` répond **« no such module »**.
           """,
         en: """
-          Every layer is an **SPM target**. `FeatureProfile` does not declare \
-          `Networking` among its dependencies: `import Networking` **does not \
-          compile**. The rule stops being a convention.
+          Every layer is an **SPM package**, with its own manifest. A target \
+          would only have got halfway: one line added to the shared manifest and \
+          the boundary was gone. A package cannot reach what it does not \
+          declare — `Features/Package.swift` never names `Networking`, so \
+          `import Networking` answers **“no such module”**.
           """
       ),
       lesson: Bilingual(
         fr: """
-          Et le graphe lui-même est sous test : `ArchitectureTests` lit le \
-          manifeste et échoue si une fonctionnalité gagne une dépendance \
-          interdite. Une règle qu'aucun test n'exécute finit contournée — y \
-          compris celle-là.
+          Et le graphe lui-même est sous test : `ArchitectureTests` lit les \
+          huit manifestes et échoue si une couche gagne une dépendance \
+          interdite. Deux invariants qu'aucun manifeste ne peut tenir — le \
+          domaine ignore SwiftUI, la présentation ne dessine pas — sont refusés \
+          par `Scripts/check-layers.sh`, parce que SwiftUI vient du SDK.
           """,
         en: """
-          And the graph itself is under test: `ArchitectureTests` reads the \
-          manifest and fails if a feature gains a forbidden dependency. A rule \
-          no test exercises ends up bypassed — including this one.
+          And the graph itself is under test: `ArchitectureTests` reads all \
+          eight manifests and fails if a layer gains a forbidden dependency. Two \
+          invariants no manifest can hold — the domain ignores SwiftUI, the \
+          presentation does not draw — are refused by \
+          `Scripts/check-layers.sh`, because SwiftUI ships with the SDK.
           """
       )
     ),
   ]
 
   // ───────────────────────────────────────────────────────────────────────
-  // Les dépendances, et pourquoi
+  // The dependencies, and why
   // ───────────────────────────────────────────────────────────────────────
 
   public struct DependencyCall: Identifiable, Sendable, Hashable {
@@ -417,8 +449,8 @@ public enum AppDossier {
     }
   }
 
-  /// La règle, une fois pour toutes : *une dépendance se justifie par ce qui
-  /// serait pire sans elle, pas par ce qu'elle rend pratique.*
+  /// The rule, once and for all: *a dependency is justified by what would be
+  /// worse without it, not by what it makes convenient.*
   public static let dependencies: [DependencyCall] = [
     DependencyCall(
       id: "lottie",
@@ -540,7 +572,7 @@ public enum AppDossier {
   ]
 
   // ───────────────────────────────────────────────────────────────────────
-  // Les chaînes de bout en bout
+  // The end-to-end walkthroughs
   // ───────────────────────────────────────────────────────────────────────
 
   public struct Walkthrough: Identifiable, Sendable, Hashable {

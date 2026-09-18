@@ -6,7 +6,7 @@ import Presentation
 import SwiftUI
 import ViewKit
 
-/// L'accroche : disponibilité, nom, métier, et la capture qui illustre.
+/// The hero: availability, name, role, and the screenshot that illustrates it.
 struct HeroBlock: View {
   let profile: Profile
   @Environment(Router.self) private var router
@@ -24,23 +24,23 @@ struct HeroBlock: View {
           .foregroundStyle(Color.ink)
           .fixedSize(horizontal: false, vertical: true)
 
-        // Le trait se dessine sous le nom : une signature, pas une décoration.
-        // Il est **décoratif** au sens de l'accessibilité — VoiceOver n'a rien
-        // à en dire — donc il est masqué plutôt qu'annoncé « image ».
+        // The stroke draws under the name: a signature, not a decoration. It
+        // is **decorative** in the accessibility sense — VoiceOver has nothing
+        // to say about it — so it is hidden rather than announced as "image".
         LottieAnimationView("signature", bundle: .designSystem)
           .frame(height: 34)
           .frame(maxWidth: 260, alignment: .leading)
           .accessibilityHidden(true)
       }
       .accessibilityElement(children: .combine)
-      // L'annotation porte sur le **bloc** nom + signature, pas sur la vue
-      // Lottie seule.
+      // The annotation covers the **block** of name + signature, not the
+      // Lottie view alone.
       //
-      // Deux raisons. La note décrit le traitement de l'accroche dans son
-      // ensemble, pas un composant isolé. Et surtout : un `UIViewRepresentable`
-      // ne rapporte pas toujours le cadre qu'on lui impose — l'ancre relevée
-      // sur la vue Lottie désignait une bande vide sous elle, ce qu'on n'a vu
-      // qu'en dessinant la zone annotée à l'écran.
+      // Two reasons. The note describes the treatment of the hero as a whole,
+      // not an isolated component. And above all: a `UIViewRepresentable` does
+      // not always report the frame imposed on it — the anchor taken from the
+      // Lottie view pointed at an empty band below it, which only became visible
+      // once the annotated area was drawn on screen.
       .backstage(Self.lottieNote)
 
       VStack(alignment: .leading, spacing: Tokens.Space.s3) {
@@ -282,7 +282,7 @@ struct HeroBlock: View {
   )
 }
 
-/// Les chiffres publiables, et eux seuls.
+/// The publishable figures, and only those.
 struct MetricsBlock: View {
   let metrics: [Metric]
 
@@ -373,7 +373,7 @@ struct MetricsBlock: View {
   }
 }
 
-/// Les trois sujets creusés.
+/// The three subjects dug into.
 struct ExpertiseBlock: View {
   let section: Portfolio.Section?
   let topics: [ExpertiseTopic]
@@ -419,7 +419,7 @@ struct ExpertiseBlock: View {
   }
 }
 
-/// Le détail d'un sujet.
+/// A subject's detail.
 struct ExpertiseDetail: View {
   let topic: ExpertiseTopic
 
@@ -441,7 +441,7 @@ struct ExpertiseDetail: View {
   }
 }
 
-/// Le seul canal de contact publié.
+/// The one published contact channel.
 struct ContactBlock: View {
   let contact: Profile.Contact
   @Environment(\.openURL) private var openURL
@@ -482,10 +482,9 @@ struct ContactBlock: View {
     .reveal()
   }
 
-  /// Les symboles SF ne couvrent pas les marques : GitHub et LinkedIn n'y sont
-  /// pas. Plutôt qu'embarquer des logos — dont l'usage est encadré par leurs
-  /// propriétaires — on emploie un symbole générique, et le **libellé** porte
-  /// l'identification.
+  /// SF Symbols does not cover brands: GitHub and LinkedIn are not in it.
+  /// Rather than embedding logos — whose use their owners govern — a generic
+  /// symbol is used, and the **label** carries the identification.
   private func symbol(for id: String) -> String {
     switch id {
     case "github": "chevron.left.forwardslash.chevron.right"

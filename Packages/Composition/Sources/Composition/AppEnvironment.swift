@@ -4,22 +4,20 @@ import Foundation
 import Networking
 import Persistence
 
-/// Tout ce dont l'application a besoin pour fonctionner, en une valeur.
+/// Everything the app needs in order to run, as one value.
 ///
-/// ## Pourquoi pas un conteneur d'injection
+/// ## Why not a dependency-injection container
 ///
-/// Un conteneur — enregistrement de types, résolution par clé — apporte deux
-/// choses : la résolution paresseuse et l'enregistrement dispersé. Aucune des
-/// deux n'est un avantage ici :
+/// A container — type registration, resolution by key — brings two things: lazy
+/// resolution, and scattered registration. Neither is an advantage here:
 ///
-/// - **paresseuse** : trois objets, construits en microsecondes. Rien à gagner ;
-/// - **dispersé** : c'est précisément ce qu'on ne veut pas. Un enregistrement
-///   éparpillé fait qu'on ne sait plus, en lisant, ce qui répond à quoi — et
-///   une résolution manquante ne se découvre qu'à l'exécution.
+/// - **lazy**: three objects, built in microseconds. Nothing to gain;
+/// - **scattered**: that is precisely what we do not want. Registration spread
+///   around means you can no longer tell, by reading, what answers what — and a
+///   missing resolution only shows up at runtime.
 ///
-/// Une structure de trois champs, construite au lancement, offre l'inverse : le
-/// graphe entier se lit en dix lignes, et **le compilateur** garantit qu'il est
-/// complet.
+/// A three-field struct built at launch gives the opposite: the whole graph
+/// reads in ten lines, and **the compiler** guarantees it is complete.
 public struct AppEnvironment: Sendable {
   public let portfolio: any PortfolioReading
   public let resume: any ResumeReading
@@ -31,7 +29,7 @@ public struct AppEnvironment: Sendable {
     self.language = language
   }
 
-  /// Le montage réel : réseau, cache disque, graine embarquée.
+  /// The real wiring: network, disk cache, bundled seed.
   public static func live(
     endpoints: Endpoints = .production,
     language: Language = .preferred()

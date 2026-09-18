@@ -1,10 +1,10 @@
 import Testing
 @testable import Amissan
 
-/// Le minimum que l'hôte doit garantir : l'application se construit et se
-/// lance. Tout le reste est testé dans `AmissanKit`, sans simulateur.
+/// The minimum the host must guarantee: the app builds and launches. Everything
+/// else is tested in the packages, without a simulator.
 struct SmokeTests {
-  @Test("l'application se compose sans lever")
+  @Test("the app composes without throwing")
   func appComposes() {
     _ = AmissanApp()
   }

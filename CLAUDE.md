@@ -127,7 +127,7 @@ xcrun simctl io <appareil> screenshot capture.png
 |---|---|
 | Entités et ports | `Packages/Domain/Sources/Domain/` |
 | Transport, stockage | `Packages/Networking/`, `Packages/Persistence/` |
-| DTO, correspondances, dépôts | `Packages/Data/Sources/Data/` |
+| DTO, correspondances, dépôts, sources | `Packages/Data/Sources/Data/` |
 | Couleurs, typo, mouvement, composants | `Packages/DesignSystem/` |
 | Phases, store, chrome, formatage, routes | `Packages/Presentation/` |
 | Vues partagées, environnement, icônes | `Packages/Features/Sources/ViewKit/` |
@@ -144,7 +144,9 @@ de conformité courte reste avec le type, un `#Preview` reste avec sa vue.
 
 **`private` par défaut.** On ne monte d'un cran qu'avec une raison nommée.
 `package` est le niveau qu'on oublie : un type partagé entre deux modules d'un
-même package n'a aucune raison d'être visible depuis l'application.
+même package n'a aucune raison d'être visible depuis l'application. Dans
+`Features`, la moitié de la surface est `package` — et `check-layers.sh` refuse
+un type `public` que rien, dehors, ne nomme.
 
 ## Ce qui se discute avant d'être fait
 

@@ -1,19 +1,19 @@
 import Observation
 import SwiftUI
 
-/// L'état du mode coulisses, partagé par toute l'application.
+/// The backstage mode's state, shared across the whole app.
 ///
-/// `@Observable` plutôt qu'`ObservableObject` : SwiftUI n'observe alors que les
-/// propriétés **réellement lues** par chaque vue. Avec `@Published`, activer le
-/// mode aurait invalidé toute vue tenant l'objet, y compris celles qui ne
-/// regardent que la note sélectionnée.
+/// `@Observable` rather than `ObservableObject`: SwiftUI then observes only the
+/// properties each view **actually reads**. With `@Published`, turning the mode
+/// on would have invalidated every view holding the object, including those that
+/// only look at the selected note.
 @Observable
 @MainActor
 public final class BackstageController {
-  /// Les annotations sont-elles visibles ?
+  /// Are the annotations visible?
   public var isEnabled = false
-  /// La note ouverte en détail, s'il y en a une.
-  public var presented: BackstageNote?
+  /// The note open in detail, if there is one.
+  package var presented: BackstageNote?
 
   public init(isEnabled: Bool = false) {
     self.isEnabled = isEnabled
@@ -24,21 +24,20 @@ public final class BackstageController {
     if !isEnabled { presented = nil }
   }
 
-  public func present(_ note: BackstageNote) {
+  package func present(_ note: BackstageNote) {
     presented = note
   }
 }
 
-// Le contrôleur voyage par `.environment(controller)` et se lit par
+// The controller travels through `.environment(controller)` and is read with
 // `@Environment(BackstageController.self)`.
 //
-// Pas par une clé `@Entry` : une clé exige une **valeur par défaut**, et
-// construire un objet isolé à l'acteur principal hors de cet acteur ne compile
-// pas. Le contourner par `MainActor.assumeIsolated` marcherait — en déposant un
-// piège à l'exécution dans du code livré, pour un défaut que personne ne devrait
-// jamais obtenir.
+// Not through an `@Entry` key: a key requires a **default value**, and building
+// a main-actor-isolated object outside that actor does not compile. Working
+// around it with `MainActor.assumeIsolated` would work — while planting a
+// runtime trap in shipped code, for a defect nobody should ever hit.
 //
-// L'injection d'objet dit mieux ce qu'on veut : ce contrôleur n'a pas de valeur
-// par défaut sensée. Ou l'application l'a fourni, ou il y a un défaut de
-// câblage — et il vaut mieux l'apprendre au premier lancement qu'observer un
-// mode coulisses qui ne réagit à rien.
+// Object injection says better what is meant: this controller has no sensible
+// default. Either the app provided it, or there is a wiring defect — and it is
+// better to learn that on the first launch than to watch a backstage mode that
+// responds to nothing.

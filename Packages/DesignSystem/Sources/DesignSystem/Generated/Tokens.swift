@@ -166,7 +166,7 @@ extension Tokens {
 // ─────────────────────────────────────────────────────────────────────────────
 // Typography
 //
-// Échelle alignée sur l'échelle Dynamic Type d'iOS — base 17.
+// A scale aligned with the iOS Dynamic Type scale — base 17.
 // ─────────────────────────────────────────────────────────────────────────────
 
 extension Tokens {

@@ -11,16 +11,16 @@ import SwiftUI
 /// **The first screen is not animated.** A fade-in on what you see when you open
 /// the app delays the first piece of information by a few hundred milliseconds.
 /// That is exactly what a skimming recruiter does not forgive.
-public struct Reveal: ViewModifier {
+struct Reveal: ViewModifier {
   private let delay: Double
   @State private var isVisible = false
   @ReducedMotion private var reducedMotion
 
-  public init(delay: Double = 0) {
+  init(delay: Double = 0) {
     self.delay = delay
   }
 
-  public func body(content: Content) -> some View {
+  func body(content: Content) -> some View {
     content
       .opacity(shouldHide ? 0 : 1)
       .offset(y: shouldHide ? 14 : 0)

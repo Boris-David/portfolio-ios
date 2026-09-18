@@ -1,21 +1,21 @@
 import Domain
 import Foundation
 
-/// Une annotation de coulisses : pourquoi **ce** composant, ici.
+/// A backstage annotation: why **this** component, here.
 ///
-/// C'est le cœur de l'application. Un portfolio qui montre des écrans montre un
-/// résultat ; celui-ci montre les **décisions** qui y mènent — et une décision
-/// se juge à ce qu'elle a écarté autant qu'à ce qu'elle a retenu.
+/// This is the heart of the app. A portfolio that shows screens shows a result;
+/// this one shows the **decisions** that led there — and a decision is judged by
+/// what it ruled out as much as by what it kept.
 ///
-/// La structure n'est pas libre, et c'est voulu : chaque champ est une question
-/// qu'un relecteur technique poserait de toute façon. Un champ vide se voit, ce
-/// qui est exactement le but — une note qui ne sait pas dire ce qu'elle a
-/// écarté n'est pas encore une décision, c'est un réflexe.
-public struct BackstageNote: Identifiable, Sendable, Hashable {
-  /// Ce qui a été envisagé, puis écarté.
+/// The structure is not free-form, deliberately: every field is a question a
+/// technical reviewer would ask anyway. An empty field shows, which is exactly
+/// the point — a note that cannot say what it ruled out is not yet a decision,
+/// it is a reflex.
+package struct BackstageNote: Identifiable, Sendable, Hashable {
+  /// What was considered, then ruled out.
   public struct Rejected: Sendable, Hashable {
     public let name: Bilingual
-    /// La raison, en une phrase qui tient debout seule.
+    /// The reason, in one sentence that stands on its own.
     public let because: Bilingual
 
     public init(_ name: Bilingual, because: Bilingual) {
@@ -25,22 +25,22 @@ public struct BackstageNote: Identifiable, Sendable, Hashable {
   }
 
   public let id: String
-  /// Le composant employé, sous son nom exact : `NavigationStack`, `Layout`,
+  /// The component used, under its exact name: `NavigationStack`, `Layout`,
   /// `matchedGeometryEffect`.
   public let component: String
-  /// Ce qu'il fait **ici**, en une phrase — pas ce qu'il fait en général.
+  /// What it does **here**, in one sentence — not what it does in general.
   public let role: Bilingual
-  /// Pourquoi celui-là. Du Markdown : la réponse mérite plus qu'une ligne.
+  /// Why this one. Markdown: the answer deserves more than a line.
   public let rationale: Bilingual
-  /// Les candidats écartés. Vide seulement quand il n'y avait réellement pas
-  /// d'alternative — ce qui est rare, et alors ça se dit.
+  /// The candidates ruled out. Empty only when there genuinely was no
+  /// alternative — which is rare, and then it is worth saying.
   public let rejected: [Rejected]
-  /// Dans quels cas l'employer, en général. C'est la partie qui sert à
-  /// quelqu'un d'autre que moi.
+  /// When to reach for it, in general. This is the part that is of use to
+  /// somebody other than me.
   public let whenToUse: Bilingual
-  /// Le piège : ce qui casse, et qu'on n'apprend qu'en se le prenant.
+  /// The trap: what breaks, and what you only learn by walking into it.
   public let pitfall: Bilingual?
-  /// La documentation d'Apple, quand elle existe.
+  /// Apple's documentation, where it exists.
   public let documentation: URL?
 
   public init(

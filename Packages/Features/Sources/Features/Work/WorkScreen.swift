@@ -6,8 +6,8 @@ import Presentation
 import SwiftUI
 import ViewKit
 
-/// Les projets, racontés comme un ingénieur produit : le problème, la décision,
-/// le résultat.
+/// The projects, told the way an engineer delivers: the problem, the decision,
+/// the result.
 public struct WorkScreen: View {
   @Environment(PortfolioStore.self) private var store
   @Chrome private var chrome
@@ -57,8 +57,8 @@ public struct WorkScreen: View {
   }
 }
 
-/// La carte d'une étude de cas : repliée, elle donne l'échelle ; dépliée, elle
-/// donne le détail.
+/// A case study's card: collapsed it gives the scale, expanded it gives the
+/// detail.
 struct CaseStudyCard: View {
   let study: CaseStudy
   @Environment(Router.self) private var router
@@ -113,7 +113,7 @@ struct CaseStudyCard: View {
   }
 }
 
-/// La grille des applications en production.
+/// The grid of production apps.
 struct AppsBlock: View {
   let section: Portfolio.Section?
   let catalogue: AppCatalogue
@@ -274,10 +274,10 @@ struct AppCell: View {
   }
 }
 
-/// L'icône d'une application, nommée par son **slug public**.
+/// An app's icon, named by its **public slug**.
 ///
-/// Jamais par un identifiant de réseau interne : ceux-là ne sortent pas, et un
-/// chemin d'image est du contenu public au même titre qu'une phrase.
+/// Never by an internal network identifier: those do not leave the building, and
+/// an image path is public content just as much as a sentence is.
 struct AppIcon: View {
   let slug: String
 

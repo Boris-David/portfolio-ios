@@ -2,13 +2,12 @@ import DesignSystem
 import Presentation
 import SwiftUI
 
-/// L'écran d'erreur — une **vue bête**.
+/// The failure screen — a **dumb view**.
 ///
-/// Elle ne connaît ni le domaine, ni le store, ni ce qui a échoué : elle reçoit
-/// un titre, une phrase, un symbole, et éventuellement une action. C'est ce qui
-/// lui permet d'être prévisualisée en quatre variantes sans monter quoi que ce
-/// soit.
-public struct FailureView: View {
+/// It knows neither the domain, nor the store, nor what failed: it receives a
+/// title, a sentence, an icon, and possibly an action. That is what lets it be
+/// previewed in four variants without wiring anything up.
+package struct FailureView: View {
   private let failure: PhaseFailure
   private let retry: (() -> Void)?
 
@@ -26,8 +25,8 @@ public struct FailureView: View {
       Image(failure.icon)
         .font(.system(size: Tokens.Icon.hero, weight: .light))
         .foregroundStyle(Color.ink3)
-        // Le symbole respire une fois à l'apparition — assez pour attirer l'œil,
-        // pas assez pour distraire de ce qu'il y a à lire.
+        // The symbol breathes once on appearance — enough to catch the eye,
+        // not enough to distract from what there is to read.
         .symbolEffect(.bounce, value: appeared)
 
       VStack(spacing: Tokens.Space.s2) {
@@ -41,8 +40,8 @@ public struct FailureView: View {
           .fixedSize(horizontal: false, vertical: true)
       }
 
-      // Pas de bouton quand réessayer ne changerait rien : proposer une action
-      // inutile est une promesse qu'on ne tient pas.
+      // No button when retrying would change nothing: offering a useless
+      // action is a promise that will not be kept.
       if failure.isRetryable, let retry {
         Button(chrome.retry, action: retry)
           .buttonStyle(.adaptiveGlassProminent)
@@ -60,7 +59,7 @@ public struct FailureView: View {
   }
 }
 
-#Preview("Injoignable") {
+#Preview("Unreachable") {
   FailureView(
     failure: PhaseFailure(
       title: "Contenu indisponible",
@@ -73,7 +72,7 @@ public struct FailureView: View {
   .background(Color.paper)
 }
 
-#Preview("Illisible — sans réessai") {
+#Preview("Unreadable — no retry") {
   FailureView(
     failure: PhaseFailure(
       title: "Contenu illisible",

@@ -21,7 +21,7 @@ extension Icon {
   }
 }
 
-public extension Image {
+package extension Image {
   /// Draws a presentation icon.
   init(_ icon: Icon) {
     self.init(systemName: icon.systemName)

@@ -2,22 +2,22 @@ import DesignSystem
 import Domain
 import SwiftUI
 
-/// Le texte riche du domaine, rendu.
+/// The domain's rich text, rendered.
 ///
-/// ## Pourquoi un seul `Text`, et pas un `HStack` de fragments
+/// ## Why a single `Text`, and not an `HStack` of fragments
 ///
-/// Concaténer des `Text` avec `+` produit **un** run de texte : il se justifie,
-/// se coupe et s'aligne comme un paragraphe normal. Un `HStack` de fragments
-/// aurait cassé la ligne entre les emphases — un mot en gras aurait sauté à la
-/// ligne suivante tout seul — et rendu la sélection impossible.
+/// Concatenating `Text` with `+` produces **one** text run: it justifies, wraps
+/// and aligns like a normal paragraph. An `HStack` of fragments would have
+/// broken the line between emphases — a bold word jumping to the next line on
+/// its own — and made selection impossible.
 ///
-/// C'est aussi ce qui garde VoiceOver correct : un paragraphe se lit d'un
-/// souffle, pas en huit annonces séparées.
+/// It is also what keeps VoiceOver correct: a paragraph is read in one breath,
+/// not as eight separate announcements.
 ///
-/// Ce composant vit dans `FeatureKit` et non dans `DesignSystem` : il connaît
-/// `RichText`, qui est un type du **domaine**. Un design system qui connaît le
-/// domaine de son application cesse d'être réutilisable ailleurs.
-public struct RichTextView: View {
+/// This component lives in `ViewKit` and not in `DesignSystem`: it knows
+/// `RichText`, which is a **domain** type. A design system that knows its app's
+/// domain stops being reusable anywhere else.
+package struct RichTextView: View {
   private let value: RichText
   private let font: Font
   private let color: Color
@@ -42,8 +42,8 @@ public struct RichTextView: View {
     case .plain:
       Text(span.text)
     case .strong:
-      // La graisse **et** l'encre principale : le gras seul ne suffit pas à
-      // détacher un fragment d'un paragraphe en encre secondaire.
+      // Weight **and** primary ink: weight alone is not enough to lift a
+      // fragment out of a paragraph set in secondary ink.
       Text(span.text).fontWeight(.semibold).foregroundColor(.ink)
     case .code:
       Text(span.text).font(Typography.code).foregroundColor(.accent)
@@ -52,20 +52,20 @@ public struct RichTextView: View {
 }
 
 
-/// Une ligne de Markdown **en ligne** — gras, italique, code, liens.
+/// A line of **inline** Markdown — bold, italic, code, links.
 ///
-/// ## Pourquoi pas `Text(chaîne)` tout court
+/// ## Why not just `Text(string)`
 ///
-/// `Text` traite une `String` comme du texte littéral : `*est*` s'affiche avec
-/// ses astérisques, et `` `import` `` avec ses accents graves. Le défaut s'est
-/// vu à l'écran, dans l'onglet Coulisses — une application qui explique le soin
-/// qu'elle met aux détails en affichant du balisage brut se contredit elle-même.
+/// `Text` treats a `String` as literal text: `*is*` shows with its asterisks,
+/// and `` `import` `` with its backticks. The defect was visible on screen, in
+/// the Backstage tab — an app that explains the care it takes over details while
+/// displaying raw markup contradicts itself.
 ///
-/// `Text(LocalizedStringKey)` **interprète** le Markdown en ligne, et c'est
-/// exactement ce qu'il faut ici. Il ne gère ni listes ni blocs de code — pour
-/// ceux-là, `StructuredText` de Textual, qui coûte une dépendance et vaut son
-/// prix dans une explication technique, pas dans une phrase d'introduction.
-public struct InlineMarkdown: View {
+/// `Text(LocalizedStringKey)` **interprets** inline Markdown, which is exactly
+/// what is needed here. It handles neither lists nor code blocks — for those,
+/// Textual's `StructuredText`, which costs a dependency and is worth its price
+/// in a technical explanation, not in an introductory sentence.
+package struct InlineMarkdown: View {
   private let source: String
   private let font: Font
   private let color: Color

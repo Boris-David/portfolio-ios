@@ -5,12 +5,12 @@ import FeatureKit
 import SwiftUI
 import ViewKit
 
-/// Une étude de cas en entier.
+/// A case study in full.
 ///
-/// Deux mises en page pour un seul modèle, discriminées par une propriété du
-/// **récit** et non par un champ technique : un chapitre qui porte un titre est
-/// un chantier qu'on peut nommer et déplier ; un chapitre anonyme est le corps
-/// unique d'une histoire, qui se lit d'une traite.
+/// Two layouts for one model, told apart by a property of the **narrative** and
+/// not by a technical field: a chapter with a title is a piece of work that can
+/// be named and unfolded; an untitled chapter is the single body of one story,
+/// read straight through.
 public struct CaseStudyDetail: View {
   private let study: CaseStudy
   @Environment(\.openURL) private var openURL
@@ -161,7 +161,7 @@ public struct CaseStudyDetail: View {
   )
 }
 
-/// Un chantier dépliable.
+/// One expandable piece of work.
 struct ChapterDisclosure: View {
   let number: Int
   let chapter: CaseStudy.Chapter
@@ -222,10 +222,10 @@ struct ChapterDisclosure: View {
     
   }
 
-  /// Le corps reste dans l'arbre de vues même replié — seule sa hauteur tombe à
-  /// zéro. C'est ce qui garde le texte trouvable par la recherche système et
-  /// atteignable par VoiceOver, et ce qui permet à la transition de partir
-  /// d'un état qui existe.
+  /// The body stays in the view tree even when collapsed — only its height
+  /// drops to zero. That is what keeps the text findable by system search and
+  /// reachable by VoiceOver, and what lets the transition start from a state
+  /// that exists.
   private var body_: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
       Divider().overlay(Color.line)
@@ -239,14 +239,14 @@ struct ChapterDisclosure: View {
     .padding(.bottom, Tokens.Space.s4)
     .frame(height: isOpen ? nil : 0, alignment: .top)
     .opacity(isOpen ? 1 : 0)
-    // Sans découpe, le contenu replié déborde par-dessus la carte suivante
-    // pendant toute l'animation.
+    // Without clipping, the collapsed content spills over the next card for
+    // the whole animation.
     .clipped()
     .accessibilityHidden(!isOpen)
   }
 }
 
-/// Un récit qui se lit d'une traite — trois colonnes empilées.
+/// A story read straight through — three stacked columns.
 struct FlatChapter: View {
   let chapter: CaseStudy.Chapter
 
@@ -261,7 +261,7 @@ struct FlatChapter: View {
   }
 }
 
-/// Un panneau : son intitulé, son corps, ses étiquettes.
+/// A panel: its heading, its body, its chips.
 struct PanelView: View {
   let panel: CaseStudy.Panel
 
@@ -282,7 +282,7 @@ struct PanelView: View {
   }
 }
 
-/// Les captures d'écran, en défilement horizontal.
+/// The screenshots, scrolling horizontally.
 struct Gallery: View {
   let media: [Media]
 
@@ -309,8 +309,8 @@ struct Gallery: View {
       }
       .scrollTargetLayout()
     }
-    // Le défilement s'arrête sur une capture, jamais entre deux : une galerie
-    // qui s'immobilise à cheval donne l'impression d'être cassée.
+    // Scrolling settles on a screenshot, never between two: a gallery that
+    // stops straddling looks broken.
     .scrollTargetBehavior(.viewAligned)
     .scrollClipDisabled()
   }

@@ -2,11 +2,11 @@ import Domain
 import Testing
 @testable import Backstage
 
-/// Les annotations sont du **contenu**, et ce contenu est bilingue.
+/// Annotations are **content**, and that content is bilingual.
 ///
-/// Une traduction oubliée ne casse rien : elle affiche du français dans une
-/// interface anglaise, ce qui se remarque au pire moment. D'où une garde
-/// structurelle plutôt qu'une relecture.
+/// A forgotten translation breaks nothing: it shows French inside an English
+/// interface, which gets noticed at the worst possible moment. Hence a
+/// structural guard rather than a proofread.
 struct BackstageNoteTests {
   private let sample = BackstageNote(
     id: "test",
@@ -33,8 +33,9 @@ struct BackstageNoteTests {
     #expect(sample.pitfall?.isComplete == true)
   }
 
-  /// Le nom du composant est un identifiant technique : il ne se traduit pas,
-  /// et c'est voulu. `NavigationStack` s'appelle `NavigationStack` partout.
+  /// A component's name is a technical identifier: it is not translated, and
+  /// that is deliberate. `NavigationStack` is called `NavigationStack`
+  /// everywhere.
   @Test("le nom du composant n'est pas une chaîne traduisible")
   func componentIsNotTranslated() {
     #expect(sample.component == "NavigationStack")

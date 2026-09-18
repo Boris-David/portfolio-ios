@@ -13,6 +13,12 @@
 # The detection is a word list, not an accent check: "résumé" is a perfectly
 # good English word and must not trip the guard, while "le", "des" and "c'est"
 # are unambiguous.
+#
+# ⚠️ Only `//` and `///` lines are inspected. The first version also matched a
+# leading `*`, meaning to catch the continuation lines of a `/* … */` block —
+# there are none in this repository — and instead it caught every line of French
+# app content that began with `**bold**`. A guard that flags the very thing it
+# promises not to touch is a guard people learn to pass with `|| true`.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -35,13 +41,15 @@ found=0
 while IFS= read -r file; do
   # Comment lines only — string literals may legitimately hold French, because
   # the app is bilingual and its content is written in both.
-  offenders="$(grep -nE '^\s*(///?|\*)' "$file" 2>/dev/null \
+  offenders="$(grep -nE '^\s*///?' "$file" 2>/dev/null \
     | grep -icE "$FRENCH|$CONTRACTIONS" || true)"
   if [ "${offenders:-0}" -gt 0 ]; then
     echo "✖ French in comments: $file ($offenders line(s))" >&2
-    grep -nE '^\s*(///?|\*)' "$file" | grep -iE "$FRENCH|$CONTRACTIONS" | head -2 >&2
+    grep -nE '^\s*///?' "$file" | grep -iE "$FRENCH|$CONTRACTIONS" | head -2 >&2
     found=1
   fi
+# Only tracked files: a file that is not in the index is a file CI never sees
+# either, and walking the working tree would sweep up build artefacts.
 done <<< "$(git ls-files '*.swift')"
 
 if [ "$found" -ne 0 ]; then

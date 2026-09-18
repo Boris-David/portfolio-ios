@@ -1,10 +1,10 @@
 import Domain
 
-/// Les libellés propres aux coulisses.
+/// The labels that belong to the backstage overlay.
 ///
-/// Ils vivent ici, avec le module qui les affiche, et pas dans `FeatureKit` :
-/// `Backstage` est **sous** `FeatureKit` dans le graphe, et une couche ne lit
-/// pas les constantes de celle qui la consomme.
+/// They live here, with the module that displays them, and not in `AppChrome`:
+/// `Backstage` sits **below** the screens in the graph, and a layer does not
+/// read the constants of the one that consumes it.
 enum BackstageLabels {
   static let why: Bilingual = .init(fr: "Pourquoi celui-là", en: "Why this one")
   static let rejected: Bilingual = .init(fr: "Ce qui a été écarté", en: "What was ruled out")

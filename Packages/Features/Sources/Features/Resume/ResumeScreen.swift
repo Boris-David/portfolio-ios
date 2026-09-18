@@ -7,11 +7,11 @@ import Presentation
 import SwiftUI
 import ViewKit
 
-/// Le CV, tel que l'API le produit.
+/// The résumé, exactly as the API produces it.
 ///
-/// L'application ne **fabrique** pas de CV : elle en affiche un, produit une
-/// fois côté serveur (ADR 0004). Deux gabarits, ce seraient deux CV qui
-/// divergent — et c'est celui qu'on regarde le moins qui deviendrait faux.
+/// The app does not **build** a résumé: it displays one, produced once on the
+/// server (ADR 0004). Two templates would be two résumés that drift — and it is
+/// the one nobody looks at that would end up wrong.
 public struct ResumeScreen: View {
   @State private var model: ResumeModel
   @Environment(\.dismiss) private var dismiss
@@ -45,9 +45,9 @@ public struct ResumeScreen: View {
         }
         ToolbarItem(placement: .primaryAction) {
           if case .ready(let document) = model.state {
-            // `ShareLink` avec une **URL de fichier** : c'est le nom du fichier
-            // que verra le destinataire. Partager un `Data` anonyme le ferait
-            // arriver sous un nom inventé par le système.
+            // `ShareLink` with a **file URL**: that is the file name the
+            // recipient will see. Sharing anonymous `Data` would land it under
+            // a name the system invented.
             ShareLink(
               item: document.fileURL,
               preview: SharePreview(document.fileName)
@@ -259,7 +259,7 @@ public struct ResumeScreen: View {
   )
 }
 
-/// L'état du CV.
+/// The résumé's state.
 @Observable
 @MainActor
 final class ResumeModel {
@@ -292,7 +292,7 @@ final class ResumeModel {
   }
 }
 
-/// Le pont vers PDFKit.
+/// The bridge to PDFKit.
 struct PDFDocumentView: UIViewRepresentable {
   let url: URL
 
@@ -302,8 +302,8 @@ struct PDFDocumentView: UIViewRepresentable {
     view.displayDirection = .vertical
     view.backgroundColor = .clear
     view.document = PDFDocument(url: url)
-    // L'ordre compte : `autoScales` mesure la page courante. Posé avant le
-    // document, il n'a rien à mesurer et l'échelle reste à 1.
+    // Order matters: `autoScales` measures the current page. Set before the
+    // document, it has nothing to measure and the scale stays at 1.
     view.autoScales = true
     return view
   }

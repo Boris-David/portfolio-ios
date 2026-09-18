@@ -459,9 +459,35 @@ manquait : un type utilisé par deux modules d'`AmissanKit` n'a aucune raison
 d'être visible depuis l'application. Le passer `public` l'expose à tout le monde
 pour satisfaire un voisin.
 
-**Garde :** un test qui compte les déclarations `public` par module et échoue
-au-delà d'un seuil ; et surtout, le découpage en packages (§18) qui rend une
-fuite de visibilité **impossible** plutôt qu'improbable.
+**Garde — et pas celle qui était prévue.** L'idée initiale était *« un test qui
+compte les déclarations `public` par module et échoue au-delà d'un seuil »*.
+Un seuil ne mesure rien : il se relève le jour où il gêne, et il ne dit jamais
+*quelle* déclaration est de trop.
+
+La règle retenue est falsifiable : **`public` veut dire « franchit une frontière
+de package »**. Donc tout type `public` de `Features` doit être nommé quelque
+part en dehors de `Features`. Si personne dehors ne le nomme, il est `package`.
+`Scripts/check-layers.sh` le vérifie, et la mutation le confirme.
+
+⚠️ La garde est **limitée à `Features`**, volontairement. Ailleurs elle crierait
+au loup : `HTTPResponse` n'apparaît jamais par son nom dans `Data`, parce qu'il
+arrive par inférence depuis `HTTPClient.send`. Une garde à faux positifs est une
+garde qu'on apprend à sauter.
+
+**Résultat mesuré :** dans `Features`, 15 déclarations `public` et 15 `package`
+— la moitié de la surface a cessé d'être visible depuis l'application.
+
+**Trois trouvailles de la passe :**
+
+- `EmptySeed` était un **double de test** compilé dans l'application. Il est
+  descendu dans la cible de test ;
+- `InMemoryPreferences` n'avait aucun consommateur, nulle part. Supprimé ; il
+  reviendra avec l'écran de réglages, dans le package qui en aura besoin ;
+- `UserDefaultsPreferences` n'est encore branché à rien — il attend l'écran de
+  réglages. Il a désormais ses tests, parce que son format de stockage est un
+  **choix** (une chaîne plate relisible à la main, pas un blob encodé) et que ce
+  choix a un mode de panne silencieux : rien ne casse, l'application s'ouvre
+  simplement dans la mauvaise langue.
 
 ---
 
@@ -612,24 +638,31 @@ Découpage :
 - [x] `ViewPhase` (4 états) + `PhaseView` + `FailureView`
 - [x] `Sources/Features/` par le `path:` du manifeste
 - [x] préférences dans le domaine (apparence, langue, coulisses), repli **anglais**
-- [x] adaptateur des préférences dans `Adapters`, pas dans `Persistence`
-- [x] `Data` renommé **`Adapters`** — la couche dit enfin ce qu'elle fait
-- [x] design system en **package séparé** (`AmissanDesignSystem`)
+- [x] design system en package séparé
 - [x] tokens en **deux couches** : hub partagé + `tokens.ios.json` spécifique,
       assemblés à la génération ; recouvrement refusé
 - [x] zéro nombre magique (17 remplacés par des tokens)
-- [x] `Scripts/check-language.sh` — le Swift est en anglais, mutation-testé
-- [x] `Domain` converti en anglais
+- [x] **une couche = un package** (§18) — huit packages, sans préfixe `Amissan`
+- [x] **`Data` rétabli**, et `Presentation` extraite (§18 bis) — les deux moitiés
+      de l'anneau *Interface Adapters* cessent d'être confondues
+- [x] `Scripts/check-layers.sh` — le domaine ignore SwiftUI, la présentation ne
+      dessine pas ; mutation-testé
+- [x] `ExistentialAny` activé partout — chaque existentiel se lit `any`
+- [x] `AppRoot` découpé en sept types (§19)
+- [x] **un fichier par type** (§16) — 151 fichiers Swift
+- [x] **tout le Swift en anglais** (151 fichiers), CI comprise
+- [x] `MalformedReason` — le diagnostic cesse d'être une phrase française
+      fabriquée trois couches sous l'écran
+- [x] `Icon` — un sens, pas un nom de glyphe ; `IconTests` vérifie que chacun existe
+- [x] `Package.resolved` versionné — une construction propre ne résout plus au
+      plus récent
+- [x] garde de langue corrigée : elle prenait du **contenu** français pour des
+      commentaires (toute ligne commençant par `**gras**`)
 
 **À faire :**
 
-- [ ] convertir les ~60 fichiers Swift restants en anglais
 - [ ] convertir **web et api** en anglais
-- [ ] commentaires anglais aussi dans `project.yml`, les scripts, les JSON
-- [ ] un fichier par type (§16)
-- [ ] passe de visibilité (§17)
-- [ ] une couche = un package (§18)
-- [ ] découper `AppRoot` (§19)
+- [ ] passe de visibilité (§17) — `private` par défaut, `package` où il faut
 - [ ] écran de réglages (§3)
 - [ ] refaire l'accroche (§6)
 - [ ] mouvement, haptique, bandeaux, Lottie (§4)

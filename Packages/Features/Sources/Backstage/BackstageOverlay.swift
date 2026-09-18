@@ -4,20 +4,20 @@ import Presentation
 import SwiftUI
 import ViewKit
 
-/// Les pastilles numérotées, posées au-dessus des composants annotés.
+/// The numbered pins, laid over the annotated components.
 ///
-/// ## Pourquoi des ancres, et pas un `ZStack` par composant
+/// ## Why anchors, and not a `ZStack` per component
 ///
-/// Poser la pastille dans la vue annotée aurait obligé chaque composant à
-/// prévoir une place pour elle — donc à changer de mise en page selon que le
-/// mode est actif ou non. Les ancres laissent la vue **intacte** et dessinent
-/// par-dessus, dans une couche qui connaît la géométrie de tout l'écran.
+/// Putting the pin inside the annotated view would have forced every component
+/// to reserve room for it — therefore to change layout depending on whether the
+/// mode is on. Anchors leave the view **untouched** and draw on top, in a layer
+/// that knows the geometry of the whole screen.
 ///
-/// C'est aussi ce qui permet de numéroter **dans l'ordre de lecture** : les
-/// pastilles sont triées par position verticale, pas par ordre de déclaration.
-/// Sans ce tri, un composant déclaré plus bas mais affiché plus haut porterait
-/// un numéro incohérent avec ce qu'on lit.
-public struct BackstageOverlay: ViewModifier {
+/// It is also what allows numbering **in reading order**: the pins are sorted by
+/// vertical position, not by declaration order. Without that sort, a component
+/// declared lower but displayed higher would carry a number that contradicts
+/// what you read.
+package struct BackstageOverlay: ViewModifier {
   @Environment(BackstageController.self) private var backstage
   @ReducedMotion private var reducedMotion
   @Environment(\.contentLanguage) private var language
@@ -33,10 +33,10 @@ public struct BackstageOverlay: ViewModifier {
             .sorted { ($0.rect.minY, $0.rect.minX) < ($1.rect.minY, $1.rect.minX) }
 
           ForEach(Array(ordered.enumerated()), id: \.element.pin.note.id) { index, entry in
-            // Le **cadre** d'abord : il montre ce qui est annoté. Une pastille
-            // seule laisse deviner à quoi elle se rapporte, et une pastille
-            // mal placée ne se voit pas — c'est arrivé, et c'est ce qui a
-            // motivé ce rendu.
+            // The **frame** first: it shows what is annotated. A pin on its
+            // own leaves you guessing what it refers to, and a misplaced pin
+            // does not show at all — which happened, and is what motivated this
+            // rendering.
             RoundedRectangle(cornerRadius: Tokens.Radius.sm, style: .continuous)
               .strokeBorder(Color.accent.opacity(Tokens.Opacity.annotation), style: StrokeStyle(lineWidth: Tokens.Stroke.regular, dash: [4, 3]))
               .frame(width: entry.rect.width, height: entry.rect.height)
@@ -74,9 +74,8 @@ public struct BackstageOverlay: ViewModifier {
         .background(Circle().fill(Color.accent))
         .overlay(Circle().strokeBorder(Color.paper, lineWidth: Tokens.Stroke.regular * 2))
     }
-    // La pastille fait 26 points de côté, la cible tactile 44 : le reste est
-    // une surface transparente. Une pastille qu'on doit viser est une pastille
-    // sur laquelle personne n'appuie.
+    // The pin is 26 points across, the touch target 44: the rest is transparent
+    // surface. A pin you have to aim at is a pin nobody taps.
     .frame(
       width: Tokens.Accessibility.minimumTouchTarget,
       height: Tokens.Accessibility.minimumTouchTarget
@@ -87,11 +86,11 @@ public struct BackstageOverlay: ViewModifier {
   }
 }
 
-public extension View {
-  /// Active la couche d'annotations sur cet écran.
+package extension View {
+  /// Turns on the annotation layer for this screen.
   ///
-  /// À poser **une fois par écran**, au niveau le plus haut : c'est là que la
-  /// géométrie de tout le contenu est connue.
+  /// To be applied **once per screen**, at the topmost level: that is where the
+  /// geometry of all the content is known.
   func backstageOverlay() -> some View {
     modifier(BackstageOverlay())
   }

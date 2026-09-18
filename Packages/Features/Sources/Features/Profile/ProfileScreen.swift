@@ -6,11 +6,11 @@ import Presentation
 import SwiftUI
 import ViewKit
 
-/// L'écran d'accueil : qui il est, en trois secondes.
+/// The home screen: who he is, in three seconds.
 ///
-/// L'ordre de lecture est décidé, pas subi — disponibilité, nom, métier, puis
-/// les chiffres, puis l'appel à l'action. Un recruteur **parcourt** ; ce qui
-/// compte doit se trouver sans défiler.
+/// The reading order is decided, not inherited — availability, name, role, then
+/// the figures, then the call to action. A recruiter **skims**; what matters has
+/// to be findable without scrolling.
 public struct ProfileScreen: View {
   @Environment(PortfolioStore.self) private var store
   @Chrome private var chrome
@@ -45,9 +45,9 @@ public struct ProfileScreen: View {
       .padding(.bottom, Tokens.Space.s8)
       .readableWidth()
     }
-    // Tirer pour rafraîchir : le geste attendu, et il attend vraiment la fin —
-    // un indicateur qui disparaît avant l'arrivée du contenu donne l'impression
-    // que le geste n'a rien fait.
+    // Pull to refresh: the expected gesture, and it genuinely waits for the
+    // end — an indicator that vanishes before the content arrives reads as the
+    // gesture having done nothing.
     .refreshable { await store.refresh() }
     .backstage(
       BackstageNote(

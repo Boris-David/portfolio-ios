@@ -6,7 +6,7 @@ import Presentation
 import SwiftUI
 import ViewKit
 
-/// Le parcours : expériences, formation, certifications, compétences.
+/// The journey: experience, education, certifications, skills.
 public struct JourneyScreen: View {
   @Environment(PortfolioStore.self) private var store
   @Chrome private var chrome
@@ -184,7 +184,7 @@ public struct JourneyScreen: View {
   )
 }
 
-/// Une expérience, dépliable.
+/// One position, expandable.
 struct ExperienceCard: View {
   let job: Experience
   let dates: DateStyle
@@ -194,9 +194,9 @@ struct ExperienceCard: View {
   @ReducedMotion private var reducedMotion
   @Chrome private var chrome
 
-  /// La plus récente est ouverte à l'arrivée — c'est celle qu'on vient lire.
-  /// `nil` veut dire « pas encore décidé par l'utilisateur », ce qui laisse
-  /// l'état initial dépendre du rang sans le figer.
+  /// The most recent one is open on arrival — it is the one people came to
+  /// read. `nil` means "not yet decided by the reader", which lets the initial
+  /// state depend on position without freezing it.
   private var open: Bool { isOpen ?? startsOpen }
 
   var body: some View {
@@ -275,7 +275,7 @@ struct ExperienceCard: View {
   }
 }
 
-/// Une ligne de chronologie — formation, certification, projet.
+/// One timeline row — education, certification, project.
 struct TimelineRow: Identifiable {
   struct Link {
     let label: String

@@ -7,11 +7,11 @@ import SwiftUI
 import Textual
 import ViewKit
 
-/// Les coulisses de l'application elle-même.
+/// The backstage of the app itself.
 ///
-/// Un portfolio qui montre des écrans montre un résultat. Cet onglet montre les
-/// **décisions** — et une décision se juge à ce qu'elle a écarté autant qu'à ce
-/// qu'elle a retenu.
+/// A portfolio that shows screens shows a result. This tab shows the
+/// **decisions** — and a decision is judged by what it ruled out as much as by
+/// what it kept.
 public struct BackstageScreen: View {
   @Environment(BackstageController.self) private var backstage
   @Chrome private var chrome
@@ -69,7 +69,7 @@ public struct BackstageScreen: View {
   }
 }
 
-/// Les couches, et ce que chacune n'a **pas** le droit de connaître.
+/// The layers, and what each one is **not** allowed to know.
 struct LayersBlock: View {
   @Chrome private var chrome
   @Environment(\.contentLanguage) private var language
@@ -114,7 +114,7 @@ struct LayersBlock: View {
   }
 }
 
-/// Les défis, dépliables.
+/// The challenges, expandable.
 struct ChallengesBlock: View {
   @Chrome private var chrome
   @Environment(\.contentLanguage) private var language
@@ -190,7 +190,7 @@ struct ChallengesBlock: View {
   }
 }
 
-/// Les chaînes de bout en bout : qui fait quoi, dans l'ordre.
+/// The end-to-end walkthroughs: who does what, in order.
 struct WalkthroughsBlock: View {
   @Chrome private var chrome
   @Environment(\.contentLanguage) private var language
@@ -237,7 +237,7 @@ struct WalkthroughsBlock: View {
   }
 }
 
-/// Les dépendances : celles qu'on prend, celles qu'on refuse, et pourquoi.
+/// The dependencies: the ones taken, the ones declined, and why.
 struct DependenciesBlock: View {
   @Chrome private var chrome
   @Environment(\.contentLanguage) private var language

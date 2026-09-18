@@ -2,17 +2,17 @@ import DesignSystem
 import Presentation
 import SwiftUI
 
-/// Rend les quatre phases, et les transitions entre elles.
+/// Renders the four phases, and the transitions between them.
 ///
-/// Écrit **une fois**. Aucun écran ne réécrit ce `switch` : c'est ce qui garantit
-/// qu'ils se comportent tous pareil — même squelette, même transition, même
-/// écran d'erreur — et qu'ajouter un cas plus tard se fait à un seul endroit.
+/// Written **once**. No screen rewrites this `switch`: that is what guarantees
+/// they all behave the same — same skeleton, same transition, same error screen
+/// — and that adding a case later happens in one place.
 ///
-/// La transition compte autant que les états. Passer de `loading` à `loaded`
-/// sans transition fait sauter la page ; un fondu croisé avec une légère montée
-/// donne l'impression que le contenu **arrive**, ce qui est exactement ce qui se
-/// passe.
-public struct PhaseView<Value: Sendable, Content: View, Skeleton: View>: View {
+/// The transition matters as much as the states. Going from `loading` to
+/// `loaded` with no transition makes the page jump; a cross-fade with a slight
+/// rise gives the impression the content **arrives**, which is exactly what is
+/// happening.
+package struct PhaseView<Value: Sendable, Content: View, Skeleton: View>: View {
   private let phase: ViewPhase<Value>
   private let retry: (() -> Void)?
   private let skeleton: () -> Skeleton
@@ -36,7 +36,7 @@ public struct PhaseView<Value: Sendable, Content: View, Skeleton: View>: View {
     ZStack {
       switch phase {
       case .initial:
-        // Rien. L'écran vient d'apparaître : il n'attend pas encore.
+        // Nothing. The screen has just appeared: it is not waiting yet.
         Color.clear
       case .loading:
         skeleton()
@@ -52,14 +52,14 @@ public struct PhaseView<Value: Sendable, Content: View, Skeleton: View>: View {
     .animation(reducedMotion ? nil : Motion.entrance, value: isPending)
   }
 
-  /// L'animation se déclenche sur le **passage** entre « rien à montrer » et
-  /// « quelque chose à montrer », pas sur la valeur elle-même : un contenu qui
-  /// change sans changer de phase ne doit pas rejouer une apparition.
+  /// The animation fires on the **crossing** between "nothing to show" and
+  /// "something to show", not on the value itself: content that changes without
+  /// changing phase must not replay an entrance.
   private var isPending: Bool { phase.isPending }
 }
 
-public extension PhaseView where Skeleton == LoadingSkeleton {
-  /// Le squelette par défaut du design system.
+package extension PhaseView where Skeleton == LoadingSkeleton {
+  /// The design system's default skeleton.
   init(
     _ phase: ViewPhase<Value>,
     retry: (() -> Void)? = nil,

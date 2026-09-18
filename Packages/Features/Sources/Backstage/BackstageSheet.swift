@@ -4,16 +4,15 @@ import SwiftUI
 import Textual
 import ViewKit
 
-/// L'explication d'un composant, en détail.
+/// A component's explanation, in detail.
 ///
-/// Elle répond dans l'ordre aux questions qu'un relecteur technique poserait :
-/// *qu'est-ce que c'est*, *pourquoi celui-là*, *qu'est-ce qui a été écarté*,
-/// *quand l'employer*, *qu'est-ce qui casse*.
+/// It answers, in order, the questions a technical reviewer would ask: *what is
+/// it*, *why this one*, *what was ruled out*, *when to use it*, *what breaks*.
 ///
-/// L'ordre n'est pas neutre. « Ce qui a été écarté » vient **avant** « quand
-/// l'employer » parce que c'est la partie qu'on saute quand on manque de place,
-/// et c'est justement celle qui distingue une décision d'un réflexe.
-public struct BackstageSheet: View {
+/// The order is not neutral. "What was ruled out" comes **before** "when to use
+/// it" because it is the part that gets dropped when room runs short, and it is
+/// precisely the part that separates a decision from a reflex.
+package struct BackstageSheet: View {
   private let note: BackstageNote
   @Environment(\.dismiss) private var dismiss
   @Environment(\.contentLanguage) private var language
@@ -83,8 +82,8 @@ public struct BackstageSheet: View {
         }
       }
     }
-    // Une explication se lit en diagonale d'abord : une feuille à mi-hauteur
-    // laisse voir le composant qu'elle décrit, et se déploie si on veut tout.
+    // An explanation is skimmed first: a half-height sheet keeps the component
+    // it describes in view, and expands for anyone who wants all of it.
     .presentationDetents([.medium, .large])
     .presentationDragIndicator(.visible)
   }
@@ -115,8 +114,8 @@ public struct BackstageSheet: View {
 
   private func rejectedRow(_ rejected: BackstageNote.Rejected) -> some View {
     HStack(alignment: .top, spacing: Tokens.Space.s3) {
-      // Une barre plutôt qu'une croix : « écarté » n'est pas « mauvais ». La
-      // plupart de ces candidats sont de bons outils, au mauvais endroit.
+      // A bar rather than a cross: "ruled out" is not "bad". Most of these
+      // candidates are good tools, in the wrong place.
       RoundedRectangle(cornerRadius: 1)
         .fill(Color.line2)
         .frame(width: 3)
@@ -133,17 +132,18 @@ public struct BackstageSheet: View {
     .fixedSize(horizontal: false, vertical: true)
   }
 
-  /// Le Markdown rendu par **Textual**, en `AttributedString` native.
+  /// Markdown rendered by **Textual**, into a native `AttributedString`.
   ///
-  /// Pourquoi une bibliothèque plutôt que `Text(.init(markdown))` : l'initialiseur
-  /// de `AttributedString` ne gère que l'**inline** — gras, code, liens. Il ne
-  /// sait rien des listes ni des blocs de code, qui sont précisément ce dont une
-  /// explication technique a besoin.
+  /// Why a library rather than `Text(.init(markdown))`: `AttributedString`'s
+  /// initialiser handles **inline** only — bold, code, links. It knows nothing
+  /// of lists or code blocks, which are exactly what a technical explanation
+  /// needs.
   ///
-  /// Pourquoi Textual et pas MarkdownUI, du même auteur : MarkdownUI est passé
-  /// en mode maintenance et renvoie explicitement vers Textual, qui s'appuie sur
-  /// `AttributedString` — donc sur le rendu de texte du système, avec Dynamic
-  /// Type et la sélection qui vont avec, au lieu d'un arbre de vues reconstruit.
+  /// Why Textual and not MarkdownUI, by the same author: MarkdownUI has moved to
+  /// maintenance mode and points explicitly at Textual, which builds on
+  /// `AttributedString` — therefore on the system's text rendering, with the
+  /// Dynamic Type and selection that come with it, instead of a rebuilt view
+  /// tree.
   private func markdown(_ source: String) -> some View {
     StructuredText(markdown: source)
       .font(Typography.body)

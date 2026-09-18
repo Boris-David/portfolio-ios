@@ -50,6 +50,32 @@ for rule in "${RULES[@]}"; do
   done
 done
 
+# ── `public` means "crosses a package boundary" ─────────────────────────────
+#
+# `package` is the visibility level everybody forgets, and it is the one that
+# matters here: a type shared between two modules of `Features` has no business
+# being visible to the application, to a future widget, or to anything else that
+# links the package. Marking it `public` to satisfy a neighbour exposes it to
+# the world.
+#
+# So: every public TYPE of `Features` must be named somewhere outside it. If
+# nothing outside uses it, it is `package`.
+#
+# ⚠️ Scoped to `Features` on purpose. Elsewhere the check would cry wolf:
+# `HTTPResponse` never appears by name in `Data`, because it arrives through
+# type inference from `HTTPClient.send` — and a guard with false positives is a
+# guard people learn to skip. Here the public surface is views and environment
+# values, which are always named at the point of use.
+outside="$(ls -d Packages/*/Sources | grep -v 'Packages/Features/') App/Sources"
+for symbol in $(grep -rhoE "^public (struct|enum|final class|class|protocol|actor) [A-Za-z0-9_]+" \
+                  Packages/Features/Sources --include="*.swift" | awk '{print $3}' | sort -u); do
+  # shellcheck disable=SC2086
+  if ! grep -rqw "$symbol" --include="*.swift" $outside 2>/dev/null; then
+    echo "✖ Features.$symbol is public but nothing outside the package names it — make it 'package'" >&2
+    status=1
+  fi
+done
+
 if [ "$status" -ne 0 ]; then
   echo "" >&2
   echo "A layer reached for something it must not see. See Scripts/check-layers.sh." >&2
@@ -57,4 +83,4 @@ if [ "$status" -ne 0 ]; then
 fi
 
 count="$(printf '%s\n' "${RULES[@]}" | wc -l | tr -d ' ')"
-echo "✓ $count layers keep to themselves."
+echo "✓ $count layers keep to themselves, and 'public' still means public."
