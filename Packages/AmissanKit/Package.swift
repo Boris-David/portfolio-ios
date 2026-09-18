@@ -111,15 +111,32 @@ let package = Package(
       ]
     ),
 
-    // Ce que toutes les fonctionnalités partagent : navigation, états de
-    // chargement, formatage. Il voit `Domain` — donc des ports — jamais `Data`.
-    .target(name: "FeatureKit", dependencies: ["Domain", "DesignSystem", "Backstage"]),
+    // ─────────────────────────────────────────────────────────────────────
+    // Les fonctionnalités
+    //
+    // Les cibles gardent leur nom — c'est lui qui apparaît dans les `import` et
+    // dans les messages du compilateur. Leurs sources, elles, vivent sous
+    // `Sources/Features/`, parce qu'une liste de treize répertoires à plat ne
+    // dit plus rien de la forme du projet.
+    //
+    // Le `path:` explicite est ce qui permet de séparer les deux : le nom d'une
+    // cible et l'endroit où elle vit n'ont aucune raison d'être le même mot.
+    // ─────────────────────────────────────────────────────────────────────
 
-    .target(name: "FeatureProfile", dependencies: ["FeatureKit"]),
-    .target(name: "FeatureWork", dependencies: ["FeatureKit"]),
-    .target(name: "FeatureJourney", dependencies: ["FeatureKit"]),
-    .target(name: "FeatureResume", dependencies: ["FeatureKit"]),
-    .target(name: "FeatureBackstage", dependencies: ["FeatureKit"]),
+    // Ce que toutes les fonctionnalités partagent : navigation, phases d'écran,
+    // formatage. Il voit `Domain` — donc des ports — jamais `Data`.
+    .target(
+      name: "FeatureKit",
+      dependencies: ["Domain", "DesignSystem", "Backstage"],
+      path: "Sources/Features/Kit"
+    ),
+
+    .target(name: "FeatureProfile", dependencies: ["FeatureKit"], path: "Sources/Features/Profile"),
+    .target(name: "FeatureWork", dependencies: ["FeatureKit"], path: "Sources/Features/Work"),
+    .target(name: "FeatureJourney", dependencies: ["FeatureKit"], path: "Sources/Features/Journey"),
+    .target(name: "FeatureResume", dependencies: ["FeatureKit"], path: "Sources/Features/Resume"),
+    .target(name: "FeatureBackstage", dependencies: ["FeatureKit"], path: "Sources/Features/Backstage"),
+    .target(name: "FeatureSettings", dependencies: ["FeatureKit"], path: "Sources/Features/Settings"),
 
     // ─────────────────────────────────────────────────────────────────────
     // La racine de composition — le seul module qui a le droit de tout voir,
@@ -134,6 +151,7 @@ let package = Package(
         "FeatureJourney",
         "FeatureResume",
         "FeatureBackstage",
+        "FeatureSettings",
       ]
     ),
 

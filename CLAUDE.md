@@ -20,6 +20,16 @@ lecteur visé ouvre le dépôt, pas seulement l'App Store.
 
 ## Les invariants — ce qui ne se négocie pas
 
+### 0. Le source Swift est en anglais
+
+Commentaires, types, fonctions, variables locales. **Sans exception.**
+
+La raison est de lectorat : ce dépôt est ouvert par des gens qui ne lisent pas
+forcément le français, et un raisonnement qu'ils ne peuvent pas lire ne sert à
+rien. `docs/` et le contenu de l'application restent en français.
+
+`./Scripts/check-language.sh` le refuse en CI.
+
 ### 1. Le graphe de modules est la frontière
 
 Chaque couche est une **cible SPM**. `FeatureProfile` ne déclare pas
@@ -77,6 +87,7 @@ xcodegen generate
 ./Scripts/seed.sh --check      # la graine décrit encore ce que sert l'API
 ./Scripts/assets.py --check    # chaque actif attendu est présent
 ./Scripts/check-secrets.sh     # dépôt public
+./Scripts/check-language.sh    # le source Swift est en anglais
 ```
 
 **Et on regarde l'écran.** Une application qui compile n'est pas une application

@@ -1,135 +1,221 @@
 import Domain
 import Foundation
 import Networking
+import Persistence
 import Testing
 @testable import Data
 
+/// The freshness policy, and the coordination around it.
+///
+/// These tests encode a rule the author stated plainly: **the network first;
+/// local content only when the network fails.** The previous version served the
+/// cache first and refreshed behind it — fast, and dishonest, because it showed
+/// dated content with the confidence of fresh content.
 struct PortfolioRepositoryTests {
-  /// Consomme le flux sans se soucier de son issue — pour les tests qui
-  /// n'observent que le **compte** de requêtes.
-  private func drain(_ repository: PortfolioRepository, _ language: Language) async {
-    do { for try await _ in repository.portfolio(in: language) {} } catch {}
+  private func makeRepository(
+    client: CountingClient,
+    store: MemoryStore = MemoryStore(),
+    seed: any SeedProviding = EmptySeed(),
+    now: Date = Date(timeIntervalSince1970: 1_800_000_000)
+  ) -> PortfolioRepository {
+    PortfolioRepository(client: client, store: store, seed: seed, clock: { now })
   }
 
-  private func collect(
-    _ repository: PortfolioRepository,
-    _ language: Language = .french
-  ) async throws -> [PortfolioSnapshot] {
-    var snapshots: [PortfolioSnapshot] = []
-    for try await snapshot in repository.portfolio(in: language) { snapshots.append(snapshot) }
-    return snapshots
-  }
+  // ── Network first ──────────────────────────────────────────────────────
 
-  // ── La lecture en trois couches ────────────────────────────────────────
-
-  @Test("sert d'abord la graine, puis le réseau")
-  func seedThenNetwork() async throws {
-    let repository = PortfolioRepository(
+  @Test("serves the network when it answers")
+  func networkWins() async throws {
+    let repository = makeRepository(
       client: CountingClient(response: .success(Fixtures.response(.french))),
-      store: MemoryStore(),
       seed: FixtureSeed()
     )
 
-    let snapshots = try await collect(repository)
+    let snapshot = try await repository.portfolio(in: .french, policy: .networkFirst)
 
-    #expect(snapshots.count == 2)
-    #expect(snapshots.first?.origin == .bundledSeed(builtAt: Date(timeIntervalSince1970: 1_600_000_000)))
-    #expect(snapshots.last?.origin == .network)
+    #expect(snapshot.origin == .network)
+    #expect(snapshot.refreshFailure == nil)
+    #expect(!snapshot.isStale)
   }
 
-  @Test("préfère le cache à la graine")
-  func cacheBeatsSeed() async throws {
+  /// The whole point of keeping anything locally: a tunnel, a plane, a dead
+  /// cell. Not speed — availability.
+  @Test("falls back to the cache when the network is unreachable")
+  func fallsBackToCache() async throws {
     let cached = try #require(Fixtures.payload(.french))
-    let repository = PortfolioRepository(
-      client: CountingClient(response: .success(Fixtures.response(.french))),
-      store: MemoryStore(seeded: ["portfolio-fr.json": cached]),
+    let repository = makeRepository(
+      client: CountingClient(response: .failure(.transport(description: "offline"))),
+      store: MemoryStore(seeded: ["portfolio-fr.json": cached])
+    )
+
+    let snapshot = try await repository.portfolio(in: .french, policy: .networkFirst)
+
+    guard case .cache = snapshot.origin else {
+      Issue.record("expected the cache, got \(snapshot.origin)")
+      return
+    }
+    // The failure is carried, not swallowed: "I did not try" and "I tried and
+    // could not" do not read the same on screen.
+    #expect(snapshot.refreshFailure == .unreachable)
+    #expect(snapshot.isStale)
+  }
+
+  @Test("falls back to the bundled seed when there is no cache")
+  func fallsBackToSeed() async throws {
+    let repository = makeRepository(
+      client: CountingClient(response: .failure(.transport(description: "offline"))),
       seed: FixtureSeed()
     )
 
-    let snapshots = try await collect(repository)
-    guard case .cache = snapshots.first?.origin else {
-      Issue.record("le premier instantané devrait venir du cache")
+    let snapshot = try await repository.portfolio(in: .french, policy: .networkFirst)
+
+    guard case .bundledSeed = snapshot.origin else {
+      Issue.record("expected the bundled seed, got \(snapshot.origin)")
       return
     }
   }
 
-  /// Un échec réseau **n'est pas** une erreur quand on a de quoi afficher. Il
-  /// devient une information portée par l'instantané.
-  @Test("un échec réseau n'efface pas ce qu'on peut déjà montrer")
-  func networkFailureKeepsLocal() async throws {
-    let repository = PortfolioRepository(
-      client: CountingClient(response: .failure(.transport(description: "hors ligne"))),
-      store: MemoryStore(),
-      seed: FixtureSeed()
-    )
-
-    let snapshots = try await collect(repository)
-
-    #expect(snapshots.count == 2)
-    #expect(snapshots.last?.refreshFailure == .unreachable)
-    #expect(snapshots.last?.isStale == true)
-  }
-
-  /// Rien en réseau, rien en local : c'est le seul cas qui mérite un écran
-  /// d'erreur plein.
-  @Test("lève seulement quand il n'y a vraiment rien")
-  func throwsWhenNothingAvailable() async {
-    let repository = PortfolioRepository(
-      client: CountingClient(response: .failure(.transport(description: "hors ligne"))),
-      store: MemoryStore(),
-      seed: EmptySeed()
+  @Test("throws when nothing at all is available")
+  func throwsWithNothing() async {
+    let repository = makeRepository(
+      client: CountingClient(response: .failure(.transport(description: "offline")))
     )
 
     await #expect(throws: ContentUnavailable.nothingAvailable) {
-      for try await _ in repository.portfolio(in: .french) {}
+      _ = try await repository.portfolio(in: .french, policy: .networkFirst)
     }
   }
 
-  // ── La fusion des rafraîchissements ────────────────────────────────────
-
-  /// **Le test le plus important de ce module.**
+  /// ⚠️ A malformed payload is **not** rescued by the cache.
   ///
-  /// Quatre écrans demandent le contenu en apparaissant. Sans coordination, ce
-  /// sont quatre requêtes, quatre écritures de cache concurrentes, et deux
-  /// versions possibles à l'écran. Personne ne le verrait — c'est précisément
-  /// ce qui rend le défaut coûteux.
-  @Test("quatre lectures simultanées ne font qu'une requête")
+  /// Local content would describe a different version of the world, and we would
+  /// be hiding a defect in the source instead of reporting it. Only transport
+  /// failures justify falling back.
+  @Test("does not hide a malformed payload behind the cache")
+  func malformedIsNotMasked() async throws {
+    let cached = try #require(Fixtures.payload(.french))
+    let repository = makeRepository(
+      client: CountingClient(response: .success(Fixtures.responseMissing(["data", "profile"]))),
+      store: MemoryStore(seeded: ["portfolio-fr.json": cached])
+    )
+
+    do {
+      _ = try await repository.portfolio(in: .french, policy: .networkFirst)
+      Issue.record("a malformed payload must surface, not fall back")
+    } catch let failure as ContentUnavailable {
+      guard case .malformed(let path, _) = failure else {
+        Issue.record("expected .malformed, got \(failure)")
+        return
+      }
+      #expect(path.contains("profile"))
+    }
+  }
+
+  // ── Cache first, by exception ──────────────────────────────────────────
+
+  @Test("cacheFirst skips the network while the cache is young enough")
+  func cacheFirstSkipsNetwork() async throws {
+    let cached = try #require(Fixtures.payload(.french))
+    let client = CountingClient(response: .success(Fixtures.response(.french)))
+    // MemoryStore stamps its seeded values at a fixed instant; the clock is set
+    // one hour later, so a one-day budget still holds.
+    let repository = makeRepository(
+      client: client,
+      store: MemoryStore(seeded: ["portfolio-fr.json": cached]),
+      now: Date(timeIntervalSince1970: 1_700_003_600)
+    )
+
+    let snapshot = try await repository.portfolio(
+      in: .french,
+      policy: .cacheFirst(maxAge: .seconds(86_400))
+    )
+
+    guard case .cache = snapshot.origin else {
+      Issue.record("expected the cache, got \(snapshot.origin)")
+      return
+    }
+    #expect(await client.sendCount == 0, "the network must not be touched")
+  }
+
+  @Test("cacheFirst goes to the network once the cache is too old")
+  func cacheFirstExpires() async throws {
+    let cached = try #require(Fixtures.payload(.french))
+    let client = CountingClient(response: .success(Fixtures.response(.french)))
+    let repository = makeRepository(
+      client: client,
+      store: MemoryStore(seeded: ["portfolio-fr.json": cached]),
+      now: Date(timeIntervalSince1970: 1_800_000_000)
+    )
+
+    let snapshot = try await repository.portfolio(
+      in: .french,
+      policy: .cacheFirst(maxAge: .seconds(60))
+    )
+
+    #expect(snapshot.origin == .network)
+    #expect(await client.sendCount == 1)
+  }
+
+  /// The bundled seed has no useful age: it dates from the build, and it is
+  /// never "fresh" in the sense of a cache policy.
+  @Test("cacheFirst never treats the bundled seed as fresh")
+  func seedIsNeverFresh() async throws {
+    let client = CountingClient(response: .success(Fixtures.response(.french)))
+    let repository = makeRepository(client: client, seed: FixtureSeed())
+
+    let snapshot = try await repository.portfolio(
+      in: .french,
+      policy: .cacheFirst(maxAge: .seconds(86_400))
+    )
+
+    #expect(snapshot.origin == .network)
+    #expect(await client.sendCount == 1)
+  }
+
+  // ── Coalescing ─────────────────────────────────────────────────────────
+
+  /// **The most important test in this module.**
+  ///
+  /// Four screens ask for content as they appear. Without coordination that is
+  /// four requests, four concurrent cache writes — hence a half-written file —
+  /// and two possible versions on screen. Nobody would ever see it, which is
+  /// exactly what makes the defect expensive.
+  @Test("four simultaneous reads make one request")
   func concurrentReadsShareOneRequest() async throws {
     let client = CountingClient(response: .success(Fixtures.response(.french)))
-    let repository = PortfolioRepository(client: client, store: MemoryStore(), seed: EmptySeed())
+    let repository = makeRepository(client: client)
 
     await withTaskGroup(of: Void.self) { group in
       for _ in 0..<4 {
-        group.addTask { await drain(repository, .french) }
+        group.addTask {
+          _ = try? await repository.portfolio(in: .french, policy: .networkFirst)
+        }
       }
     }
 
     #expect(await client.sendCount == 1)
   }
 
-  @Test("deux langues demandées en même temps font deux requêtes")
+  @Test("two languages asked at once make two requests")
   func languagesAreNotShared() async throws {
     let client = CountingClient(response: .success(Fixtures.response(.french)))
-    let repository = PortfolioRepository(client: client, store: MemoryStore(), seed: EmptySeed())
+    let repository = makeRepository(client: client)
 
-    async let fr: Void = drain(repository, .french)
-    async let en: Void = drain(repository, .english)
+    async let fr = try? await repository.portfolio(in: .french, policy: .networkFirst)
+    async let en = try? await repository.portfolio(in: .english, policy: .networkFirst)
     _ = await (fr, en)
 
     #expect(await client.sendCount == 2)
   }
 
-  // ── Le décodage, et ses erreurs ────────────────────────────────────────
+  // ── Decoding ───────────────────────────────────────────────────────────
 
-  @Test("adapte la charge réelle de l'API en entités du domaine")
+  @Test("maps the API's real payload into domain entities")
   func decodesRealPayload() async throws {
-    let repository = PortfolioRepository(
-      client: CountingClient(response: .success(Fixtures.response(.french))),
-      store: MemoryStore(),
-      seed: EmptySeed()
+    let repository = makeRepository(
+      client: CountingClient(response: .success(Fixtures.response(.french)))
     )
 
-    let snapshot = try #require(try await collect(repository).last)
+    let snapshot = try await repository.portfolio(in: .french, policy: .networkFirst)
     let portfolio = snapshot.portfolio
 
     #expect(!snapshot.contentVersion.isEmpty)
@@ -139,76 +225,45 @@ struct PortfolioRepositoryTests {
     #expect(portfolio.section("apps") != nil)
   }
 
-  /// Le `codingPath` de `DecodingError` donne gratuitement le chemin du champ
-  /// fautif. Un « contenu invalide » sans lieu n'aide personne.
-  @Test("nomme le chemin exact du champ manquant")
-  func namesMissingField() async {
-    let repository = PortfolioRepository(
-      client: CountingClient(response: .success(Fixtures.responseMissing(["data", "profile"]))),
-      store: MemoryStore(),
-      seed: EmptySeed()
-    )
-
-    do {
-      for try await _ in repository.portfolio(in: .french) {}
-      Issue.record("une charge amputée devrait lever")
-    } catch let failure as ContentUnavailable {
-      guard case .malformed(let path, _) = failure else {
-        Issue.record("attendu `malformed`, reçu \(failure)")
-        return
-      }
-      #expect(path.contains("profile"))
-    } catch {
-      Issue.record("erreur inattendue : \(error)")
-    }
-  }
-
-  /// Une réponse rendue dans une autre langue que celle demandée est une
-  /// erreur, pas un repli : afficher l'anglais à qui a demandé le français est
-  /// une panne qu'on ne voit qu'une fois en production.
-  @Test("refuse une réponse rendue dans la mauvaise langue")
+  /// A response rendered in another language than the one asked for is an error,
+  /// not a fallback: showing English to someone who asked for French is a defect
+  /// you only notice in production.
+  @Test("refuses a response served in the wrong language")
   func refusesWrongLanguage() async {
-    let repository = PortfolioRepository(
-      client: CountingClient(response: .success(Fixtures.response(.english))),
-      store: MemoryStore(),
-      seed: EmptySeed()
+    let repository = makeRepository(
+      client: CountingClient(response: .success(Fixtures.response(.english)))
     )
 
     do {
-      for try await _ in repository.portfolio(in: .french) {}
-      Issue.record("une réponse en anglais pour une demande en français devrait lever")
+      _ = try await repository.portfolio(in: .french, policy: .networkFirst)
+      Issue.record("an English response to a French request must throw")
     } catch let failure as ContentUnavailable {
       guard case .malformed(let path, _) = failure else {
-        Issue.record("attendu `malformed`, reçu \(failure)")
+        Issue.record("expected .malformed, got \(failure)")
         return
       }
       #expect(path == "meta.locale")
     } catch {
-      Issue.record("erreur inattendue : \(error)")
+      Issue.record("unexpected error: \(error)")
     }
   }
 
-  /// Le cache reçoit les **octets reçus**, pas un ré-encodage : ré-encoder
-  /// perdrait tout champ qu'on ne lit pas encore, et une version ultérieure de
-  /// l'application le chercherait en vain dans un cache qu'elle a appauvri.
-  @Test("met en cache les octets reçus, tels quels")
+  /// The cache stores the **bytes received**, not a re-encoding of what was
+  /// decoded: re-encoding would drop any field we do not read yet, and a later
+  /// version of the app would look for it in vain in a cache it impoverished
+  /// itself.
+  @Test("caches the received bytes verbatim")
   func cachesRawBytes() async throws {
     let store = MemoryStore()
     let received = try #require(Fixtures.payload(.french))
-    let repository = PortfolioRepository(
+    let repository = makeRepository(
       client: CountingClient(response: .success(Fixtures.response(.french))),
-      store: store,
-      seed: EmptySeed()
+      store: store
     )
 
-    _ = try await collect(repository)
+    _ = try await repository.portfolio(in: .french, policy: .networkFirst)
 
-    let key = try #require(StorageKeyForTests.portfolioFR)
+    let key = try #require(StorageKey("portfolio-fr.json"))
     #expect(await store.read(key)?.data == received)
   }
-}
-
-import Persistence
-enum StorageKeyForTests {
-  static let portfolioFR = StorageKey("portfolio-fr.json")
 }

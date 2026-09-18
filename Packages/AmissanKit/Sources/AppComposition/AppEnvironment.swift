@@ -53,17 +53,13 @@ public struct AppEnvironment: Sendable {
 }
 
 public extension Language {
-  /// La langue de l'appareil, si la source la sert ; le français sinon.
+  /// The device's language, when the source serves it.
   ///
-  /// `preferredLanguages` et non `Locale.current.language` : le premier respecte
-  /// l'ordre de **préférence** de l'utilisateur, le second ne rend que la
-  /// première langue que l'application déclare supporter — ce qui reviendrait à
-  /// demander au système de choisir ce qu'on essaie justement de décider.
+  /// Kept only as a bridge while the settings screen lands. Resolution is owned
+  /// by `LanguagePreference.resolved(systemLanguages:)` — including the fallback
+  /// to **English**, which is a product decision and has no business living on
+  /// the `Language` type itself.
   static func preferred() -> Language {
-    for identifier in Foundation.Locale.preferredLanguages {
-      let code = Foundation.Locale(identifier: identifier).language.languageCode?.identifier
-      if let code, let language = Language(rawValue: code) { return language }
-    }
-    return .fallback
+    LanguagePreference.system.resolved(systemLanguages: Foundation.Locale.preferredLanguages)
   }
 }

@@ -63,9 +63,14 @@ public struct AppRoot: View {
   private let portfolio: any PortfolioReading
 
   public init(environment: AppEnvironment = .live()) {
+    let language = environment.language
     _store = State(initialValue: PortfolioStore(
       reading: environment.portfolio,
-      language: environment.language
+      language: language,
+      // The store needs chrome to turn a domain error into something a view can
+      // show. It takes a closure rather than a value so that a language change
+      // is reflected without rebuilding the store.
+      chrome: { AppChrome.for(language) }
     ))
     self.resume = environment.resume
     self.portfolio = environment.portfolio

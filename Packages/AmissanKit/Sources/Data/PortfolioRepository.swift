@@ -51,82 +51,79 @@ public actor PortfolioRepository: PortfolioReading {
   ) {
     self.client = client
     self.store = store
-    self.seed = seed
     self.endpoints = endpoints
+    self.seed = seed
     self.clock = clock
   }
 
-  public nonisolated func portfolio(
-    in language: Language
-  ) -> AsyncThrowingStream<PortfolioSnapshot, any Error> {
-    AsyncThrowingStream { continuation in
-      let task = Task {
-        await self.stream(language, into: continuation)
-      }
-      continuation.onTermination = { _ in task.cancel() }
-    }
-  }
-
-  // ───────────────────────────────────────────────────────────────────────
-
-  private func stream(
-    _ language: Language,
-    into continuation: AsyncThrowingStream<PortfolioSnapshot, any Error>.Continuation
-  ) async {
-    let local = await localSnapshot(for: language)
-    if let local {
-      continuation.yield(local)
+  public func portfolio(
+    in language: Language,
+    policy: FreshnessPolicy
+  ) async throws -> PortfolioSnapshot {
+    // `cacheFirst` : on ne part sur le réseau que si le local manque ou a passé
+    // son âge. C'est le « mécanisme de cache sur certains appels », rendu
+    // explicite par l'appelant plutôt que subi par tous.
+    if case .cacheFirst(let maxAge) = policy,
+       let local = await localSnapshot(for: language),
+       isFresh(local, within: maxAge) {
+      return local
     }
 
     do {
       let fresh = try await refreshed(language)
-
-      // On émet **toujours** l'instantané réseau, même quand l'empreinte n'a
-      // pas bougé.
-      //
-      // La première version ne le faisait pas, pour éviter de reconstruire une
-      // interface identique. Le résultat se voyait à l'écran : le bandeau
-      // continuait d'annoncer « contenu enregistré » alors que la source venait
-      // de confirmer que ce contenu était à jour. Une optimisation qui fait
-      // mentir l'interface n'est pas une optimisation.
-      //
-      // Et elle ne coûte rien : `Portfolio` est `Equatable`, donc SwiftUI ne
-      // rediffuse que ce qui a réellement changé — ici, la seule provenance.
-      continuation.yield(
-        PortfolioSnapshot(
-          portfolio: fresh.portfolio,
-          contentVersion: fresh.contentVersion,
-          origin: .network
-        )
+      return PortfolioSnapshot(
+        portfolio: fresh.portfolio,
+        contentVersion: fresh.contentVersion,
+        origin: .network
       )
-      continuation.finish()
     } catch {
       let failure = contentFailure(from: error)
 
-      guard let local else {
-        // Rien en réseau, rien en local : c'est le seul cas qui mérite un écran
-        // d'erreur plein.
-        continuation.finish(throwing: local == nil && isNothingAvailable(failure)
-          ? ContentUnavailable.nothingAvailable
-          : failure)
-        return
+      // Une charge mal formée ne se rattrape pas par le cache : le contenu local
+      // décrirait une autre version du monde, et on masquerait un défaut de la
+      // source au lieu de le signaler. Seules les pannes de **transport**
+      // justifient le repli.
+      guard case .unreachable = failure, let local = await localSnapshot(for: language) else {
+        throw local(for: failure, language: language) ?? failure
       }
 
-      // On a de quoi afficher : l'échec n'est pas une erreur du flux, c'est une
-      // information sur ce qui est affiché.
-      continuation.yield(
-        PortfolioSnapshot(
-          portfolio: local.portfolio,
-          contentVersion: local.contentVersion,
-          origin: local.origin,
-          refreshFailure: failure
-        )
+      return PortfolioSnapshot(
+        portfolio: local.portfolio,
+        contentVersion: local.contentVersion,
+        origin: local.origin,
+        refreshFailure: failure
       )
-      continuation.finish()
     }
   }
 
+  /// Traduit un échec en erreur finale : s'il n'y a rien du tout en local, c'est
+  /// `nothingAvailable` qu'il faut dire, pas « injoignable » — les deux
+  /// n'appellent pas la même phrase à l'écran.
+  private func local(for failure: ContentUnavailable, language: Language) -> ContentUnavailable? {
+    if case .malformed = failure { return failure }
+    return .nothingAvailable
+  }
+
+  private func isFresh(_ snapshot: PortfolioSnapshot, within maxAge: Duration) -> Bool {
+    let storedAt: Date
+    switch snapshot.origin {
+    case .cache(let date): storedAt = date
+    // La graine embarquée n'a pas d'âge utile : elle date de la construction, et
+    // elle n'est jamais « fraîche » au sens d'une politique de cache.
+    case .bundledSeed, .network: return false
+    }
+    return clock().timeIntervalSince(storedAt) < Double(maxAge.components.seconds)
+  }
+
   /// Le rafraîchissement, **partagé** entre tous les appelants simultanés.
+  ///
+  /// Quatre écrans qui apparaissent ensemble demandent le contenu ensemble. Sans
+  /// coordination : quatre requêtes, quatre écritures de cache concurrentes —
+  /// donc un fichier à moitié écrit — et deux versions possibles à l'écran.
+  ///
+  /// La correction n'est pas de verrouiller : c'est de **mémoriser la tâche en
+  /// cours**. Les appels concurrents n'en lancent pas une nouvelle, ils attendent
+  /// la même.
   private func refreshed(_ language: Language) async throws -> Loaded {
     if let running = refreshes[language] {
       return try await running.value
@@ -228,10 +225,6 @@ public actor PortfolioRepository: PortfolioReading {
     case is HTTPError: .unreachable
     default: .unreachable
     }
-  }
-
-  private func isNothingAvailable(_ failure: ContentUnavailable) -> Bool {
-    if case .malformed = failure { false } else { true }
   }
 
   private static func path(of error: DecodingError) -> String {

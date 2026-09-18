@@ -28,6 +28,33 @@ couche de vernis à ajouter : c'est la conception à reprendre.
 
 ---
 
+## 0. La langue du code — non négociable
+
+**Demandé, le 2026-09-18 :** *« Stop les commentaires de code et les noms de
+classes, struct etc. en français. Tout ça doit être in English. Et c'est non
+négociable. »*
+
+**Tout le source Swift est en anglais** : commentaires, noms de types, de
+fonctions, de variables locales. Sans exception.
+
+La raison n'est pas stylistique, elle est de lectorat : ce dépôt est ouvert par
+des recruteurs et des ingénieurs qui ne lisent pas forcément le français. Un
+raisonnement écrit dans une langue qu'une moitié de l'audience ne lit pas gâche
+exactement ce pour quoi il a été écrit.
+
+Ce qui reste en français : **`docs/`**, qui s'adresse à l'auteur, et le
+**contenu de l'application**, qui est bilingue par construction.
+
+Tenu par `Scripts/check-language.sh`, exécuté en CI. La détection est une liste
+de mots, pas une détection d'accents — « résumé » est un mot anglais valable et
+ne doit pas déclencher la garde.
+
+⚠️ **Portée à trancher** : `portfolio-web` et `portfolio-api` ont eux aussi leurs
+commentaires en français. La règle devrait logiquement s'y appliquer, mais c'est
+une passe mécanique sur du code qui n'est pas en cours de reprise. À décider.
+
+---
+
 ## 1. Écrans et vues — la séparation
 
 **Demandé :** *« Je veux que tu différencies les Screens de views ! Les vues
@@ -339,13 +366,40 @@ Sources/
 
 ---
 
-## 14. Le rafraîchissement au retour
+## 14. La politique de fraîcheur — corrigée
 
-Trou relevé pendant la rédaction : l'application charge au lancement, mais **ne
-se rafraîchit pas** quand elle revient au premier plan après plusieurs jours.
+**Demandé, le 2026-09-18 :** *« Ce n'est même pas une histoire de quelques jours.
+L'app utilise ce qu'elle a en local lorsqu'on part en timeout ou que le user n'a
+pas de connexion internet. Au-delà de ça, il fait ses appels réseaux. Si on veut,
+on peut mettre un mécanisme de cache sur certains appels. »*
 
-À corriger : relecture sur `scenePhase == .active` si l'instantané dépasse un
-certain âge.
+Ça **corrige** ce que la première version fait. Elle sert le cache d'abord, puis
+le réseau — deux instantanés à chaque ouverture. La politique demandée est
+l'inverse, et elle est plus honnête : *ce qu'on affiche est ce que la source dit,
+maintenant.*
+
+```swift
+enum FreshnessPolicy {
+  /// Le réseau d'abord ; le local **seulement** s'il échoue. Le défaut.
+  case networkFirst
+  /// Le local d'abord s'il existe et n'a pas dépassé son âge, puis le réseau.
+  /// Réservé aux appels dont le contenu ne bouge quasiment jamais.
+  case cacheFirst(maxAge: Duration)
+}
+```
+
+- **`networkFirst` partout par défaut.** Un appel part, la phase est `loading`,
+  et l'écran montre un squelette. Sur délai dépassé ou absence de réseau, on
+  bascule sur le local **en le disant** ;
+- **`cacheFirst` à la demande**, appel par appel, quand le contenu ne bouge pas —
+  le catalogue d'applications, par exemple. C'est le « mécanisme de cache sur
+  certains appels » demandé, rendu explicite plutôt que subi ;
+- **le repli garde ses trois couches** : cache disque, puis graine embarquée. Il
+  ne sert plus à afficher vite, il sert à afficher **quand même**.
+
+Et le trou relevé en rédigeant disparaît avec : l'application rappelle la source
+à chaque retour au premier plan (`scenePhase == .active`), puisque le réseau est
+désormais le chemin normal et non l'exception.
 
 ---
 

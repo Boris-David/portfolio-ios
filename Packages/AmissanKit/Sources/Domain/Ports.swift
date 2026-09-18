@@ -1,12 +1,14 @@
 import Foundation
 
-/// Les langues servies. L'application suit celle de l'appareil, et se rabat sur
-/// le français — qui est la langue de la source.
+/// Les langues servies.
+///
+/// Comment on en choisit une se décide dans `LanguagePreference` et nulle part
+/// ailleurs — il n'y a volontairement **pas** de `Language.fallback` ici. Une
+/// constante de repli sur le type se serait retrouvée employée à deux endroits
+/// avec deux règles différentes, ce qui est exactement ce qu'on veut éviter.
 public enum Language: String, Sendable, Hashable, CaseIterable {
   case french = "fr"
   case english = "en"
-
-  public static let fallback: Language = .french
 }
 
 /// D'où vient le contenu qu'on affiche.
@@ -82,19 +84,47 @@ public enum ContentUnavailable: Error, Sendable, Hashable {
 // partie de leurs dépendances.
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// Quand consulter la source, et quand se contenter de ce qu'on a.
+///
+/// ## La règle, et pourquoi elle a changé
+///
+/// La première version servait **le cache d'abord**, puis le réseau : deux
+/// instantanés à chaque ouverture, et un écran qui se reconstruisait. C'était
+/// rapide, et c'était malhonnête — on affichait du contenu daté avec l'aplomb du
+/// neuf, le temps que le réseau réponde.
+///
+/// La règle retenue est l'inverse, et elle tient en une phrase : **ce qu'on
+/// affiche est ce que la source dit, maintenant.** Le local ne sert plus à
+/// afficher *vite*, il sert à afficher *quand même* — coupure réseau, délai
+/// dépassé, mode avion.
+public enum FreshnessPolicy: Sendable, Hashable {
+  /// Le réseau d'abord ; le local **seulement** s'il échoue. Le défaut.
+  case networkFirst
+
+  /// Le local d'abord s'il existe et n'a pas dépassé son âge ; le réseau sinon.
+  ///
+  /// Réservé aux appels dont le contenu ne bouge quasiment jamais. Employé par
+  /// exception, jamais par confort : chaque usage se justifie, parce que chaque
+  /// usage est une occasion d'afficher quelque chose de faux.
+  case cacheFirst(maxAge: Duration)
+}
+
 public protocol PortfolioReading: Sendable {
-  /// Le contenu, **d'abord ce qui est disponible tout de suite**, puis la
-  /// version du réseau si elle apporte quelque chose de nouveau.
+  /// Le contenu, selon la politique demandée.
   ///
-  /// Un flux plutôt qu'un simple `async` : l'écran doit s'afficher immédiatement
-  /// avec ce qu'on a, et se mettre à jour sans clignoter si le réseau apporte
-  /// mieux. Un `async throws -> Portfolio` obligerait à choisir entre les deux —
-  /// attendre le réseau, ou ne jamais le consulter.
+  /// Rend **un** instantané. Ce n'était pas le cas avant : la version précédente
+  /// rendait un flux, parce qu'elle servait le cache puis le réseau. Avec
+  /// « réseau d'abord », il n'y a plus qu'une réponse à donner — et une méthode
+  /// qui rend une valeur se lit, se teste et se compose mieux qu'un flux dont on
+  /// n'utilise qu'un élément.
   ///
-  /// Le flux ne lève **que** si rien du tout n'est disponible. Un échec réseau
-  /// alors qu'un cache existe n'est pas une erreur : c'est un instantané périmé,
-  /// et il le dit dans `refreshFailure`.
-  func portfolio(in language: Language) -> AsyncThrowingStream<PortfolioSnapshot, any Error>
+  /// Ne lève **que** si rien n'est disponible, ni en réseau ni en local. Un échec
+  /// réseau avec un cache utilisable n'est pas une erreur : c'est un instantané
+  /// qui le dit dans `refreshFailure`.
+  func portfolio(
+    in language: Language,
+    policy: FreshnessPolicy
+  ) async throws -> PortfolioSnapshot
 }
 
 /// Le CV en PDF, produit par l'API et servi tel quel (ADR 0004).

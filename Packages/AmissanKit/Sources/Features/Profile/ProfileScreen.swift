@@ -17,12 +17,10 @@ public struct ProfileScreen: View {
 
   public var body: some View {
     SectionShell(title: chrome.tabProfile) {
-      switch store.state {
-      case .loading:
-        LoadingSkeleton()
-      case .failed(let failure):
-        ContentUnavailableScreen(failure: failure) { store.load() }
-      case .ready(let snapshot):
+      // The four phases are rendered in one place, by one component.
+      // No screen rewrites this switch: that is what makes them all behave
+      // alike — same skeleton, same transition, same failure screen.
+      PhaseView(store.phase, retry: { store.load() }) { snapshot in
         content(snapshot)
       }
     }
