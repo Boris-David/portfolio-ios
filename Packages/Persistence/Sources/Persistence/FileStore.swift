@@ -1,36 +1,36 @@
 import Foundation
 
-/// Le stockage sur disque, sérialisé par un acteur.
+/// On-disk storage, serialised by an actor.
 ///
-/// ## Pourquoi un acteur, et pas un verrou
+/// ## Why an actor rather than a lock
 ///
-/// Deux écritures simultanées sur la même clé, c'est un fichier à moitié écrit
-/// — le genre de corruption qui ne se reproduit pas et qu'on passe une journée
-/// à chercher. Un verrou protégerait à condition qu'on pense à le prendre
-/// partout, et rien ne le vérifie ; pire, un verrou tenu pendant une attente
-/// asynchrone est un blocage qui n'attend que son heure.
+/// Two simultaneous writes to the same key means a half-written file — the kind
+/// of corruption that does not reproduce and costs a day to find. A lock would
+/// protect it provided everybody remembers to take it everywhere, and nothing
+/// checks that; worse, a lock held across an `await` is a deadlock waiting for
+/// its moment.
 ///
-/// Avec un acteur, l'isolation devient une **propriété du type** : tout accès
-/// venant de l'extérieur est nécessairement sérialisé, et l'oubli n'est plus
-/// possible. Le compilateur le vérifie, pas la relecture.
+/// With an actor, isolation becomes a **property of the type**: every access
+/// from outside is necessarily serialised, and forgetting is no longer possible.
+/// The compiler checks it, not the reviewer.
 ///
-/// ## Pourquoi pas SwiftData
+/// ## Why not SwiftData
 ///
-/// Il n'y a ici ni relation, ni requête, ni migration : une charge utile par
-/// langue, écrite en entier, relue en entier. SwiftData apporterait un modèle
-/// à décrire, un contexte à gérer, un schéma à faire évoluer — pour remplacer
-/// `Data.write(to:)`. Une dépendance se justifie par ce qui serait pire sans
-/// elle ; ici, rien ne serait pire.
+/// There is no relation here, no query, no migration: one payload per language,
+/// written whole, read back whole. SwiftData would bring a model to describe, a
+/// context to manage, a schema to migrate — to replace `Data.write(to:)`. A
+/// dependency is justified by what would be worse without it; here nothing would
+/// be worse.
 public actor FileStore: LocalStore {
   private let directory: URL
   private let clock: @Sendable () -> Date
   private var directoryIsReady = false
 
   /// - Parameters:
-  ///   - directory: le répertoire de travail. `Caches` par défaut : le système
-  ///     a le droit de le vider sous pression de stockage, ce qui est
-  ///     exactement le contrat d'un cache — et ce qui l'exclut des sauvegardes.
-  ///   - clock: l'horloge, injectée pour que les tests n'aient pas à attendre.
+  ///   - directory: the working directory. `Caches` by default: the system is
+  ///     allowed to empty it under storage pressure, which is exactly a cache's
+  ///     contract — and what keeps it out of backups.
+  ///   - clock: the clock, injected so that tests never have to wait.
   public init(
     directory: URL? = nil,
     clock: @escaping @Sendable () -> Date = { Date() }
@@ -55,10 +55,9 @@ public actor FileStore: LocalStore {
   public func write(_ data: Data, for key: StorageKey) async throws(StorageError) {
     do {
       try prepareDirectory()
-      // `.atomic` : l'écriture passe par un fichier temporaire puis un
-      // renommage. Une coupure d'alimentation laisse l'ancienne version
-      // intacte au lieu d'un fichier tronqué qu'on relirait au lancement
-      // suivant en croyant qu'il est bon.
+      // `.atomic`: the write goes through a temporary file and a rename. A
+      // power cut leaves the previous version intact instead of a truncated
+      // file that the next launch would read back believing it good.
       try data.write(to: url(for: key), options: [.atomic])
     } catch let error as StorageError {
       throw error
@@ -68,9 +67,9 @@ public actor FileStore: LocalStore {
   }
 
   public func location(of key: StorageKey) async -> URL {
-    // Le répertoire est créé même si rien n'y est encore écrit : l'appelant a
-    // le droit d'y écrire lui-même, par exemple en y déplaçant un
-    // téléchargement.
+    // The directory is created even when nothing has been written yet: the
+    // caller is allowed to write there itself, for instance by moving a
+    // download into it.
     try? prepareDirectory()
     return url(for: key)
   }
@@ -89,9 +88,9 @@ public actor FileStore: LocalStore {
     guard !directoryIsReady else { return }
     try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
 
-    // Un cache n'a rien à faire dans une sauvegarde iCloud : il se reconstruit
-    // tout seul, et l'y laisser consommerait le quota de l'utilisateur pour
-    // des octets qu'on sait refabriquer.
+    // A cache has no business in an iCloud backup: it rebuilds itself, and
+    // leaving it there would spend the user's quota on bytes we know how to
+    // make again.
     var directory = directory
     var values = URLResourceValues()
     values.isExcludedFromBackup = true

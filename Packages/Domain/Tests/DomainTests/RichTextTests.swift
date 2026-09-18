@@ -49,8 +49,8 @@ struct YearMonthTests {
     #expect(YearMonth(year: 2023, month: 4) < YearMonth(year: 2023, month: 5))
   }
 
-  /// Une année seule vaut janvier : c'est ce qui permet de trier des
-  /// certifications datées « 2025 » avec des expériences datées « 2025-03 ».
+  /// A bare year counts as January: that is what lets certifications dated
+  /// "2025" be sorted alongside experiences dated "2025-03".
   @Test("une année sans mois se compare comme janvier")
   func yearOnlyIsJanuary() {
     #expect(YearMonth(year: 2025) < YearMonth(year: 2025, month: 2))
@@ -80,8 +80,8 @@ struct PortfolioSnapshotTests {
 }
 
 extension Portfolio {
-  /// Le plus petit portfolio possible — les tests de ce module ne parlent pas
-  /// de contenu, seulement de structure.
+  /// The smallest possible portfolio — this module's tests say nothing about
+  /// content, only about structure.
   static let fixture = Portfolio(
     profile: Profile(
       name: .init(display: "A.", full: "A."),

@@ -1,47 +1,47 @@
 import SwiftUI
 
-/// Les couleurs du portfolio, en version SwiftUI.
+/// The portfolio's colours, in SwiftUI form.
 ///
-/// Chaque couleur est **dynamique** : elle porte sa valeur claire et sa valeur
-/// sombre, et le système choisit. C'est ce qui rend impossible le défaut le plus
-/// courant — une teinte définie pour un seul thème, illisible sur l'autre — sans
-/// avoir à y penser à chaque usage.
+/// Every colour is **dynamic**: it carries its light value and its dark value,
+/// and the system picks. That is what makes the most common defect impossible —
+/// a shade defined for one theme only, unreadable on the other — without having
+/// to think about it at each use.
 ///
-/// Elles sont construites depuis `Tokens`, généré à partir de
-/// `design/tokens.json`. Le site et l'application affichent donc **exactement**
-/// la même palette : pas « la même à peu près », la même valeur hexadécimale.
+/// They are built from `Tokens`, generated from `design/tokens.json`. The site
+/// and the app therefore show **exactly** the same palette: not "roughly the
+/// same", the same hexadecimal value.
 public extension Color {
-  /// Le fond principal — le papier chaud.
+  /// The main ground — warm paper.
   static let paper = Color(Tokens.Color.paper)
-  /// Un fond légèrement creusé, pour les surfaces posées dessus.
+  /// A slightly recessed ground, for surfaces laid on top.
   static let paper2 = Color(Tokens.Color.paper2)
-  /// Le creux le plus marqué — puces, champs, zones inertes.
+  /// The deepest recess — chips, fields, inert areas.
   static let paper3 = Color(Tokens.Color.paper3)
 
-  /// Le trait fin qui sépare sans cloisonner.
+  /// The hairline that separates without walling off.
   static let line = Color(Tokens.Color.line)
-  /// Un trait plus affirmé, réservé aux séparations qui portent du sens.
+  /// A firmer line, kept for separations that carry meaning.
   static let line2 = Color(Tokens.Color.line2)
 
-  /// L'encre — le texte principal.
+  /// Ink — the main text.
   static let ink = Color(Tokens.Color.ink)
-  /// L'encre secondaire, pour ce qui accompagne.
+  /// Secondary ink, for what accompanies.
   static let ink2 = Color(Tokens.Color.ink2)
-  /// L'encre tertiaire : légendes, métadonnées, ce qui se lit après.
+  /// Tertiary ink: captions, metadata, what gets read second.
   static let ink3 = Color(Tokens.Color.ink3)
 
-  /// L'accent — un indigo, et un seul, pour ce sur quoi on agit.
+  /// The accent — one indigo, and one only, for what can be acted on.
   static let accent = Color(Tokens.Color.accent)
-  /// L'accent enfoncé, pour l'état pressé.
+  /// The pressed accent.
   static let accentDeep = Color(Tokens.Color.accentD)
-  /// L'accent lavé, pour les fonds teintés.
+  /// The washed accent, for tinted grounds.
   static let accentWash = Color(Tokens.Color.accentW)
-  /// Ce qui s'écrit **sur** l'accent.
+  /// What is written **on** the accent.
   static let onAccent = Color(Tokens.Color.onAccent)
 
-  /// Le vert des états réussis. Séparé de l'accent : une couleur sémantique et
-  /// une couleur de marque ne se confondent pas, sinon « réussi » et
-  /// « cliquable » se ressemblent.
+  /// The green of successful states. Kept apart from the accent: a semantic
+  /// colour and a brand colour must not be confused, or "succeeded" and
+  /// "tappable" start to look alike.
   static let ok = Color(Tokens.Color.ok)
 
   init(_ palette: Tokens.Palette) {

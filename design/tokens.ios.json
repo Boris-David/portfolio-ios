@@ -1,7 +1,7 @@
 {
-  "$comment": "Tokens PROPRES À iOS. Le design partagé — couleurs, espacements, rayons, courbes, échelle typographique — vit dans le hub et descend d'ici par `design/tokens.json`. Ce fichier ne porte que ce qui n'a de sens que sur iOS, et il est ASSEMBLÉ avec le hub au moment de la génération. Un token commun qui atterrirait ici serait une divergence en germe : le site ne le verrait jamais.",
+  "$comment": "iOS-SPECIFIC tokens. The shared design — colours, spacing, radii, curves, type scale — lives in the hub and reaches here through `design/tokens.json`. This file carries only what makes sense on iOS alone, and it is ASSEMBLED with the hub at generation time. A shared token landing here would be a divergence in the making: the website would never see it.",
   "icon": {
-    "$comment": "Tailles de symboles SF et d'illustrations, en points. Elles ne sont pas partagées avec le site : là-bas une icône est un SVG dimensionné par son conteneur, ici c'est une police dont la taille se déclare.",
+    "$comment": "SF Symbol and illustration sizes, in points. Not shared with the website: there an icon is an SVG sized by its container, here it is a font whose size is declared.",
     "badge": 11,
     "caption": 13,
     "inline": 16,
@@ -10,13 +10,13 @@
     "hero": 44
   },
   "stroke": {
-    "$comment": "Épaisseurs de trait. `hairline` vaut un demi-point : sur un écran à 3×, c'est un pixel et demi — le trait le plus fin qui reste net.",
+    "$comment": "Stroke widths. `hairline` is half a point: on a 3× screen that is one and a half pixels — the thinnest line that still renders crisply.",
     "hairline": 0.5,
     "regular": 1,
     "emphasis": 3
   },
   "elevation": {
-    "$comment": "Les ombres, par rôle et non par valeur. Une ombre se décrit par trois nombres qui n'ont de sens qu'ensemble : les séparer invite à en changer un seul.",
+    "$comment": "Shadows, by role rather than by value. A shadow is described by three numbers that only mean anything together: splitting them invites changing one alone.",
     "raised": {
       "radius": 18,
       "y": 8,
@@ -29,7 +29,7 @@
     }
   },
   "opacity": {
-    "$comment": "Les opacités nommées par ce qu'elles signifient. `tintOnMaterial` est celle du repli iOS 18 : une teinte posée sur un matériau translucide, assez pour se voir, pas assez pour masquer le flou.",
+    "$comment": "Opacities named by what they mean. `tintOnMaterial` is the iOS 18 fallback's: a tint laid over a translucent material, enough to be seen, not enough to hide the blur.",
     "disabled": 0.4,
     "tintOnMaterial": 0.14,
     "hairlineOnGlass": 0.6,
@@ -37,7 +37,7 @@
     "shimmer": 0.55
   },
   "duration": {
-    "$comment": "Durées d'animation, en secondes. Les COURBES, elles, sont partagées avec le site : c'est la courbe qui donne la sensation, la durée qui l'accorde au support. Un écran tactile n'a pas la même patience qu'une page web.",
+    "$comment": "Animation durations, in seconds. The CURVES are shared with the website: the curve carries the feel, the duration tunes it to the medium. A touch screen has less patience than a web page.",
     "entrance": 0.45,
     "disclosure": 0.42,
     "toggle": 0.28,
@@ -46,7 +46,7 @@
     "shimmer": 0.9
   },
   "layout": {
-    "$comment": "`readingWidth` borne la colonne de texte : une ligne se lit bien autour de 65 caractères, et l'exprimer en multiple du corps la fait suivre l'échelle typographique. `pressedScale` vit ici et non dans `opacity` — c'est un facteur d'échelle, pas une transparence, et le ranger au mauvais endroit fait écrire `opacity(Tokens.Opacity.pressed)` un jour.",
+    "$comment": "`readingWidth` bounds the text column: a line reads well at around 65 characters, and expressing it as a multiple of the body size makes it follow the type scale. `pressedScale` lives here and not under `opacity` — it is a scale factor, not a transparency, and filing it in the wrong place leads somebody to write `opacity(Tokens.Opacity.pressed)` one day.",
     "readingWidthInBodies": 40,
     "appIconSide": 44,
     "appIconRadius": 10,

@@ -59,7 +59,7 @@ public struct BackstageScreen: View {
       HStack(spacing: Tokens.Space.s2) {
         Image(systemName: PlatformCapabilities.supportsLiquidGlass ? "sparkles" : "square.stack")
           .font(.footnote)
-        Text(PlatformCapabilities.summary)
+        Text(chrome.renderingSummary(supportsLiquidGlass: PlatformCapabilities.supportsLiquidGlass))
           .font(Typography.caption)
       }
       .foregroundStyle(Color.ink3)

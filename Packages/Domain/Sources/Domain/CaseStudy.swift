@@ -1,12 +1,12 @@
-/// Un projet raconté : le problème, la décision, le résultat.
+/// A project told: the problem, the decision, the result.
 ///
-/// Un seul type pour les deux mises en page du portfolio. Ce qui les distingue
-/// n'est pas une propriété technique mais une **propriété du récit** : un
-/// chapitre qui porte un titre est un chantier qu'on peut nommer et déplier ;
-/// un chapitre anonyme est le corps unique d'une histoire.
+/// One type for both of the portfolio's layouts. What separates them is not a
+/// technical property but a **property of the narrative**: a chapter with a
+/// title is a piece of work that can be named and unfolded; an untitled chapter
+/// is the single body of one story.
 ///
-/// Compter les chapitres aurait marché aujourd'hui et cassé au premier récit à
-/// deux chapitres anonymes.
+/// Counting the chapters would have worked today and broken on the first story
+/// with two untitled chapters.
 public struct CaseStudy: Sendable, Hashable, Identifiable {
   public var id: String { slug }
 
@@ -39,7 +39,7 @@ public struct CaseStudy: Sendable, Hashable, Identifiable {
     self.tags = tags
   }
 
-  /// Vrai quand les chapitres sont des chantiers nommés, dépliables un à un.
+  /// True when the chapters are named pieces of work, each one unfoldable.
   public var hasNamedChapters: Bool {
     chapters.contains { $0.title != nil }
   }
@@ -84,8 +84,8 @@ extension CaseStudy {
     public var id: Kind { kind }
 
     public let kind: Kind
-    /// L'intitulé vient de la source : « Décision » ici, « Décisions et
-    /// réalisations » là. C'est du contenu, pas une constante d'interface.
+    /// The heading comes from the source: "Decision" here, "Decisions and
+    /// deliveries" there. It is content, not an interface constant.
     public let heading: String
     public let blocks: [Block]
 
@@ -95,13 +95,13 @@ extension CaseStudy {
       self.blocks = blocks
     }
 
-    /// Les puces techniques, quand le panneau en porte.
+    /// The technical chips, when the panel carries any.
     public var tags: [String] {
       blocks.compactMap { if case .tags(let items) = $0 { items } else { nil } }.flatMap(\.self)
     }
 
-    /// Le corps rédigé, listes aplaties : dans une colonne, une liste et une
-    /// suite de paragraphes se lisent pareil.
+    /// The written body, lists flattened: in a single column, a list and a run
+    /// of paragraphs read the same.
     public var prose: [RichText] {
       blocks.flatMap { block -> [RichText] in
         switch block {

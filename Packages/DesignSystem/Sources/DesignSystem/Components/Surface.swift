@@ -1,21 +1,21 @@
 import SwiftUI
 
-/// Une surface de contenu — la carte du design system.
+/// A content surface — the design system's card.
 ///
-/// ## Tout n'est pas une carte
+/// ## Not everything is a card
 ///
-/// Bordure, remplissage, rayon et ombre disent chacun « objet distinct ». Les
-/// dépenser partout aplatit la hiérarchie : quand tout est une carte, plus rien
-/// ne ressort. Le type porte donc un **niveau**, et chaque niveau a une raison
-/// d'exister plutôt qu'une esthétique.
+/// Border, fill, radius and shadow each say "separate object". Spending them
+/// everywhere flattens the hierarchy: when everything is a card, nothing stands
+/// out. So the type carries a **level**, and each level has a reason to exist
+/// rather than a look.
 public struct Surface<Content: View>: View {
   public enum Level {
-    /// Posée sur le papier, séparée par un simple trait. Le défaut.
+    /// Laid on the paper, separated by a hairline. The default.
     case flat
-    /// Légèrement creusée — un groupe dans un groupe.
+    /// Slightly recessed — a group within a group.
     case recessed
-    /// Détachée, avec une ombre. **Une par écran, au plus** : c'est ce qui
-    /// attire l'œil en premier, et deux choses en premier n'existent pas.
+    /// Lifted, with a shadow. **One per screen at most**: it is what the eye
+    /// reaches first, and two things cannot both be first.
     case raised
   }
 
@@ -59,7 +59,7 @@ public struct Surface<Content: View>: View {
   }
 }
 
-/// Le liseré qui ouvre une section — un repère, pas une décoration.
+/// The rule that opens a section — a landmark, not a decoration.
 public struct SectionHeader: View {
   private let eyebrow: String
   private let title: String
@@ -77,8 +77,8 @@ public struct SectionHeader: View {
       Text(title)
         .font(Typography.title)
         .foregroundStyle(Color.ink)
-        // Un titre qui casse sur deux lignes doit les équilibrer, sinon la
-        // seconde porte un mot seul et le bloc a l'air cassé.
+        // A title that breaks over two lines must balance them, or the second
+        // carries a single word and the block looks broken.
         .fixedSize(horizontal: false, vertical: true)
       if let intro {
         Text(intro)
@@ -89,8 +89,8 @@ public struct SectionHeader: View {
       }
     }
     .frame(maxWidth: .infinity, alignment: .leading)
-    // Le titre et son liseré forment **un** élément pour VoiceOver : les
-    // annoncer séparément ferait lire « zéro deux » puis, plus tard, le titre.
+    // The title and its rule are **one** element for VoiceOver: announcing them
+    // separately would read "zero two" and then, later, the title.
     .accessibilityElement(children: .combine)
   }
 }

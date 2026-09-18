@@ -1,18 +1,16 @@
 import SwiftUI
 
-/// L'apparition d'un bloc à l'arrivée à l'écran.
+/// A block appearing as it reaches the screen.
 ///
-/// ## Deux règles qui ne se négocient pas
+/// ## Two rules that are not negotiable
 ///
-/// **Rien n'est illisible au repos.** L'état initial n'est masqué que si
-/// l'animation peut réellement jouer. Une vue qui resterait à `opacity: 0` parce
-/// qu'un observateur ne s'est jamais déclenché est du contenu perdu — et c'est
-/// le défaut le plus fréquent de ce motif.
+/// **Nothing is unreadable at rest.** The initial state is hidden only if the
+/// animation can genuinely play. A view left at `opacity: 0` because an observer
+/// never fired is lost content — and it is this pattern's most frequent defect.
 ///
-/// **Le premier écran n'est pas animé.** Une apparition en fondu sur ce qu'on
-/// voit en ouvrant retarde la première information de quelques centaines de
-/// millisecondes. C'est exactement ce qu'un recruteur qui parcourt ne pardonne
-/// pas.
+/// **The first screen is not animated.** A fade-in on what you see when you open
+/// the app delays the first piece of information by a few hundred milliseconds.
+/// That is exactly what a skimming recruiter does not forgive.
 public struct Reveal: ViewModifier {
   private let delay: Double
   @State private var isVisible = false
@@ -30,8 +28,8 @@ public struct Reveal: ViewModifier {
         guard visible, !isVisible else { return }
         withAnimation(Motion.entrance.delay(delay)) { isVisible = true }
       }
-      // Filet de sécurité : si la vue n'entre jamais dans une zone défilable —
-      // un aperçu, un écran court, un test — elle s'affiche quand même.
+      // Safety net: if the view never enters a scrollable area — a preview, a
+      // short screen, a test — it shows anyway.
       .task {
         try? await Task.sleep(for: .milliseconds(600))
         if !isVisible { withAnimation(Motion.entrance) { isVisible = true } }
@@ -44,7 +42,7 @@ public struct Reveal: ViewModifier {
 }
 
 public extension View {
-  /// Apparaît en montant légèrement, une fois, à l'entrée à l'écran.
+  /// Appears rising slightly, once, on entering the screen.
   func reveal(delay: Double = 0) -> some View {
     modifier(Reveal(delay: delay))
   }

@@ -2,11 +2,11 @@ import Domain
 import Testing
 @testable import Data
 
-/// La frontière où une chaîne devient une valeur du domaine.
+/// The boundary where a string becomes a domain value.
 ///
-/// Une valeur inattendue **lève** — elle ne se replie pas sur un défaut. Un rôle
-/// inconnu rangé en « fonctionnalités » ferait apparaître une application dans
-/// la mauvaise grille, et c'est le genre d'erreur qu'on ne voit qu'en entretien.
+/// An unexpected value **throws** — it does not fall back to a default. An
+/// unknown role filed under "features" would put an app in the wrong grid, and
+/// that is the kind of mistake you only notice in an interview.
 struct MappingTests {
   @Test("lit une date année-mois", arguments: [
     ("2023-05", 2023, 5), ("2020-10", 2020, 10),
@@ -45,9 +45,9 @@ struct MappingTests {
     #expect(url == "https://amissan.dev")
   }
 
-  /// Un style d'emphase inconnu retombe sur « texte » : se tromper de graisse ne
-  /// change rien au sens, et faire échouer toute la charge pour ça serait
-  /// disproportionné. C'est l'inverse d'un rôle d'application.
+  /// An unknown emphasis style falls back to plain: getting the weight wrong
+  /// changes nothing about the meaning, and failing the whole payload over it
+  /// would be out of proportion. The opposite of an application role.
   @Test("un style de texte inconnu ne fait pas échouer la charge")
   func unknownEmphasisIsLenient() {
     let text = PortfolioMapping.richText([

@@ -1,51 +1,47 @@
 import SwiftUI
 
-/// Liquid Glass sur iOS 26, et un repli assumé sur iOS 18.
+/// Liquid Glass on iOS 26, and a deliberate fallback on iOS 18.
 ///
-/// ## Pourquoi une couche, plutôt que des `if #available` disséminés
+/// ## Why a layer rather than `if #available` scattered around
 ///
-/// L'application vise **iOS 18 et plus**, et se compile avec le SDK d'iOS 26.
-/// Les deux mondes coexistent donc dans le même binaire. Trois façons de vivre
-/// avec :
+/// The app targets **iOS 18 and up**, and builds against the iOS 26 SDK. Both
+/// worlds therefore live in the same binary. Three ways to cope:
 ///
-/// 1. *ne cibler qu'iOS 26* — on perd les appareils qui ne sont pas passés à la
-///    version majeure, c'est-à-dire une part qui se compte en dizaines de
-///    pour cent les premiers mois ;
-/// 2. *semer des `if #available(iOS 26, *)` dans les vues* — ça marche, et au
-///    bout de trente écrans plus personne ne sait ce que voit un utilisateur
-///    d'iOS 18. Le repli n'est testé nulle part parce qu'il n'est nommé nulle
-///    part ;
-/// 3. **nommer l'intention, et faire décider la couche** — `.navigationGlass()`
-///    dit *« ceci est une surface de navigation »*. Comment ça se rend est
-///    décidé ici, en un seul endroit, et les deux rendus sont visibles côte à
-///    côte dans les aperçus.
+/// 1. *target iOS 26 only* — this loses the devices that have not moved to the
+///    major version, which for the first months is a share counted in tens of
+///    per cent;
+/// 2. *sprinkle `if #available(iOS 26, *)` through the views* — it works, and
+///    after thirty screens nobody knows what an iOS 18 user sees any more. The
+///    fallback is tested nowhere because it is named nowhere;
+/// 3. **name the intent and let the layer decide** — `.navigationGlass()` says
+///    *"this is a navigation surface"*. How it renders is decided here, in one
+///    place, and both renderings sit side by side in the previews.
 ///
-/// C'est la troisième. Le coût d'un SDK qui évolue se paie une fois, dans ce
-/// fichier, au lieu d'être réparti partout.
+/// This is the third. The cost of a moving SDK is paid once, in this file,
+/// instead of being spread everywhere.
 ///
-/// ## Ce sur quoi le glass ne s'applique **pas**
+/// ## What glass is **not** applied to
 ///
-/// Liquid Glass est un matériau de la couche **navigation** : barres, boutons,
-/// accessoires. Le poser sur du contenu — une liste, un paragraphe, une image —
-/// dégrade le contraste du texte et brouille la hiérarchie : tout se met à
-/// flotter, donc plus rien ne ressort. La règle est tenue par la nomenclature :
-/// il n'existe pas de `contentGlass()`.
+/// Liquid Glass is a material of the **navigation** layer: bars, buttons,
+/// accessories. Putting it on content — a list, a paragraph, an image — degrades
+/// text contrast and blurs the hierarchy: everything starts floating, so nothing
+/// stands out. The rule is held by the naming: there is no `contentGlass()`.
 public extension View {
-  /// Une surface de navigation : barre flottante, groupe de contrôles, bouton
-  /// posé au-dessus du contenu.
+  /// A navigation surface: a floating bar, a group of controls, a button laid
+  /// over content.
   ///
   /// - Parameters:
-  ///   - shape: la forme découpée. Une capsule par défaut, parce que c'est ce
-  ///     que le système emploie pour ses propres contrôles flottants.
-  ///   - tint: une teinte, pour signaler un état actif. `nil` la plupart du
-  ///     temps — un matériau teinté partout redevient une couleur.
-  ///   - interactive: le verre réagit au toucher. Réservé à ce qui est
-  ///     réellement tactile, sinon la surface promet une action qui n'existe pas.
+  ///   - shape: the shape cut out. A capsule by default, because that is what
+  ///     the system uses for its own floating controls.
+  ///   - tint: a tint, to signal an active state. `nil` most of the time — a
+  ///     material tinted everywhere is just a colour again.
+  ///   - interactive: the glass reacts to touch. Reserved for what genuinely is
+  ///     touchable, otherwise the surface promises an action that does not exist.
   @ViewBuilder
   func navigationGlass(
-    // `InsettableShape` et non `Shape` : c'est le protocole qui apporte
-    // `strokeBorder`, lequel trace **vers l'intérieur**. Un `stroke` ordinaire
-    // déborde d'une demi-épaisseur et rogne le contenu voisin.
+    // `InsettableShape` and not `Shape`: it is the protocol that brings
+    // `strokeBorder`, which strokes **inwards**. An ordinary `stroke` spills by
+    // half its width and clips the content next to it.
     in shape: some InsettableShape = Capsule(),
     tint: Color? = nil,
     interactive: Bool = false
@@ -56,15 +52,15 @@ public extension View {
         in: shape
       )
     } else {
-      // Le repli n'est pas « la même chose en moins bien » : c'est le matériau
-      // qu'iOS 18 emploie lui-même pour ses barres. Un utilisateur d'iOS 18 voit
-      // une application d'iOS 18, pas une imitation ratée d'iOS 26.
+      // The fallback is not "the same thing, worse": it is the material iOS 18
+      // uses for its own bars. An iOS 18 user sees an iOS 18 app, not a failed
+      // imitation of iOS 26.
       self
         .background {
           shape
             .fill(.ultraThinMaterial)
-            // La teinte se pose **au-dessus** du matériau, pas en dessous :
-            // en dessous, le flou l'aurait délavée jusqu'à l'invisible.
+            // The tint sits **on top of** the material, not underneath: under
+            // it, the blur would have washed it out to nothing.
             .overlay(shape.fill(tint?.opacity(Tokens.Opacity.tintOnMaterial) ?? .clear))
             .overlay(shape.strokeBorder(Color.line.opacity(Tokens.Opacity.hairlineOnGlass), lineWidth: Tokens.Stroke.hairline))
         }
@@ -76,10 +72,10 @@ public extension View {
     }
   }
 
-  /// La barre d'onglets se réduit quand on descend dans le contenu.
+  /// The tab bar shrinks as you read down the content.
   ///
-  /// iOS 26 seulement : sur iOS 18 la barre reste, ce qui est son comportement
-  /// normal et n'a rien d'un défaut.
+  /// iOS 26 only: on iOS 18 the bar stays, which is its normal behaviour and not
+  /// a defect.
   @ViewBuilder
   func minimizingTabBarOnScroll() -> some View {
     if #available(iOS 26.0, *) {
@@ -87,114 +83,5 @@ public extension View {
     } else {
       self
     }
-  }
-}
-
-/// Regroupe plusieurs surfaces de verre pour qu'elles se fondent entre elles.
-///
-/// Sans conteneur, deux boutons de verre côte à côte sont deux verres
-/// **empilés** : le fond est échantillonné deux fois et le rendu s'assombrit à
-/// leur intersection. Le conteneur les fusionne en une seule couche.
-///
-/// Sur iOS 18 il ne fait rien de plus qu'un `HStack` — et c'est exactement ce
-/// qu'on veut : la structure du code ne change pas d'une version à l'autre.
-public struct GlassGroup<Content: View>: View {
-  private let spacing: CGFloat
-  private let content: Content
-
-  public init(spacing: CGFloat = Tokens.Space.s2, @ViewBuilder content: () -> Content) {
-    self.spacing = spacing
-    self.content = content()
-  }
-
-  public var body: some View {
-    if #available(iOS 26.0, *) {
-      GlassEffectContainer(spacing: spacing) { content }
-    } else {
-      content
-    }
-  }
-}
-
-/// Le style des boutons flottants — verre sur iOS 26, bordé sur iOS 18.
-public struct AdaptiveGlassButtonStyle: ButtonStyle {
-  private let prominent: Bool
-
-  public init(prominent: Bool = false) {
-    self.prominent = prominent
-  }
-
-  public func makeBody(configuration: Configuration) -> some View {
-    label(configuration)
-      // Le retour au toucher est le même dans les deux mondes : c'est une
-      // information, pas une décoration, et elle ne dépend pas du matériau.
-      .scaleEffect(configuration.isPressed ? Tokens.Layout.pressedScale : 1)
-      .animation(Motion.toggle, value: configuration.isPressed)
-  }
-
-  /// ⚠️ **`glassEffect` s'applique à la vue, jamais à un fond posé derrière.**
-  ///
-  /// La version précédente mettait le verre dans un `.background { … }`. Ça
-  /// compile, ça ne produit aucun avertissement — et le libellé **disparaît**.
-  /// Le verre d'iOS 26 n'est pas une couche qu'on empile derrière : c'est un
-  /// traitement de la vue à laquelle il est appliqué, et il compose son propre
-  /// contenu. Mis en arrière-plan, il recouvre le texte.
-  ///
-  /// Constaté sur iPad, puis retrouvé sur iPhone — où je l'avais pris pour un
-  /// bouton simplement caché derrière la barre d'onglets. Une capture d'écran
-  /// mal lue vaut une régression non vue.
-  ///
-  /// Et un bouton **principal** ne se rend pas pareil dans les deux mondes.
-  /// `Glass.tint(_:)` garantit la lisibilité sur iOS 26 ; la même teinte à
-  /// faible opacité sur un matériau translucide donne, en thème clair sur
-  /// iOS 18, du blanc sur du pâle. Le repli est un aplat d'accent — ce qu'iOS 18
-  /// emploie lui-même pour une action principale.
-  @ViewBuilder
-  private func label(_ configuration: Configuration) -> some View {
-    let content = configuration.label
-      .font(Typography.bodyStrong)
-      .foregroundStyle(prominent ? Color.onAccent : Color.ink)
-      .padding(.horizontal, Tokens.Space.s4)
-      .frame(minHeight: Tokens.Accessibility.minimumTouchTarget)
-
-    if #available(iOS 26.0, *) {
-      content.glassEffect(
-        Glass.regular.tint(prominent ? Color.accent : nil).interactive(),
-        in: Capsule()
-      )
-    } else if prominent {
-      content.background(Capsule().fill(Color.accent))
-    } else {
-      content
-        .background(Capsule().fill(.ultraThinMaterial))
-        .overlay(Capsule().strokeBorder(Color.line, lineWidth: Tokens.Stroke.regular))
-    }
-  }
-}
-
-public extension ButtonStyle where Self == AdaptiveGlassButtonStyle {
-  /// Un bouton flottant secondaire.
-  static var adaptiveGlass: AdaptiveGlassButtonStyle { AdaptiveGlassButtonStyle() }
-  /// L'action principale d'un écran — une seule par écran.
-  static var adaptiveGlassProminent: AdaptiveGlassButtonStyle {
-    AdaptiveGlassButtonStyle(prominent: true)
-  }
-}
-
-/// Ce que l'appareil sait faire, rendu **lisible** — et affichable.
-///
-/// Les Coulisses s'en servent pour dire à qui regarde : *« vous voyez le rendu
-/// iOS 26 »* ou *« vous voyez le repli iOS 18 »*. Un compromis de compatibilité
-/// qu'on ne peut pas constater à l'écran est un compromis qu'on doit croire sur
-/// parole.
-public enum PlatformCapabilities {
-  public static var supportsLiquidGlass: Bool {
-    if #available(iOS 26.0, *) { true } else { false }
-  }
-
-  public static var summary: String {
-    supportsLiquidGlass
-      ? "iOS 26 — Liquid Glass natif"
-      : "iOS 18 — repli en matériau système"
   }
 }

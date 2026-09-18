@@ -1,12 +1,11 @@
 import Foundation
 
-/// L'implémentation du transport, sur `URLSession`.
+/// The transport implementation, on `URLSession`.
 ///
-/// Une `struct` et non un `actor` : elle ne porte aucun état mutable.
-/// `URLSession` est `Sendable` et gère elle-même sa file. Mettre un acteur ici
-/// sérialiserait des requêtes qui ont tout intérêt à partir en parallèle — un
-/// acteur n'est pas un label de sûreté qu'on colle par précaution, c'est une
-/// sérialisation, et elle se paie.
+/// A `struct` and not an `actor`: it holds no mutable state. `URLSession` is
+/// `Sendable` and manages its own queue. An actor here would serialise requests
+/// that have every reason to leave in parallel — an actor is not a safety
+/// sticker you apply out of caution, it is a serialisation, and it is paid for.
 public struct URLSessionHTTPClient: HTTPClient {
   private let session: URLSession
 
@@ -14,12 +13,12 @@ public struct URLSessionHTTPClient: HTTPClient {
     self.session = session
   }
 
-  /// La configuration de l'application.
+  /// The app's configuration.
   ///
-  /// Le cache d'`URLSession` est **désactivé** : la fraîcheur du contenu est
-  /// décidée par la couche `Data`, avec l'`ETag` et le cache sur disque. Deux
-  /// caches empilés, c'est un contenu périmé qu'on ne sait plus attribuer, et
-  /// un `304` qu'on ne voit jamais parce qu'un cache en dessous a déjà répondu.
+  /// `URLSession`'s cache is **off**: content freshness is decided by the `Data`
+  /// layer, with the `ETag` and the on-disk copy. Two stacked caches means stale
+  /// content nobody can attribute, and a `304` you never see because a cache
+  /// underneath already answered.
   public static func makeSession(timeout: TimeInterval = 15) -> URLSession {
     let configuration = URLSessionConfiguration.ephemeral
     configuration.urlCache = nil
@@ -47,14 +46,14 @@ public struct URLSessionHTTPClient: HTTPClient {
     return HTTPDownload(
       status: response.statusCode,
       headers: HTTPHeaders(headerFields(of: response)),
-      // Sur un 304 il n'y a pas de corps utile : rendre une URL vers un fichier
-      // vide inviterait à l'ouvrir.
+      // On a 304 there is no useful body: returning a URL to an empty file
+      // would invite somebody to open it.
       temporaryURL: response.statusCode == 304 ? nil : url
     )
   }
 
   // ───────────────────────────────────────────────────────────────────────
-  // Le tronc commun : construire la requête, traduire les erreurs.
+  // The common trunk: build the request, translate the failures.
   // ───────────────────────────────────────────────────────────────────────
 
   private func perform<Payload: Sendable>(
@@ -74,9 +73,9 @@ public struct URLSessionHTTPClient: HTTPClient {
     } catch let error as HTTPError {
       throw error
     } catch is CancellationError {
-      // Une annulation n'est pas une panne : elle remonte telle quelle plus
-      // haut, où quelqu'un sait pourquoi il a annulé.
-      throw HTTPError.transport(description: "annulée")
+      // A cancellation is not a failure: it travels up as-is, to somebody who
+      // knows why they cancelled.
+      throw HTTPError.transport(description: "cancelled")
     } catch {
       throw HTTPError.transport(description: (error as NSError).localizedDescription)
     }

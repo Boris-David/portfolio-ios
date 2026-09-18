@@ -1,9 +1,9 @@
-/// Tout ce que l'application sait dire d'Amissan, en une valeur.
+/// Everything the app can say about Amissan, in one value.
 ///
-/// Un seul agrégat plutôt que huit ressources séparées : la source les sert
-/// ensemble, scellées par une même empreinte. Les découper ici rouvrirait la
-/// possibilité d'afficher un écran construit sur deux versions du contenu — et
-/// personne ne verrait jamais la différence, ce qui est exactement le problème.
+/// A single aggregate rather than eight separate resources: the source serves
+/// them together, sealed by one content version. Splitting them here would
+/// reopen the possibility of a screen built from two versions of the content —
+/// and nobody would ever see the difference, which is exactly the problem.
 public struct Portfolio: Sendable, Hashable {
   public let profile: Profile
   public let metrics: [Metric]
@@ -39,7 +39,10 @@ public struct Portfolio: Sendable, Hashable {
 }
 
 extension Portfolio {
-  /// L'en-tête d'une section, telle que la source l'ordonne.
+  /// A section's header, in the order the source gives them.
+  ///
+  /// Nested on purpose: a bare `Section` would collide with SwiftUI's, and
+  /// "a section of what?" has no answer away from its parent.
   public struct Section: Sendable, Hashable, Identifiable {
     public let id: String
     public let eyebrow: String

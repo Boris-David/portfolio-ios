@@ -1,11 +1,11 @@
 import SwiftUI
 
-/// Un chiffre mis en avant, et ce qu'il signifie.
+/// A figure brought forward, and what it means.
 ///
-/// Le nombre **se compte** à l'arrivée à l'écran — quand la source le demande.
-/// Ce n'est pas une déduction sur sa forme : « ~5 » pourrait s'animer, on
-/// choisit que non parce qu'animer une approximation lui donne une précision
-/// qu'elle n'a pas.
+/// The number **counts up** as it reaches the screen — when the source asks for
+/// it. That is not an inference from its shape: "~5" could be animated, and we
+/// choose not to, because animating an approximation lends it a precision it
+/// does not have.
 public struct MetricTile: View {
   private let value: String
   private let unit: String?
@@ -29,8 +29,8 @@ public struct MetricTile: View {
         Text(renderedValue)
           .font(Typography.metric)
           .foregroundStyle(Color.ink)
-          // Les chiffres qui changent doivent occuper une largeur stable,
-          // sinon la tuile tremble pendant tout le décompte.
+          // Changing digits must occupy a stable width, or the tile shivers
+          // for the whole count.
           .monospacedDigit()
           .contentTransition(.numericText())
         if let unit {
@@ -45,9 +45,9 @@ public struct MetricTile: View {
         .fixedSize(horizontal: false, vertical: true)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
-    // Un chiffre et sa légende sont **une** information. Séparés, VoiceOver
-    // annonce « 6 » puis, plus loin, « d'ingénierie iOS » — deux fragments dont
-    // aucun ne veut rien dire.
+    // A figure and its caption are **one** piece of information. Separated,
+    // VoiceOver announces "6" and then, later, "of iOS engineering" — two
+    // fragments, neither of which means anything.
     .accessibilityElement(children: .combine)
     .accessibilityLabel("\(value) \(unit ?? "") \(caption)")
     .onAppear(perform: startCounting)

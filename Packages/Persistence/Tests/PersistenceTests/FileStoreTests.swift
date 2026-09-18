@@ -3,17 +3,17 @@ import Testing
 @testable import Persistence
 
 struct StorageKeyTests {
-  /// Le type existe pour qu'aucune chaîne venue d'ailleurs ne devienne un
-  /// chemin. Ce qui est refusé compte autant que ce qui est accepté.
-  @Test("accepte un nom de fichier sobre", arguments: [
+  /// The type exists so that no string from elsewhere can become a path. What
+  /// it refuses matters as much as what it accepts.
+  @Test("accepts a plain file name", arguments: [
     "portfolio-fr.json", "resume-en.meta.json", "amissan.ag-cv-fr.pdf",
   ])
   func accepts(_ name: String) {
     #expect(StorageKey(name) != nil)
   }
 
-  @Test("refuse tout ce qui pourrait sortir du répertoire", arguments: [
-    "", ".", "..", "../secrets", "a/b.json", "a\\b", "MAJUSCULES.json", "espace .json",
+  @Test("refuses anything that could escape the directory", arguments: [
+    "", ".", "..", "../secrets", "a/b.json", "a\\b", "UPPERCASE.json", "with space.json",
   ])
   func refuses(_ name: String) {
     #expect(StorageKey(name) == nil)
@@ -27,12 +27,12 @@ struct FileStoreTests {
     return (FileStore(directory: directory), directory)
   }
 
-  @Test("relit exactement ce qui a été écrit")
+  @Test("reads back exactly what was written")
   func roundTrip() async throws {
     let (store, directory) = makeStore()
     defer { try? FileManager.default.removeItem(at: directory) }
 
-    let key = try #require(StorageKey("contenu.json"))
+    let key = try #require(StorageKey("content.json"))
     let payload = Data(#"{"meta":{"locale":"fr"}}"#.utf8)
 
     try await store.write(payload, for: key)
@@ -42,29 +42,29 @@ struct FileStoreTests {
     #expect(stored?.storedAt != nil)
   }
 
-  @Test("rend nil pour une clé jamais écrite")
+  @Test("returns nil for a key never written")
   func missingIsNil() async throws {
     let (store, directory) = makeStore()
     defer { try? FileManager.default.removeItem(at: directory) }
-    let key = try #require(StorageKey("jamais-ecrit.json"))
+    let key = try #require(StorageKey("never-written.json"))
     #expect(await store.read(key) == nil)
   }
 
-  @Test("une seconde écriture remplace la première")
+  @Test("a second write replaces the first")
   func overwrite() async throws {
     let (store, directory) = makeStore()
     defer { try? FileManager.default.removeItem(at: directory) }
-    let key = try #require(StorageKey("contenu.json"))
+    let key = try #require(StorageKey("content.json"))
 
-    try await store.write(Data("un".utf8), for: key)
-    try await store.write(Data("deux".utf8), for: key)
+    try await store.write(Data("one".utf8), for: key)
+    try await store.write(Data("two".utf8), for: key)
 
-    #expect(await store.read(key)?.data == Data("deux".utf8))
+    #expect(await store.read(key)?.data == Data("two".utf8))
   }
 
-  /// L'emplacement est connu **avant** toute écriture : c'est ce qui permet d'y
-  /// déplacer un téléchargement plutôt que de le charger en mémoire.
-  @Test("donne un emplacement même sans écriture préalable")
+  /// The location is known **before** anything is written: that is what allows
+  /// a download to be moved there rather than loaded into memory.
+  @Test("gives a location even with no prior write")
   func locationWithoutWrite() async throws {
     let (store, directory) = makeStore()
     defer { try? FileManager.default.removeItem(at: directory) }
@@ -75,9 +75,9 @@ struct FileStoreTests {
     #expect(FileManager.default.fileExists(atPath: url.deletingLastPathComponent().path))
   }
 
-  /// Sérialisé par construction : l'acteur rend impossible l'écriture
-  /// concurrente qui laisserait un fichier à moitié écrit.
-  @Test("supporte cent écritures concurrentes sans se corrompre")
+  /// Serialised by construction: the actor makes the concurrent write that
+  /// would leave a half-written file impossible.
+  @Test("survives a hundred concurrent writes without corruption")
   func concurrentWrites() async throws {
     let (store, directory) = makeStore()
     defer { try? FileManager.default.removeItem(at: directory) }

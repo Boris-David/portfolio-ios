@@ -3,35 +3,37 @@ import Foundation
 import Networking
 import Persistence
 
-/// Le contenu, servi d'abord depuis ce qu'on a, puis rafraîchi.
+/// The content gateway: the source first, the local copy only when it fails.
 ///
-/// ## Les trois couches, dans cet ordre
+/// ## The order, and why it is this one
 ///
-/// 1. **le cache disque** — ce que la dernière session a rapporté ;
-/// 2. **la graine embarquée** — produite à la construction depuis la source, et
-///    qui fait qu'un tout premier lancement sans réseau affiche quelque chose ;
-/// 3. **le réseau** — la vérité, quand il répond.
+/// 1. **the network** — the truth, whenever it answers;
+/// 2. **the disk cache** — what the last session brought back;
+/// 3. **the bundled seed** — produced at build time from the source, so that a
+///    very first launch with no network still shows something.
 ///
-/// L'écran n'attend jamais le réseau pour s'afficher. Il montre ce qu'il a,
-/// puis se met à jour — et **dit** ce qu'il montre, parce qu'une application
-/// hors ligne qui ne l'avoue pas affiche du vieux contenu avec l'aplomb du neuf.
+/// An earlier version had this order reversed, and it was wrong. Serving the
+/// cache first made the screen appear instantly and then rebuild itself, and for
+/// the length of that pause it showed dated content with the confidence of new
+/// content. The local copy no longer exists to display *fast*; it exists to
+/// display *at all* — dropped connection, timeout, aeroplane mode. And when it
+/// is used, the screen **says so**, with the date.
 ///
-/// ## Pourquoi un acteur, et pas un verrou
+/// ## Why an actor rather than a lock
 ///
-/// Deux écrans qui apparaissent en même temps demandent le contenu en même
-/// temps. Sans coordination, ce sont deux requêtes, deux écritures de cache
-/// concurrentes, et deux versions possibles à l'écran.
+/// Four screens appearing together ask for the content together. With no
+/// coordination that is four requests, four concurrent cache writes — therefore
+/// a half-written file — and two possible versions on screen.
 ///
-/// La correction n'est pas de verrouiller : c'est de **mémoriser la tâche de
-/// rafraîchissement en cours**. Les appels concurrents n'en lancent pas une
-/// nouvelle, ils attendent la même. Un seul aller-retour, quel que soit le
-/// nombre de demandeurs.
+/// The fix is not to lock: it is to **remember the refresh already in flight**.
+/// Concurrent callers do not start a new one, they await the same one. A single
+/// round trip, however many askers.
 ///
-/// Un verrou aurait protégé l'état à condition qu'on pense à le prendre
-/// partout — rien ne le vérifie — et un verrou tenu pendant une attente
-/// asynchrone est un blocage qui n'attend que son heure. Avec un acteur,
-/// l'isolation est une **propriété du type** : le compilateur refuse l'accès
-/// non sérialisé, et l'oubli devient impossible.
+/// A lock would have protected the state provided everybody remembered to take
+/// it everywhere — nothing checks that — and a lock held across an `await` is a
+/// deadlock waiting for its moment. With an actor, isolation is a **property of
+/// the type**: the compiler refuses unserialised access, and forgetting becomes
+/// impossible.
 public actor PortfolioRepository: PortfolioReading {
   private let client: any HTTPClient
   private let store: any LocalStore
@@ -39,7 +41,7 @@ public actor PortfolioRepository: PortfolioReading {
   private let seed: any SeedProviding
   private let clock: @Sendable () -> Date
 
-  /// Le rafraîchissement en cours, par langue. C'est **toute** la coordination.
+  /// The refresh in flight, per language. This is **all** of the coordination.
   private var refreshes: [Language: Task<Loaded, any Error>] = [:]
 
   public init(
@@ -60,9 +62,9 @@ public actor PortfolioRepository: PortfolioReading {
     in language: Language,
     policy: FreshnessPolicy
   ) async throws -> PortfolioSnapshot {
-    // `cacheFirst` : on ne part sur le réseau que si le local manque ou a passé
-    // son âge. C'est le « mécanisme de cache sur certains appels », rendu
-    // explicite par l'appelant plutôt que subi par tous.
+    // `cacheFirst`: go to the network only when the local copy is missing or has
+    // aged out. This is the "cache on some calls" mechanism, made explicit by
+    // the caller rather than imposed on everyone.
     if case .cacheFirst(let maxAge) = policy,
        let local = await localSnapshot(for: language),
        isFresh(local, within: maxAge) {
@@ -79,12 +81,12 @@ public actor PortfolioRepository: PortfolioReading {
     } catch {
       let failure = contentFailure(from: error)
 
-      // Une charge mal formée ne se rattrape pas par le cache : le contenu local
-      // décrirait une autre version du monde, et on masquerait un défaut de la
-      // source au lieu de le signaler. Seules les pannes de **transport**
-      // justifient le repli.
+      // A malformed payload is **not** rescued by the cache: the local content
+      // would describe a different version of the world, and we would be hiding
+      // a defect in the source instead of reporting it. Only **transport**
+      // failures justify falling back.
       guard case .unreachable = failure, let local = await localSnapshot(for: language) else {
-        throw local(for: failure, language: language) ?? failure
+        throw unrecoverable(failure)
       }
 
       return PortfolioSnapshot(
@@ -96,10 +98,12 @@ public actor PortfolioRepository: PortfolioReading {
     }
   }
 
-  /// Traduit un échec en erreur finale : s'il n'y a rien du tout en local, c'est
-  /// `nothingAvailable` qu'il faut dire, pas « injoignable » — les deux
-  /// n'appellent pas la même phrase à l'écran.
-  private func local(for failure: ContentUnavailable, language: Language) -> ContentUnavailable? {
+  /// The failure to report when there is nothing at all to fall back on.
+  ///
+  /// "Unreachable" with an empty device and "unreachable" with a usable cache do
+  /// not call for the same sentence, so the first becomes `nothingAvailable`. A
+  /// malformed payload keeps its own diagnosis: it names the field.
+  private func unrecoverable(_ failure: ContentUnavailable) -> ContentUnavailable {
     if case .malformed = failure { return failure }
     return .nothingAvailable
   }
@@ -108,22 +112,14 @@ public actor PortfolioRepository: PortfolioReading {
     let storedAt: Date
     switch snapshot.origin {
     case .cache(let date): storedAt = date
-    // La graine embarquée n'a pas d'âge utile : elle date de la construction, et
-    // elle n'est jamais « fraîche » au sens d'une politique de cache.
+    // The bundled seed has no useful age: it dates from the build, and it is
+    // never "fresh" in the sense a cache policy means.
     case .bundledSeed, .network: return false
     }
     return clock().timeIntervalSince(storedAt) < Double(maxAge.components.seconds)
   }
 
-  /// Le rafraîchissement, **partagé** entre tous les appelants simultanés.
-  ///
-  /// Quatre écrans qui apparaissent ensemble demandent le contenu ensemble. Sans
-  /// coordination : quatre requêtes, quatre écritures de cache concurrentes —
-  /// donc un fichier à moitié écrit — et deux versions possibles à l'écran.
-  ///
-  /// La correction n'est pas de verrouiller : c'est de **mémoriser la tâche en
-  /// cours**. Les appels concurrents n'en lancent pas une nouvelle, ils attendent
-  /// la même.
+  /// The refresh, **shared** between every simultaneous caller.
   private func refreshed(_ language: Language) async throws -> Loaded {
     if let running = refreshes[language] {
       return try await running.value
@@ -138,10 +134,10 @@ public actor PortfolioRepository: PortfolioReading {
       guard response.isSuccess else { throw HTTPError.status(response.status) }
 
       let loaded = try Self.decode(response.body, expecting: language)
-      // Le cache s'écrit avec les octets **reçus**, pas avec un ré-encodage de
-      // ce qu'on a décodé : ré-encoder perdrait tout champ qu'on ne lit pas
-      // encore, et une version ultérieure de l'application le chercherait en
-      // vain dans un cache qu'elle a elle-même appauvri.
+      // The cache is written with the bytes **received**, not with a re-encoding
+      // of what was decoded: re-encoding would drop any field not read yet, and
+      // a later version of the app would look for it in vain inside a cache it
+      // had impoverished itself.
       if let key = Self.cacheKey(for: language) {
         try? await store.write(response.body, for: key)
       }
@@ -176,7 +172,7 @@ public actor PortfolioRepository: PortfolioReading {
     return nil
   }
 
-  // ── Décodage ───────────────────────────────────────────────────────────
+  // ── Decoding ───────────────────────────────────────────────────────────
 
   struct Loaded: Sendable {
     let portfolio: Portfolio
@@ -188,18 +184,19 @@ public actor PortfolioRepository: PortfolioReading {
     do {
       envelope = try JSONDecoder().decode(PortfolioEnvelopeDTO.self, from: data)
     } catch let error as DecodingError {
-      // `DecodingError` porte déjà le chemin du champ fautif : le traduire, c'est
-      // obtenir gratuitement le diagnostic qu'on aurait sinon écrit à la main.
+      // `DecodingError` already carries the path of the offending field:
+      // translating it yields, for free, the diagnosis we would otherwise have
+      // written by hand.
       throw ContentUnavailable.malformed(path: path(of: error), reason: reason(of: error))
     }
 
-    // Une réponse rendue dans une autre langue que celle demandée est une
-    // erreur, pas un repli : afficher l'anglais à qui a demandé le français est
-    // une panne qu'on ne voit qu'une fois en production.
+    // A response served in a language other than the one requested is an error,
+    // not a fallback: showing English to somebody who asked for French is a
+    // failure you only notice once, in production.
     guard envelope.meta.locale == language.rawValue else {
       throw ContentUnavailable.malformed(
         path: "meta.locale",
-        reason: "réponse en « \(envelope.meta.locale) » alors que « \(language.rawValue) » était demandé"
+        reason: .wrongLanguage(served: envelope.meta.locale, requested: language.rawValue)
       )
     }
 
@@ -217,18 +214,17 @@ public actor PortfolioRepository: PortfolioReading {
     StorageKey("portfolio-\(language.rawValue).json")
   }
 
-  // ── Traduction des erreurs ─────────────────────────────────────────────
+  // ── Translating failures ───────────────────────────────────────────────
 
   private func contentFailure(from error: any Error) -> ContentUnavailable {
     switch error {
     case let unavailable as ContentUnavailable: unavailable
-    case is HTTPError: .unreachable
     default: .unreachable
     }
   }
 
   private static func path(of error: DecodingError) -> String {
-    let keys: [CodingKey] = switch error {
+    let keys: [any CodingKey] = switch error {
     case .keyNotFound(let key, let context): context.codingPath + [key]
     case .typeMismatch(_, let context), .valueNotFound(_, let context),
          .dataCorrupted(let context): context.codingPath
@@ -239,23 +235,13 @@ public actor PortfolioRepository: PortfolioReading {
       .trimmingCharacters(in: CharacterSet(charactersIn: "."))
   }
 
-  private static func reason(of error: DecodingError) -> String {
+  private static func reason(of error: DecodingError) -> MalformedReason {
     switch error {
-    case .keyNotFound: "champ absent"
-    case .typeMismatch(let type, _): "type inattendu, \(type) attendu"
-    case .valueNotFound(let type, _): "valeur nulle, \(type) attendu"
-    case .dataCorrupted(let context): context.debugDescription
-    @unknown default: "charge utile illisible"
+    case .keyNotFound: .missingField
+    case .typeMismatch(let type, _): .unexpectedType(expected: "\(type)")
+    case .valueNotFound(let type, _): .nullValue(expected: "\(type)")
+    case .dataCorrupted(let context): .unreadable(detail: context.debugDescription)
+    @unknown default: .unreadable(detail: "unreadable payload")
     }
   }
-}
-
-/// D'où vient la graine embarquée.
-///
-/// Un port plutôt qu'un accès direct au bundle : les tests doivent pouvoir
-/// décrire un premier lancement sans réseau **et** sans fichier, ce qu'un
-/// `Bundle.main` en dur rendrait impossible.
-public protocol SeedProviding: Sendable {
-  func data(for language: Language) -> Foundation.Data?
-  var builtAt: Date { get }
 }

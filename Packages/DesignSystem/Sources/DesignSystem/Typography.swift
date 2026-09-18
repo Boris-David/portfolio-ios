@@ -1,63 +1,61 @@
 import SwiftUI
 
-/// La typographie — **native**, et compatible Dynamic Type par construction.
+/// Typography — **native**, and Dynamic Type compatible by construction.
 ///
-/// ## Pourquoi pas les polices du site
+/// ## Why not the website's typefaces
 ///
-/// Le site est composé en Fraunces et Instrument Sans. Les embarquer dans
-/// l'application aurait coûté deux fichiers, un chargement, et surtout la
-/// **compatibilité Dynamic Type** : une police personnalisée ne suit les tailles
-/// système que si on la câble soi-même, et ce câblage est précisément ce qu'on
-/// oublie de tester en accessibilité extra-large.
+/// The site is set in Fraunces and Instrument Sans. Embedding them in the app
+/// would have cost two files, a load, and above all **Dynamic Type
+/// compatibility**: a custom font only follows the system sizes if you wire it
+/// up yourself, and that wiring is exactly what nobody remembers to test at the
+/// extra-large accessibility sizes.
 ///
-/// iOS fournit deux familles qui tiennent le même rôle, gratuitement :
+/// iOS ships two families that hold the same roles, for free:
 ///
-/// | Rôle | Site | Application |
+/// | Role | Site | App |
 /// |---|---|---|
-/// | Titres | Fraunces (serif à contraste) | **New York** — `design: .serif` |
-/// | Texte | Instrument Sans | **SF Pro** — `design: .default` |
+/// | Headings | Fraunces (high-contrast serif) | **New York** — `design: .serif` |
+/// | Body | Instrument Sans | **SF Pro** — `design: .default` |
 /// | Code | ui-monospace | **SF Mono** — `design: .monospaced` |
 ///
-/// Le choix n'est pas un pis-aller : une application qui compose en New York
-/// **ressemble à une application iOS**, là où une police web plaquée dessus a
-/// toujours l'air d'une page web dans une coquille.
+/// This is not a compromise: an app set in New York **looks like an iOS app**,
+/// where a web typeface dropped on top always looks like a web page in a shell.
 ///
-/// ## L'échelle
+/// ## The scale
 ///
-/// `design/tokens.json` porte déjà une échelle alignée sur Dynamic Type — base
-/// 17, comme iOS. Les styles ci-dessous s'y rattachent donc un à un, et les
-/// tailles en points ne servent qu'aux rares endroits où l'on doit calculer.
+/// `design/tokens.json` already carries a scale aligned with Dynamic Type —
+/// base 17, like iOS. The styles below map onto it one for one, and the point
+/// sizes serve only the rare places where something has to be computed.
 public enum Typography {
-  /// Le nom affiché, la seule occurrence vraiment monumentale.
+  /// The displayed name — the one genuinely monumental occurrence.
   public static let hero = Font.system(.largeTitle, design: .serif, weight: .semibold)
-  /// Un titre de section.
+  /// A section title.
   public static let title = Font.system(.title, design: .serif, weight: .semibold)
-  /// Un titre de carte.
+  /// A card title.
   public static let heading = Font.system(.title3, design: .serif, weight: .semibold)
-  /// Le corps du texte.
+  /// Body text.
   public static let body = Font.system(.body)
-  /// Le corps, en appuyé.
+  /// Body, emphasised.
   public static let bodyStrong = Font.system(.body, weight: .semibold)
-  /// Ce qui accompagne : sous-titres, dates, lieux.
+  /// What accompanies: subtitles, dates, places.
   public static let secondary = Font.system(.subheadline)
-  /// La ligne au-dessus d'un titre — en capitales, donc interlettrée.
+  /// The line above a title — uppercase, therefore letter-spaced.
   public static let eyebrow = Font.system(.caption, weight: .semibold)
-  /// Une légende.
+  /// A caption.
   public static let caption = Font.system(.caption)
-  /// Un terme technique cité comme tel.
+  /// A technical term quoted as such.
   public static let code = Font.system(.callout, design: .monospaced)
-  /// Un chiffre mis en avant. `.rounded` parce qu'un grand nombre en serif
-  /// devient décoratif, et qu'on veut qu'il se lise.
+  /// A figure brought forward. `.rounded` because a large number in a serif
+  /// turns decorative, and this one is meant to be read.
   public static let metric = Font.system(size: Tokens.TypeScale.large, weight: .semibold, design: .rounded)
 }
 
 public extension View {
-  /// L'interlettrage des capitales.
+  /// Letter-spacing for uppercase.
   ///
-  /// Une capitale a besoin d'air, et le CV en PDF l'a appris durement : à
-  /// `0,09 em`, `pdftotext` extrayait « COMPÉT ENCES ». Un lecteur
-  /// automatique de CV lit alors des mots qui n'existent pas. La valeur est
-  /// restée mesurée, jamais « au jugé ».
+  /// Capitals need air, and the PDF résumé learned it the hard way: at
+  /// `0.09 em`, `pdftotext` extracted "COMPÉT ENCES". A résumé parser then reads
+  /// words that do not exist. The value has stayed measured, never eyeballed.
   func eyebrowStyle() -> some View {
     self
       .font(Typography.eyebrow)
@@ -68,19 +66,19 @@ public extension View {
 }
 
 public extension View {
-  /// Borne la colonne de lecture à une largeur confortable, et la centre.
+  /// Bounds the reading column to a comfortable width, and centres it.
   ///
-  /// La règle typographique est ancienne et ne dépend pas de la plateforme : une
-  /// ligne se lit bien autour de **65 caractères**. Au-delà, l'œil perd le début
-  /// de la ligne suivante en revenant à la marge.
+  /// The typographic rule is old and platform-independent: a line reads well at
+  /// around **65 characters**. Past that, the eye loses the start of the next
+  /// line on its way back to the margin.
   ///
-  /// Sur iPhone, c'est sans effet : l'écran est déjà plus étroit. Sur iPad, sans
-  /// cette borne, un paragraphe court sur mille points — mesuré, et illisible.
-  /// Le site applique exactement la même règle, en `ch`.
+  /// On iPhone this does nothing: the screen is already narrower. On iPad,
+  /// without it, a paragraph runs a thousand points wide — measured, and
+  /// unreadable. The site applies exactly the same rule, in `ch`.
   ///
-  /// La largeur n'est pas un chiffre rond posé au jugé : `TypeScale.body` × 40
-  /// approche les 65 caractères pour une police proportionnelle, et elle suit
-  /// donc l'échelle si celle-ci change.
+  /// The width is not a round number picked by eye: `TypeScale.body` × 40
+  /// approximates 65 characters for a proportional face, so it follows the scale
+  /// if the scale changes.
   func readableWidth() -> some View {
     frame(maxWidth: Tokens.TypeScale.body * Tokens.Layout.readingWidthInBodies)
       .frame(maxWidth: .infinity)

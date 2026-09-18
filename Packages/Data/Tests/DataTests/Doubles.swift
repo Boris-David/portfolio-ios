@@ -4,16 +4,16 @@ import Networking
 import Persistence
 @testable import Data
 
-/// Un transport qui rend ce qu'on lui a dit, et **compte** ses appels.
+/// A transport that returns what it was told to, and **counts** its calls.
 ///
-/// Le compte est l'objet du test le plus important de ce module : quatre
-/// lectures du contenu ne doivent produire qu'une requête.
+/// The count is the subject of this module's most important test: four reads of
+/// the content must produce one request.
 actor CountingClient: HTTPClient {
   private(set) var sendCount = 0
   private(set) var downloadCount = 0
   private var response: Result<HTTPResponse, HTTPError>
   private var download: Result<HTTPDownload, HTTPError>
-  /// Un délai artificiel, pour que plusieurs appelants se chevauchent vraiment.
+  /// An artificial delay, so that several callers genuinely overlap.
   private let delay: Duration
 
   init(
@@ -45,8 +45,8 @@ actor CountingClient: HTTPClient {
   }
 }
 
-/// Un stockage en mémoire — les tests de `Data` parlent de politique, pas de
-/// disque. Le disque a ses propres tests.
+/// In-memory storage — `Data`'s tests are about policy, not about disks. The
+/// disk has tests of its own.
 actor MemoryStore: LocalStore {
   private var values: [String: StoredValue] = [:]
   private let directory = URL(fileURLWithPath: NSTemporaryDirectory())
@@ -65,7 +65,7 @@ actor MemoryStore: LocalStore {
   func remove(_ key: StorageKey) async { values[key.name] = nil }
 }
 
-/// Une graine servie depuis les fixtures du test.
+/// A seed served from the test's fixtures.
 struct FixtureSeed: SeedProviding {
   let builtAt = Date(timeIntervalSince1970: 1_600_000_000)
   func data(for language: Language) -> Data? { Fixtures.payload(language) }
@@ -88,8 +88,8 @@ enum Fixtures {
     )
   }
 
-  /// La même charge, avec un champ retiré — pour vérifier que l'erreur porte le
-  /// chemin exact du champ fautif.
+  /// The same payload with one field removed — to check that the failure
+  /// carries the exact path of the offending field.
   static func responseMissing(_ path: [String], language: Language = .french) -> HTTPResponse {
     guard var root = try? JSONSerialization.jsonObject(with: payload(language) ?? Data())
       as? [String: Any] else { return response(language) }

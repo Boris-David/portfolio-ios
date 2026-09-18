@@ -1,60 +1,38 @@
-import Foundation
-
-/// Le port du transport.
+/// The transport port.
 ///
-/// ## Pourquoi pas Alamofire
+/// ## Why not Alamofire
 ///
-/// Ce n'est pas une position de principe contre la bibliothèque, qui est très
-/// bonne. C'est que **ce qu'elle apporte, on ne s'en sert pas** :
+/// This is not a stand against the library, which is very good. It is that
+/// **what it brings is not used here**:
 ///
-/// - *le chaînage de requêtes et la validation* — ce protocole fait deux
-///   méthodes, et la validation tient en une comparaison de statut ;
-/// - *l'`async/await`* — `URLSession` le fournit nativement depuis iOS 15 ;
-/// - *les intercepteurs et le rejeu* — ils vivent dans la couche `Data`, avec
-///   la politique de fraîcheur, parce que réessayer est une décision métier
-///   (« combien de temps un recruteur attend-il ? ») et pas une décision de
-///   transport ;
-/// - *le multipart et l'upload* — l'application ne fait que lire.
+/// - *request chaining and validation* — this protocol has two methods, and
+///   validation is one status comparison;
+/// - *`async/await`* — `URLSession` has shipped it natively since iOS 15;
+/// - *interceptors and retries* — those live in the `Data` layer, next to the
+///   freshness policy, because retrying is a product decision ("how long does a
+///   recruiter wait?") and not a transport one;
+/// - *multipart and upload* — this app only reads.
 ///
-/// Ce qu'on paierait en revanche est réel : une dépendance de plus à auditer
-/// sur un dépôt public, un binaire plus gros, une surface d'API à expliquer à
-/// l'oral, et une montée de version à suivre pour du code qui n'évolue pas.
+/// What it would cost is real, though: one more dependency to audit on a public
+/// repository, a larger binary, an API surface to explain out loud, and version
+/// bumps to follow for code that does not change.
 ///
-/// **La règle générale** : une dépendance se justifie par ce qui serait pire
-/// sans elle, pas par ce qu'elle rend pratique. Ici, ce serait pire sans Lottie
-/// — personne ne réécrit un moteur d'animation vectorielle. Ce n'est pas pire
-/// sans Alamofire.
+/// **The general rule**: a dependency is justified by what would be worse
+/// without it, never by what it makes convenient. It would be worse without
+/// Lottie — nobody rewrites a vector animation engine. It is not worse without
+/// Alamofire.
 ///
-/// Et le protocole est ce qui rend ce choix **réversible** : le jour où
-/// l'application aurait besoin de ce qu'Alamofire apporte, une implémentation
-/// de plus suffirait, sans qu'aucune vue ne bouge.
+/// And the protocol is what makes the choice **reversible**: the day the app
+/// needs what Alamofire brings, one more implementation is enough, and not a
+/// single view moves.
 public protocol HTTPClient: Sendable {
-  /// Envoie et attend la réponse complète.
+  /// Sends, and waits for the complete response.
   func send(_ request: HTTPRequest) async throws(HTTPError) -> HTTPResponse
 
-  /// Écrit le corps de la réponse **dans un fichier** plutôt qu'en mémoire.
+  /// Writes the response body **to a file** rather than into memory.
   ///
-  /// Un PDF de plusieurs mégaoctets n'a aucune raison de transiter par la
-  /// mémoire vive : `PDFView` comme la feuille de partage lisent une URL. Le
-  /// fichier temporaire rendu est à déplacer par l'appelant — `URLSession` le
-  /// supprime dès le retour.
+  /// A PDF of several megabytes has no business passing through RAM: `PDFView`
+  /// and the share sheet both read a URL. The temporary file returned is the
+  /// caller's to move — `URLSession` deletes it as soon as this returns.
   func download(_ request: HTTPRequest) async throws(HTTPError) -> HTTPDownload
-}
-
-/// Le résultat d'un téléchargement : où sont les octets, et ce que le serveur
-/// a dit d'eux.
-public struct HTTPDownload: Sendable {
-  public let status: Int
-  public let headers: HTTPHeaders
-  /// `nil` sur un `304` : il n'y a pas de corps, et c'est la bonne nouvelle.
-  public let temporaryURL: URL?
-
-  public init(status: Int, headers: HTTPHeaders, temporaryURL: URL?) {
-    self.status = status
-    self.headers = headers
-    self.temporaryURL = temporaryURL
-  }
-
-  public var isSuccess: Bool { (200..<300).contains(status) }
-  public var isNotModified: Bool { status == 304 }
 }

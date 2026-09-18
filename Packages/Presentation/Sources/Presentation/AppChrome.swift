@@ -1,38 +1,37 @@
 import Domain
 
-/// Les libellés d'interface, dans la langue **du contenu affiché**.
+/// The interface labels, in the language **of the content on screen**.
 ///
-/// ## Pourquoi pas un catalogue de chaînes
+/// ## Why not a string catalogue
 ///
-/// C'est l'outil normal pour localiser une application iOS, et il a un
-/// comportement précis : il suit la **langue de l'appareil**.
+/// That is the normal tool for localising an iOS app, and it has a precise
+/// behaviour: it follows the **device's language**.
 ///
-/// Or ici le contenu, lui, vient de l'API. Si la source ne servait pas la langue
-/// de l'appareil — parce qu'elle ne la connaît pas, ou parce qu'elle s'est
-/// repliée — l'interface parlerait une langue et le contenu une autre.
+/// But here the content comes from the API. If the source did not serve the
+/// device's language — because it does not have it, or because it fell back —
+/// the interface would speak one language and the content another.
 ///
-/// Ce n'est pas théorique : c'est **le défaut observé au premier lancement**.
-/// Le simulateur était en anglais, l'API a servi l'anglais, et les onglets
-/// affichaient « Profil · Travail · Parcours · Coulisses » au-dessus d'un texte
-/// anglais. Une application qui se contredit à l'écran ne se rattrape pas par
-/// la qualité du reste.
+/// This is not hypothetical: it is **the defect observed on the first launch**.
+/// The simulator was in English, the API served English, and the tabs read
+/// "Profil · Travail · Parcours · Coulisses" above an English body. An app that
+/// contradicts itself on screen is not redeemed by the quality of the rest.
 ///
-/// D'où le choix : **le chrome suit le contenu**, pas l'appareil. Les deux ne
-/// peuvent alors plus diverger, parce qu'ils descendent de la même valeur.
+/// Hence the choice: **the chrome follows the content**, not the device. The two
+/// can no longer diverge, because they descend from the same value.
 ///
-/// C'est aussi exactement la structure du site, où `src/content/chrome/`
-/// porte ce qui n'existe que parce qu'il y a une interface. Le critère est le
-/// même : *est du contenu ce qui resterait vrai si ce client n'existait pas.*
+/// It is also exactly the website's structure, where `src/content/chrome/`
+/// carries what exists only because there is an interface. The test is the same:
+/// *content is what would still be true if this client did not exist.*
 public struct AppChrome: Sendable, Hashable {
   public let language: Language
 
-  // Onglets
+  // Tabs
   public let tabProfile: String
   public let tabWork: String
   public let tabJourney: String
   public let tabBackstage: String
 
-  // Actions communes
+  // Shared actions
   public let close: String
   public let retry: String
   public let share: String
@@ -40,10 +39,10 @@ public struct AppChrome: Sendable, Hashable {
   public let resumeAction: String
   public let loading: String
 
-  // Profil
+  // Profile
   public let contactTitle: String
 
-  // Travail
+  // Work
   public func chapterCount(_ count: Int) -> String {
     language == .french ? "\(count) chantiers" : "\(count) workstreams"
   }
@@ -55,7 +54,7 @@ public struct AppChrome: Sendable, Hashable {
   }
   public let openInAppStore: String
 
-  // Parcours
+  // Journey
   public let education: String
   public let certifications: String
   public let openProjects: String
@@ -63,23 +62,65 @@ public struct AppChrome: Sendable, Hashable {
   public let verifyCertificate: String
   public let sourceCode: String
 
-  // CV
+  // Résumé
   public let resumeTitle: String
   public let resumeLoading: String
   public let revalidated: String
 
-  // États
+  // States
   public let unavailableTitle: String
   public let unreadableTitle: String
   public let unreachableMessage: String
   public let nothingAvailableMessage: String
-  public func malformedMessage(path: String, reason: String) -> String {
+  /// Says, in the reader's language, what the source got wrong and where.
+  ///
+  /// The diagnosis is shown in full rather than wrapped in an apology. This is a
+  /// portfolio app: somebody looking at it is better served by the actual field
+  /// path than by "an error occurred".
+  public func malformedMessage(path: String, reason: MalformedReason) -> String {
     language == .french
-      ? "La source a répondu quelque chose d'inattendu en « \(path) » : \(reason)."
-      : "The source returned something unexpected at “\(path)”: \(reason)."
+      ? "La source a répondu quelque chose d'inattendu en « \(path) » : \(describe(reason))."
+      : "The source returned something unexpected at “\(path)”: \(describe(reason))."
   }
 
-  // Coulisses
+  private func describe(_ reason: MalformedReason) -> String {
+    switch (reason, language) {
+    case (.missingField, .french): "champ absent"
+    case (.missingField, .english): "the field is missing"
+
+    case (.unexpectedType(let expected), .french): "type inattendu, \(expected) attendu"
+    case (.unexpectedType(let expected), .english): "unexpected type, expected \(expected)"
+
+    case (.nullValue(let expected), .french): "valeur nulle, \(expected) attendu"
+    case (.nullValue(let expected), .english): "null value, expected \(expected)"
+
+    case (.unreadable(let detail), _): detail
+
+    case (.wrongLanguage(let served, let requested), .french):
+      "réponse en « \(served) » alors que « \(requested) » était demandé"
+    case (.wrongLanguage(let served, let requested), .english):
+      "answered in “\(served)” when “\(requested)” was requested"
+
+    case (.unknownValue(let value), .french): "valeur « \(value) » inconnue"
+    case (.unknownValue(let value), .english): "unknown value “\(value)”"
+
+    case (.unreadableDate(let raw), .french):
+      "date « \(raw) » illisible — « AAAA » ou « AAAA-MM » attendu"
+    case (.unreadableDate(let raw), .english):
+      "unreadable date “\(raw)” — expected “YYYY” or “YYYY-MM”"
+
+    case (.monthOutOfRange(let raw), .french): "mois « \(raw) » hors de 01–12"
+    case (.monthOutOfRange(let raw), .english): "month “\(raw)” outside 01–12"
+
+    case (.unacceptableFileName(let name), .french): "« \(name) » n'est pas un nom de fichier acceptable"
+    case (.unacceptableFileName(let name), .english): "“\(name)” is not an acceptable file name"
+
+    case (.insecureURL(let raw), .french): "« \(raw) » n'est pas une URL https"
+    case (.insecureURL(let raw), .english): "“\(raw)” is not an https URL"
+    }
+  }
+
+  // Backstage
   public let backstageEyebrow: String
   public let backstageTitle: String
   public let backstageIntro: String
@@ -107,6 +148,20 @@ public struct AppChrome: Sendable, Hashable {
       ? "Coulisses \(number) : \(component)"
       : "Backstage \(number): \(component)"
   }
+  /// Which of the two renderings the reader is looking at.
+  ///
+  /// The design system knows the **fact** — `PlatformCapabilities` — and this
+  /// says it in the reader's language. A layer that cannot see the language must
+  /// not write sentences; this one can.
+  public func renderingSummary(supportsLiquidGlass: Bool) -> String {
+    switch (supportsLiquidGlass, language) {
+    case (true, .french): "iOS 26 — Liquid Glass natif"
+    case (true, .english): "iOS 26 — native Liquid Glass"
+    case (false, .french): "iOS 18 — repli en matériau système"
+    case (false, .english): "iOS 18 — system material fallback"
+    }
+  }
+
   public let routeMissingTitle: String
   public let routeMissingMessage: String
   public let annotationHint: String

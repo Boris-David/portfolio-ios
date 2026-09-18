@@ -1,19 +1,19 @@
 import SwiftUI
 
-/// Le mouvement, avec **les mêmes courbes que le site**.
+/// Motion, with **the same curves as the website**.
 ///
-/// `Tokens.Ease` porte des courbes de Bézier cubiques, dans la forme qu'attendent
-/// CSS et `Animation.timingCurve`. Les deux plateformes partagent donc la même
-/// sensation — une carte qui se déplie a le même élan dans le navigateur et sur
-/// le téléphone.
+/// `Tokens.Ease` carries cubic Bézier curves, in the form CSS and
+/// `Animation.timingCurve` both expect. The two platforms therefore share the
+/// same feel — a card unfolding has the same momentum in the browser and on the
+/// phone.
 public enum Motion {
-  /// L'arrivée d'un élément : rapide au départ, long à s'arrêter.
+  /// An element arriving: quick to start, long to settle.
   public static let entrance = animation(Tokens.Ease.out, duration: Tokens.Duration.entrance)
-  /// Le dépliage d'une carte — la plus longue, parce qu'on la regarde.
+  /// A card unfolding — the longest, because it is being watched.
   public static let disclosure = animation(Tokens.Ease.soft, duration: Tokens.Duration.disclosure)
-  /// Un aller-retour : une bascule, un changement d'état.
+  /// A there-and-back: a toggle, a change of state.
   public static let toggle = animation(Tokens.Ease.io, duration: Tokens.Duration.toggle)
-  /// Un rebond mesuré, pour ce qui doit attirer l'œil une fois.
+  /// A measured bounce, for what should catch the eye once.
   public static let pop = animation(Tokens.Ease.back, duration: Tokens.Duration.pop)
 
   public static func animation(_ curve: Tokens.Curve, duration: Double) -> Animation {
@@ -22,21 +22,21 @@ public enum Motion {
 }
 
 public extension View {
-  /// Anime, **sauf** si la personne a demandé moins de mouvement.
+  /// Animates, **unless** the person asked for less motion.
   ///
-  /// `prefers-reduced-motion` ne s'atténue pas, il se **supprime** : réduire de
-  /// moitié une animation qui donne la nausée donne toujours la nausée. Le
-  /// changement d'état reste instantané, et rien ne disparaît.
+  /// `prefers-reduced-motion` is not a dial, it is a switch: halving an
+  /// animation that causes nausea still causes nausea. The state change stays
+  /// instantaneous, and nothing disappears.
   func motion(_ animation: Animation, value: some Equatable, reduced: Bool) -> some View {
     self.animation(reduced ? nil : animation, value: value)
   }
 }
 
-/// Lit la préférence système de mouvement réduit.
+/// Reads the system's reduced-motion preference.
 ///
-/// Encapsulé dans un type plutôt que lu à la main dans chaque vue : une
-/// préférence d'accessibilité qu'on doit penser à consulter est une préférence
-/// qu'on oubliera quelque part.
+/// Wrapped in a type rather than read by hand in each view: an accessibility
+/// preference you have to remember to consult is a preference you will forget
+/// somewhere.
 @propertyWrapper
 public struct ReducedMotion: DynamicProperty {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion

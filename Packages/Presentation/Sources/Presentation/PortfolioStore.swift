@@ -2,30 +2,35 @@ import Domain
 import Foundation
 import Observation
 
-/// L'état du contenu, pour tous les écrans.
+/// The content's state, for every screen.
 ///
-/// ## Un seul magasin, pas un par écran
+/// ## One store, not one per screen
 ///
-/// Quatre onglets affichent le même portfolio. Quatre magasins, ce seraient
-/// quatre lectures, quatre instants possibles de rafraîchissement, et un onglet
-/// qui montre une version pendant qu'un autre en montre une seconde. Personne ne
-/// le verrait jamais — ce qui est précisément le problème.
+/// Four tabs show the same portfolio. Four stores would be four reads, four
+/// possible refresh moments, and one tab showing a version while another shows a
+/// second one. Nobody would ever see it — which is precisely the problem.
 ///
-/// ## `@MainActor` sur la classe entière
+/// ## `@MainActor` on the whole class
 ///
-/// Elle n'existe que pour alimenter des vues. Isoler la classe au lieu de
-/// marquer chaque propriété évite la question à chaque ajout, et le compilateur
-/// refuse alors toute lecture depuis un autre contexte — ce qui est la garantie
-/// qu'on cherche, pas un `DispatchQueue.main.async` posé par habitude.
+/// It exists only to feed views. Isolating the class rather than marking each
+/// property avoids the question on every addition, and the compiler then refuses
+/// any read from another context — which is the guarantee we are after, not a
+/// `DispatchQueue.main.async` applied out of habit.
+///
+/// ## Why it lives in `Presentation` and imports no SwiftUI
+///
+/// `@Observable` comes from the Observation framework, not from SwiftUI. So this
+/// class — the one that decides what a screen shows and how a failure is worded
+/// — is testable with values alone: no simulator, no renderer, no snapshot.
 @Observable
 @MainActor
 public final class PortfolioStore {
-  /// La phase de l'écran. Quatre cas, et pas un de plus.
+  /// The screen's phase. Four cases, and not one more.
   public private(set) var phase: ViewPhase<PortfolioSnapshot> = .initial
 
-  /// Orthogonal à la phase : on rafraîchit depuis `loaded` comme depuis
-  /// `failed`. En faire un cinquième cas produirait des combinaisons qu'on ne
-  /// saurait pas nommer.
+  /// Orthogonal to the phase: a refresh starts from `loaded` as readily as from
+  /// `failed`. Making it a fifth case would produce combinations nobody could
+  /// name.
   public private(set) var isRefreshing = false
 
   public private(set) var language: Language
@@ -47,11 +52,11 @@ public final class PortfolioStore {
   public var snapshot: PortfolioSnapshot? { phase.value }
   public var portfolio: Portfolio? { snapshot?.portfolio }
 
-  /// Le premier chargement, ou un rechargement après changement de langue.
+  /// The first load, or a reload after a language change.
   ///
-  /// La phase passe par `loading` **seulement s'il n'y a rien à montrer**. Un
-  /// rechargement avec du contenu déjà à l'écran ne le remplace pas par un
-  /// squelette : ce serait perdre ce qu'on a pour afficher une attente.
+  /// The phase goes through `loading` **only when there is nothing to show**. A
+  /// reload with content already on screen does not replace it with a skeleton:
+  /// that would be losing what we have in order to display a wait.
   public func load(policy: FreshnessPolicy = .networkFirst) {
     loadTask?.cancel()
     if !phase.isLoaded { phase = .loading }
@@ -65,9 +70,8 @@ public final class PortfolioStore {
         phase = .loaded(snapshot)
       } catch let unavailable as ContentUnavailable {
         guard !Task.isCancelled else { return }
-        // Un échec n'écrase jamais du contenu déjà affiché : mieux vaut du
-        // contenu daté qu'un écran d'erreur à la place de quelque chose de
-        // lisible.
+        // A failure never overwrites content already on screen: dated content
+        // beats an error screen in the place of something readable.
         if !phase.isLoaded { phase = .failed(PhaseFailure(unavailable, chrome: chrome())) }
       } catch {
         guard !Task.isCancelled else { return }
@@ -76,22 +80,22 @@ public final class PortfolioStore {
     }
   }
 
-  /// Relecture demandée par l'utilisateur — le geste « tirer pour rafraîchir ».
+  /// A reload the reader asked for — the pull-to-refresh gesture.
   ///
-  /// Elle attend réellement la fin : sans ça, l'indicateur disparaîtrait avant
-  /// que le contenu n'arrive, ce qui donne l'impression que le geste n'a rien
-  /// fait.
+  /// It genuinely waits for the end: without that, the indicator would disappear
+  /// before the content arrived, which reads as the gesture having done
+  /// nothing.
   public func refresh() async {
     load()
     await loadTask?.value
   }
 
-  /// Change la langue affichée, et recharge dans la foulée.
+  /// Changes the displayed language, and reloads straight away.
   public func setLanguage(_ language: Language) {
     guard language != self.language else { return }
     self.language = language
-    // Le contenu de l'autre langue n'est pas celui-ci : on repart d'une phase
-    // vide plutôt que d'afficher du français en attendant l'anglais.
+    // The other language's content is not this one: start from an empty phase
+    // rather than show French while English is on its way.
     phase = .loading
     load()
   }

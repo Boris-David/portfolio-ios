@@ -1,25 +1,24 @@
 import Domain
 import Foundation
 
-/// La graine embarquée : de quoi afficher quelque chose au tout premier
-/// lancement, sans réseau.
+/// The bundled seed: enough to show something on the very first launch, with no
+/// network.
 ///
-/// Elle est **produite à la construction depuis l'API** — `Scripts/seed.sh` —
-/// et jamais écrite à la main. Une graine rédigée serait une seconde source de
-/// vérité, exactement ce que l'architecture supprime partout ailleurs.
+/// It is **produced at build time from the API** — `Scripts/seed.sh` — and never
+/// written by hand. A hand-written seed would be a second source of truth,
+/// exactly what the architecture removes everywhere else.
 ///
-/// Ce n'est pas un repli silencieux : l'écran dit qu'il affiche la graine et
-/// depuis quand elle date. La différence avec le web, qui refuse tout repli, est
-/// assumée : le site se **construit** sur une machine avec du réseau, alors que
-/// l'application est déjà dans la main de quelqu'un qui, lui, peut être dans un
-/// tunnel.
+/// It is not a silent fallback: the screen says it is showing the seed and how
+/// old it is. The difference with the website, which refuses any fallback, is
+/// deliberate: the site is **built** on a machine with a network, whereas the
+/// app is already in someone's hand, and that someone may be in a tunnel.
 public struct BundledSeed: SeedProviding {
-  /// Le bundle de ressources de ce module.
+  /// This module's resource bundle.
   ///
-  /// `Bundle.module` est **interne** à la cible qui le déclare : il ne peut pas
-  /// apparaître dans la valeur par défaut d'un initialiseur public. On l'expose
-  /// donc explicitement — ce qui a l'avantage de nommer ce qu'on désigne, au
-  /// lieu d'un `.module` dont personne ne sait de quel module il parle.
+  /// `Bundle.module` is **internal** to the target that declares it: it cannot
+  /// appear in a public initialiser's default value. So it is exposed
+  /// explicitly — which has the advantage of naming what is meant, instead of a
+  /// `.module` nobody can tell the module of.
   public static let resources = Bundle.module
 
   private let bundle: Bundle
@@ -36,11 +35,11 @@ public struct BundledSeed: SeedProviding {
     return try? Data(contentsOf: url)
   }
 
-  /// La date de fabrication de la graine, lue sur le fichier lui-même.
+  /// When the seed was made, read from the file itself.
   ///
-  /// Pas une constante compilée : elle serait fausse dès qu'on rejouerait une
-  /// construction sans régénérer la graine, et « périmé depuis » affiché faux
-  /// est pire que non affiché.
+  /// Not a compiled-in constant: that would be wrong the moment a build was
+  /// replayed without regenerating the seed, and a wrong "stale since" is worse
+  /// than none at all.
   public static func compiledAt(bundle: Bundle = BundledSeed.resources) -> Date {
     guard let url = bundle.url(forResource: "seed-fr", withExtension: "json"),
           let values = try? url.resourceValues(forKeys: [.contentModificationDateKey]),
@@ -48,11 +47,4 @@ public struct BundledSeed: SeedProviding {
     else { return .distantPast }
     return date
   }
-}
-
-/// Aucune graine — pour les tests qui décrivent un premier lancement nu.
-public struct EmptySeed: SeedProviding {
-  public let builtAt = Date.distantPast
-  public init() {}
-  public func data(for language: Language) -> Data? { nil }
 }

@@ -1,11 +1,10 @@
 import Foundation
 
 public extension Bundle {
-  /// Le bundle de ressources du design system — animations, actifs.
+  /// The design system's resource bundle — animations, assets.
   ///
-  /// `Bundle.module` est **interne** à chaque cible : depuis une
-  /// fonctionnalité, il désignerait le bundle de cette fonctionnalité, pas
-  /// celui-ci. L'exposer explicitement évite l'erreur silencieuse « ressource
-  /// introuvable » qu'on met une heure à diagnostiquer.
+  /// `Bundle.module` is **internal** to each target: from a feature, it would
+  /// name that feature's bundle, not this one. Exposing it explicitly avoids the
+  /// silent "resource not found" that takes an hour to diagnose.
   static let designSystem = Bundle.module
 }

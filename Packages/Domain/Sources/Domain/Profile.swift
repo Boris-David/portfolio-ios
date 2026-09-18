@@ -1,9 +1,9 @@
-/// Qui il est, et par quel canal on le joint.
+/// Who he is, and the one channel to reach him through.
 public struct Profile: Sendable, Hashable {
   public struct Name: Sendable, Hashable {
-    /// La forme courte, celle qui s'affiche partout.
+    /// The short form, shown everywhere.
     public let display: String
-    /// La forme longue, réservée au pied de page et au CV.
+    /// The long form, kept for the footer and the résumé.
     public let full: String
 
     public init(display: String, full: String) {
@@ -63,7 +63,7 @@ public struct Profile: Sendable, Hashable {
 }
 
 extension Profile {
-  /// La capture mise en avant, et l'étude de cas qu'elle illustre.
+  /// The featured screenshot, and the case study it illustrates.
   public struct Showcase: Sendable, Hashable {
     public let media: Media
     public let caseStudySlug: String?
@@ -84,40 +84,3 @@ extension Profile {
     }
   }
 }
-
-/// Un profil public — GitHub, LinkedIn.
-public struct ProfileLink: Sendable, Hashable, Identifiable {
-  public let id: String
-  public let label: String
-  public let url: URLString
-
-  public init(id: String, label: String, url: URLString) {
-    self.id = id
-    self.label = label
-    self.url = url
-  }
-}
-
-/// Une capture, désignée par son identifiant plutôt que par un nom de fichier.
-///
-/// Le domaine ne sait pas qu'un `.jpg` existe. C'est la couche de présentation
-/// qui décide si `journal` devient `journal.jpg` dans un bundle ou une URL
-/// distante — et elle seule.
-public struct Media: Sendable, Hashable, Identifiable {
-  public let id: String
-  public let alt: String
-  public let caption: String
-
-  public init(id: String, alt: String, caption: String) {
-    self.id = id
-    self.alt = alt
-    self.caption = caption
-  }
-}
-
-/// Une URL, gardée comme chaîne dans le domaine.
-///
-/// `Foundation.URL` est un type de plateforme : le domaine n'a pas à en
-/// dépendre, et surtout pas à décider qu'une URL mal formée est impossible. La
-/// validation est un geste d'adaptateur, elle a lieu dans `Data`.
-public typealias URLString = String

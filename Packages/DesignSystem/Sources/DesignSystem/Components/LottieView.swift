@@ -1,27 +1,28 @@
 import Lottie
 import SwiftUI
 
-/// Une animation vectorielle Lottie, dans une vue SwiftUI.
+/// A Lottie vector animation, inside a SwiftUI view.
 ///
-/// ## Pourquoi une dépendance ici, et pas pour le réseau
+/// ## Why a dependency here, and not for the network
 ///
-/// La règle est la même partout dans ce dépôt : *une dépendance se justifie par
-/// ce qui serait pire sans elle, pas par ce qu'elle rend pratique.*
+/// The rule is the same everywhere in this repository: *a dependency is
+/// justified by what would be worse without it, not by what it makes
+/// convenient.*
 ///
-/// Sans Lottie, il faudrait réimplémenter un interpréteur d'animations After
-/// Effects — des tracés de Bézier interpolés, des masques, des trajectoires.
-/// Ce n'est pas « moins pratique », c'est un projet à soi seul. **Ce serait
-/// réellement pire sans.**
+/// Without Lottie, you would reimplement an After Effects animation interpreter
+/// — interpolated Bézier paths, masks, motion along curves. That is not "less
+/// convenient", it is a project of its own. **It would genuinely be worse
+/// without.**
 ///
-/// Sans Alamofire, il faudrait écrire… ce qu'`URLSession` fait déjà. Ce ne
-/// serait pas pire. D'où l'un, et pas l'autre.
+/// Without Alamofire, you would write… what `URLSession` already does. That
+/// would not be worse. Hence one, and not the other.
 ///
-/// ## Pourquoi `UIViewRepresentable`
+/// ## Why `UIViewRepresentable`
 ///
-/// Lottie expose bien un `LottieView` SwiftUI, mais le contrôle fin de la
-/// lecture — démarrer à l'apparition, s'arrêter à la disparition, respecter le
-/// mouvement réduit — passe par l'`AnimationView` d'UIKit. Le pont est de
-/// quarante lignes et se lit d'un coup ; le contourner coûterait plus cher.
+/// Lottie does expose a SwiftUI `LottieView`, but fine control of playback —
+/// start on appear, stop on disappear, honour reduced motion — goes through
+/// UIKit's `AnimationView`. The bridge is forty lines and reads at a glance;
+/// working around it would cost more.
 public struct LottieAnimationView: UIViewRepresentable {
   private let name: String
   private let bundle: Bundle
@@ -45,17 +46,17 @@ public struct LottieAnimationView: UIViewRepresentable {
     view.contentMode = .scaleAspectFit
     view.loopMode = loopMode
     view.backgroundBehavior = .pauseAndRestore
-    // Sans ça, la vue impose sa taille intrinsèque et fait exploser la mise en
-    // page dès que l'animation est plus grande que sa place.
+    // Without this, the view imposes its intrinsic size and blows up the
+    // layout as soon as the animation is bigger than its slot.
     view.setContentHuggingPriority(.defaultLow, for: .horizontal)
     view.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
     return view
   }
 
   public func updateUIView(_ view: Lottie.LottieAnimationView, context: Context) {
-    // Le mouvement réduit **supprime** l'animation : elle se fige sur sa
-    // dernière image, qui reste une image juste. L'atténuer aurait laissé du
-    // mouvement à qui a demandé qu'il n'y en ait plus.
+    // Reduced motion **removes** the animation: it settles on its last frame,
+    // which is still a correct image. Damping it would have left motion for
+    // somebody who asked for none.
     guard isPlaying, !context.environment.accessibilityReduceMotion else {
       view.currentProgress = 1
       view.pause()

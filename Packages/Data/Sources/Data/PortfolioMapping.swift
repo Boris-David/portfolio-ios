@@ -1,17 +1,16 @@
 import Domain
 import Foundation
 
-/// Le passage du transport au domaine.
+/// The crossing from transport to domain.
 ///
-/// C'est la seule frontière où une chaîne devient un `YearMonth`, où un `String`
-/// de rôle devient un cas d'énumération, et où une URL est validée. Tout ce qui
-/// est en amont accepte ce que le réseau envoie ; tout ce qui est en aval
-/// travaille sur des valeurs dont la forme est garantie.
+/// This is the one boundary where a string becomes a `YearMonth`, where a role
+/// `String` becomes an enum case, and where a URL is validated. Everything
+/// upstream accepts what the network sends; everything downstream works on
+/// values whose shape is guaranteed.
 ///
-/// Une valeur inattendue **lève**. Elle ne se replie pas sur un cas par défaut :
-/// un rôle inconnu rangé en « fonctionnalités » ferait apparaître une
-/// application dans la mauvaise grille, et c'est le genre d'erreur qu'on ne
-/// voit qu'en entretien.
+/// An unexpected value **throws**. It does not fall back to a default case: an
+/// unknown role filed under "features" would put an app in the wrong grid, and
+/// that is the kind of mistake you only notice in an interview.
 enum PortfolioMapping {
   static func portfolio(from dto: PortfolioDTO) throws(MappingError) -> Portfolio {
     Portfolio(
@@ -27,7 +26,7 @@ enum PortfolioMapping {
     )
   }
 
-  // ── Texte riche ────────────────────────────────────────────────────────
+  // ── Rich text ──────────────────────────────────────────────────────────
 
   static func richText(_ spans: [SpanDTO]) -> RichText {
     RichText(spans: spans.map { span in
@@ -35,12 +34,12 @@ enum PortfolioMapping {
     })
   }
 
-  /// Un style inconnu retombe sur « texte ».
+  /// An unknown style falls back to plain text.
   ///
-  /// Contrairement à un rôle d'application — où se tromper range une
-  /// application dans la mauvaise grille — se tromper d'emphase ne change
-  /// **rien au sens**. Faire échouer toute la charge utile pour une graisse
-  /// serait disproportionné.
+  /// Unlike an application role — where getting it wrong files an app in the
+  /// wrong grid — getting the emphasis wrong changes **nothing about the
+  /// meaning**. Failing the whole payload over a font weight would be out of
+  /// proportion.
   private static func emphasis(_ style: String) -> RichText.Span.Emphasis {
     switch style {
     case "strong": .strong
@@ -122,12 +121,12 @@ enum PortfolioMapping {
     )
   }
 
-  /// Un panneau dont le `kind` est inconnu est **écarté**, pas fatal.
+  /// A panel with an unknown `kind` is **dropped**, not fatal.
   ///
-  /// Le domaine n'en connaît que trois — problème, décision, résultat — et sa
-  /// mise en page est bâtie dessus. Un quatrième type viendrait forcément avec
-  /// une version de l'application qui sait l'afficher ; d'ici là, l'ignorer
-  /// vaut mieux que refuser tout le contenu.
+  /// The domain knows three — problem, decision, result — and its layout is
+  /// built on them. A fourth kind would necessarily arrive with a version of the
+  /// app that knows how to show it; until then, ignoring it beats refusing all
+  /// the content.
   static func panel(_ dto: CaseStudyDTO.Panel) -> CaseStudy.Panel? {
     guard let kind = CaseStudy.Panel.Kind(rawValue: dto.kind) else { return nil }
     return CaseStudy.Panel(
@@ -152,7 +151,7 @@ enum PortfolioMapping {
         guard let role = ProductionApp.Role(rawValue: item.role) else {
           throw MappingError(
             path: "apps.items[\(item.slug)].role",
-            reason: "rôle « \(item.role) » inconnu"
+            reason: .unknownValue(item.role)
           )
         }
         return ProductionApp(
@@ -170,7 +169,7 @@ enum PortfolioMapping {
     ExpertiseTopic(id: dto.id, title: dto.title, body: richText(dto.body))
   }
 
-  // ── Parcours ───────────────────────────────────────────────────────────
+  // ── Career ─────────────────────────────────────────────────────────────
 
   static func experience(_ dto: ExperienceDTO) throws(MappingError) -> Experience {
     Experience(
@@ -223,43 +222,37 @@ enum PortfolioMapping {
     )
   }
 
-  // ── Conversions élémentaires ───────────────────────────────────────────
+  // ── Elementary conversions ─────────────────────────────────────────────
 
-  /// `2023-05` ou `2025` — et rien d'autre.
+  /// `2023-05` or `2025` — and nothing else.
   static func yearMonth(_ raw: String, at path: String) throws(MappingError) -> YearMonth {
     let parts = raw.split(separator: "-", omittingEmptySubsequences: false)
     guard let year = Int(parts[0]), parts[0].count == 4 else {
-      throw MappingError(path: path, reason: "date « \(raw) » illisible — « AAAA » ou « AAAA-MM » attendu")
+      throw MappingError(path: path, reason: .unreadableDate(raw))
     }
     switch parts.count {
     case 1:
       return YearMonth(year: year)
     case 2:
       guard let month = Int(parts[1]), (1...12).contains(month) else {
-        throw MappingError(path: path, reason: "mois « \(parts[1]) » hors de 01–12")
+        throw MappingError(path: path, reason: .monthOutOfRange(String(parts[1])))
       }
       return YearMonth(year: year, month: month)
     default:
-      throw MappingError(path: path, reason: "date « \(raw) » illisible — trop de composants")
+      throw MappingError(path: path, reason: .unreadableDate(raw))
     }
   }
 
-  /// Une URL est validée **ici**, une fois, à l'entrée.
+  /// A URL is validated **here**, once, on the way in.
   ///
-  /// Le domaine garde une chaîne : lui imposer `URL` obligerait chaque
-  /// constructeur d'entité à pouvoir échouer, et ferait remonter un détail de
-  /// plateforme au cœur de l'application. La garantie est apportée à la
-  /// frontière, là où l'on parle encore au réseau.
+  /// The domain keeps a string: forcing `URL` on it would make every entity
+  /// initialiser failable, and would carry a platform detail into the core of
+  /// the app. The guarantee is given at the boundary, where we are still talking
+  /// to the network.
   static func url(_ raw: String, at path: String) throws(MappingError) -> URLString {
     guard let url = URL(string: raw), url.scheme == "https" else {
-      throw MappingError(path: path, reason: "« \(raw) » n'est pas une URL https")
+      throw MappingError(path: path, reason: .insecureURL(raw))
     }
     return raw
   }
-}
-
-/// Une valeur de la source que le domaine ne peut pas accepter, **et où**.
-struct MappingError: Error, Sendable, Hashable {
-  let path: String
-  let reason: String
 }
