@@ -292,16 +292,13 @@ struct GalleryView: View {
       HStack(spacing: Tokens.Space.s3) {
         ForEach(media) { item in
           VStack(alignment: .leading, spacing: Tokens.Space.s2) {
-            Image(item.id, bundle: .main)
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(height: 380)
+            ContentImage(item.id, kind: .screenshot, label: item.alt)
+              .frame(height: Tokens.Layout.galleryHeight)
               .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.lg, style: .continuous))
               .overlay(
                 RoundedRectangle(cornerRadius: Tokens.Radius.lg, style: .continuous)
                   .strokeBorder(Color.line, lineWidth: Tokens.Stroke.regular)
               )
-              .accessibilityLabel(item.alt)
             Text(item.caption)
               .font(Typography.caption)
               .foregroundStyle(Color.ink3)

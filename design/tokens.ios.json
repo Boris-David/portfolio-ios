@@ -50,6 +50,7 @@
     "readingWidthInBodies": 40,
     "appIconSide": 44,
     "appIconRadius": 10,
-    "pressedScale": 0.97
+    "pressedScale": 0.97,
+    "galleryHeight": 380
   }
 }

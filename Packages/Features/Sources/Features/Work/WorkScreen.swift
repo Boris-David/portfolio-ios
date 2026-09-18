@@ -283,9 +283,7 @@ struct AppIconView: View {
   let slug: String
 
   var body: some View {
-    Image(slug, bundle: .main)
-      .resizable()
-      .aspectRatio(contentMode: .fit)
+    ContentImage(slug, kind: .appIcon)
       .frame(width: Tokens.Layout.appIconSide, height: Tokens.Layout.appIconSide)
       .clipShape(RoundedRectangle(cornerRadius: Tokens.Layout.appIconRadius, style: .continuous))
       .overlay(

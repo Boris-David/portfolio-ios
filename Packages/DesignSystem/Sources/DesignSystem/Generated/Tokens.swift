@@ -251,5 +251,6 @@ extension Tokens {
     public static let appIconSide: CGFloat = 44
     public static let appIconRadius: CGFloat = 10
     public static let pressedScale: CGFloat = 0.97
+    public static let galleryHeight: CGFloat = 380
   }
 }

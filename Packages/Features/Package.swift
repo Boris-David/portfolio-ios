@@ -92,6 +92,11 @@ let package = Package(
         .product(name: "DesignSystem", package: "DesignSystem"),
         .product(name: "CoreUI", package: "CoreUI"),
       ],
+      // The content catalogue: operator logos and product screenshots, named by
+      // the public slug the API serves. They live with the layer that draws
+      // them rather than in the app target, which should hold only what makes
+      // it an app.
+      resources: [.process("Resources")],
       swiftSettings: .strict
     ),
 
