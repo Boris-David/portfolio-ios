@@ -715,8 +715,12 @@ Découpage :
       retiré : 87 sélecteurs employés, 87 définis par le CSS maison, 0 utilitaire
       Tailwind ; rendu vérifié identique au pixel sur les deux langues
 
+- [x] **§13 la passe d'accessibilité**, revue capture par capture à la plus
+      grande taille — l'accroche du profil était tronquée (« Ingénieur iOS s… »),
+      six textes servis par l'API pouvaient l'être, et le tableau comparatif
+      cachait sa barre de défilement
+
 **À faire :**
-- [ ] §13 la passe d'accessibilité complète, revue capture par capture
 - [ ] fastlane / TestFlight
 - [ ] l'écran partagé sur iPad
 
