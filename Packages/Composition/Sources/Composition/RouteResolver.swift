@@ -1,4 +1,5 @@
 import FeatureKit
+import FeatureProfile
 import FeatureWork
 import Presentation
 import SwiftUI
@@ -34,8 +35,25 @@ struct RouteScreen: View {
           Text(chrome.routeMissingMessage)
         }
       }
+    case .about:
+      if let profile = store.portfolio?.profile {
+        AboutScreen(profile: profile)
+      } else {
+        missing
+      }
+
     default:
       EmptyView()
+    }
+  }
+
+  /// A route to content that is not there — which happens with a deep link
+  /// received before the first load. Say so; do not show a blank screen.
+  private var missing: some View {
+    ContentUnavailableView {
+      Label(chrome.routeMissingTitle, icon: .empty)
+    } description: {
+      Text(chrome.routeMissingMessage)
     }
   }
 }

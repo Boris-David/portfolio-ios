@@ -35,6 +35,7 @@ public struct AppRoot: View {
   @State private var backstage = BackstageController()
   @State private var selection: AppSection
   @State private var sheet: Sheet?
+  @State private var cover: FullScreenCover?
 
   private let environment: AppEnvironment
   private let launch: LaunchArguments
@@ -87,6 +88,13 @@ public struct AppRoot: View {
         resolver(sheet)
           .modifier(sceneEnvironment)
       }
+      // A document, not a detour. The résumé takes the whole screen: it wants
+      // the width, and leaving it should be a decision rather than a stray
+      // downward swipe.
+      .fullScreenCover(item: $cover) { cover in
+        FullScreenResolver.live(environment)(cover)
+          .modifier(sceneEnvironment)
+      }
       // `nil` means "follow the device", which is what `preferredColorScheme`
       // expects for that case — not a third scheme.
       .preferredColorScheme(settings.appearance.isDarkForced.map { $0 ? .dark : .light })
@@ -97,9 +105,15 @@ public struct AppRoot: View {
         // touching the screen.
         if launch.isBackstageEnabled { await settings.setBackstageEnabled(true) }
         if launch.opensSettings { sheet = .settings }
+        if launch.opensResume { cover = .resume }
         store.load()
       }
       .task { await followLanguageChanges() }
+      .refreshingOnReturn(
+        store: store,
+        connectivity: environment.connectivity,
+        events: environment.events
+      )
       .onChange(of: settings.isBackstageEnabled) { _, isOn in
         // A note left open after the mode is switched off would be a sheet with
         // no way back to what produced it.
@@ -117,7 +131,8 @@ public struct AppRoot: View {
       toasts: toasts,
       backstage: backstage,
       sheets: resolver,
-      openSettings: OpenSettingsAction { sheet = .settings }
+      openSettings: OpenSettingsAction { sheet = .settings },
+      openResume: OpenResumeAction { cover = .resume }
     )
   }
 

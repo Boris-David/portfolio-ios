@@ -48,9 +48,15 @@ while IFS= read -r file; do
     grep -nE '^\s*///?' "$file" | grep -iE "$FRENCH|$CONTRACTIONS" | head -2 >&2
     found=1
   fi
-# Only tracked files: a file that is not in the index is a file CI never sees
-# either, and walking the working tree would sweep up build artefacts.
-done <<< "$(git ls-files '*.swift')"
+# Tracked files **and** untracked ones that git would accept.
+#
+# It used to be `git ls-files` alone, and that gave a green light on exactly the
+# files most likely to be wrong: brand-new ones. Somebody writing a screen would
+# run the guard, see ✓, and only discover the French in CI — after committing.
+#
+# `--others --exclude-standard` adds what is not yet in the index while still
+# honouring `.gitignore`, so build artefacts and checkouts stay out.
+done <<< "$(git ls-files '*.swift'; git ls-files --others --exclude-standard '*.swift')"
 
 if [ "$found" -ne 0 ]; then
   echo "" >&2
@@ -58,5 +64,5 @@ if [ "$found" -ne 0 ]; then
   exit 1
 fi
 
-count="$(git ls-files '*.swift' | wc -l | tr -d ' ')"
+count="$({ git ls-files '*.swift'; git ls-files --others --exclude-standard '*.swift'; } | sort -u | wc -l | tr -d ' ')"
 echo "✓ $count Swift files, English only."

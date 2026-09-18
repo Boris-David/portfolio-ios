@@ -34,7 +34,8 @@
     "tintOnMaterial": 0.14,
     "hairlineOnGlass": 0.6,
     "annotation": 0.55,
-    "shimmer": 0.55
+    "shimmer": 0.55,
+    "heroWash": 0.55
   },
   "duration": {
     "$comment": "Animation durations, in seconds. The CURVES are shared with the website: the curve carries the feel, the duration tunes it to the medium. A touch screen has less patience than a web page.",
@@ -51,6 +52,10 @@
     "appIconSide": 44,
     "appIconRadius": 10,
     "pressedScale": 0.97,
-    "galleryHeight": 380
+    "galleryHeight": 380,
+    "monogramSide": 72,
+    "heroWashRadius": 260,
+    "signatureHeight": 34,
+    "signatureWidth": 260
   }
 }

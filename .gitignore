@@ -58,3 +58,7 @@ fastlane/README.md
 
 # ── macOS ────────────────────────────────────────────────────────────────
 .DS_Store
+
+# Les captures produites par Scripts/screens.sh : on les regarde, on ne les
+# versionne pas. Un binaire qui change à chaque exécution pollue tous les diffs.
+.screens/

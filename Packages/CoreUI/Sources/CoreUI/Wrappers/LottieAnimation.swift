@@ -49,6 +49,24 @@ public struct LottieAnimation: UIViewRepresentable {
     self.isPlaying = isPlaying
   }
 
+  /// A catalogued animation, named by what it means.
+  ///
+  /// The string initialiser above stays, because a caller may legitimately
+  /// carry an animation this package does not ship. But inside the app, this is
+  /// the one to reach for: a file name spelt wrong renders an empty frame and
+  /// says nothing, where an enum case cannot be spelt wrong at all.
+  ///
+  /// There is no `loopMode` here on purpose. Whether an animation repeats is a
+  /// property of the animation, not a decision for the screen showing it — see
+  /// `LottieCatalogue.repeats`. Leaving it out removes the way to get it wrong.
+  public init(_ animation: LottieCatalogue, isPlaying: Bool = true) {
+    self.init(
+      animation.fileName,
+      loopMode: animation.repeats ? .loop : .playOnce,
+      isPlaying: isPlaying
+    )
+  }
+
   public func makeUIView(context: Context) -> Lottie.LottieAnimationView {
     let view = Lottie.LottieAnimationView(name: name, bundle: bundle)
     view.contentMode = .scaleAspectFit

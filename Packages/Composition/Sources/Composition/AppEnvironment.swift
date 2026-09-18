@@ -25,17 +25,20 @@ public struct AppEnvironment: Sendable {
   public let resume: any ResumeReading
   public let preferences: any PreferencesStoring
   public let events: any EventPublishing
+  public let connectivity: any ConnectivityReporting
 
   public init(
     portfolio: any PortfolioReading,
     resume: any ResumeReading,
     preferences: any PreferencesStoring,
-    events: any EventPublishing
+    events: any EventPublishing,
+    connectivity: any ConnectivityReporting
   ) {
     self.portfolio = portfolio
     self.resume = resume
     self.preferences = preferences
     self.events = events
+    self.connectivity = connectivity
   }
 
   /// The real wiring: network, disk cache, bundled seed.
@@ -57,7 +60,8 @@ public struct AppEnvironment: Sendable {
       ),
       resume: ResumeRepository(client: client, store: store, endpoints: endpoints),
       preferences: PreferencesRepository(),
-      events: AppEventBus()
+      events: AppEventBus(),
+      connectivity: connectivity
     )
   }
 }

@@ -10,4 +10,7 @@ public enum Route: Hashable, Sendable {
   case experience(slug: String)
   case expertise(id: String)
   case allApps
+  /// The long-form introduction, which the first screen deliberately does not
+  /// carry: an opening gives the scale, not the story.
+  case about
 }

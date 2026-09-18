@@ -1,7 +1,6 @@
 import Domain
 import FeatureContact
 import FeatureKit
-import FeatureResume
 import FeatureSettings
 import Presentation
 import SwiftUI
@@ -9,7 +8,7 @@ import SwiftUI
 /// Turns a sheet into a screen.
 ///
 /// Same reasoning as `RouteResolver`, and the same reason it lives here: a
-/// screen presents `Sheet.resume` without knowing that `FeatureResume` exists.
+/// screen presents `Sheet.contact` without knowing that `FeatureContact` exists.
 ///
 /// ## Why it takes the whole environment
 ///
@@ -22,8 +21,6 @@ extension SheetResolver {
   static func live(_ environment: AppEnvironment) -> SheetResolver {
     SheetResolver { sheet in
       switch sheet {
-      case .resume:
-        AnyView(ResumeScreen(dependencies: environment))
       case .contact:
         AnyView(ContactScreen())
       case .settings:

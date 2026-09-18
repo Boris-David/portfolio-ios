@@ -5,6 +5,7 @@ import Domain
 import FeatureKit
 import Presentation
 import SwiftUI
+import UIKit
 import ViewKit
 
 /// The projects, told the way an engineer delivers: the problem, the decision,
@@ -240,6 +241,7 @@ struct AppsBlock: View {
 struct AppCell: View {
   let app: ProductionApp
   @Environment(\.openURL) private var openURL
+  @Environment(ToastCenter.self) private var toasts
   @Chrome private var chrome
 
   var body: some View {
@@ -269,10 +271,80 @@ struct AppCell: View {
       )
     }
     .buttonStyle(.plain)
+    // Secondary actions, out of the way until asked for.
+    //
+    // A long press on a card is the iOS idiom for "what else can I do with
+    // this". Putting a share button on thirty-three cards would have doubled the
+    // grid's visual weight for something almost nobody wants — and the one
+    // person who does already knows where to look.
+    .contextMenu {
+      if let url = URL(string: app.appStoreURL) {
+        ShareLink(item: url) {
+          Label(chrome.share, icon: .share)
+        }
+        Button {
+          UIPasteboard.general.url = url
+          toasts.show(chrome.linkCopied, kind: .succeeded, icon: .succeeded)
+        } label: {
+          Label(chrome.copyLink, icon: .link)
+        }
+      }
+    }
     .accessibilityElement(children: .combine)
     .accessibilityLabel("\(app.name), \(app.territory)")
     .accessibilityHint(chrome.openInAppStore)
+    .backstage(Self.contextMenuNote)
   }
+
+  // ── Backstage ──────────────────────────────────────────────────────────
+
+  static let contextMenuNote = BackstageNote(
+    id: "work.contextmenu",
+    component: "contextMenu · ShareLink",
+    role: Bilingual(
+      fr: "Partager ou copier le lien App Store d'une application, sans encombrer la grille.",
+      en: "Share or copy an app's App Store link, without cluttering the grid."
+    ),
+    rationale: Bilingual(
+      fr: """
+        Un appui long sur une carte est l'idiome iOS de « qu'est-ce que je peux \\
+        faire d'autre avec ça ». Poser un bouton de partage sur trente-trois \\
+        cartes aurait doublé le poids visuel de la grille pour ce que presque \\
+        personne ne cherche — et celui qui le cherche sait déjà où regarder.
+        """,
+      en: """
+        A long press on a card is the iOS idiom for "what else can I do with \\
+        this". Putting a share button on thirty-three cards would have doubled \\
+        the grid's visual weight for something almost nobody wants — and the one \\
+        person who does already knows where to look.
+        """
+    ),
+    rejected: [
+      .init(
+        Bilingual(fr: "Un bouton de partage sur chaque carte", en: "A share button on every card"),
+        because: Bilingual(
+          fr: "Trente-trois boutons pour une action secondaire : la grille cesse d'être une grille.",
+          en: "Thirty-three buttons for a secondary action: the grid stops being a grid."
+        )
+      ),
+      .init(
+        Bilingual(fr: "Un balayage latéral", en: "A swipe action"),
+        because: Bilingual(
+          fr: "Réservé aux lignes de liste. Sur une grille, il n'existe pas et personne ne le cherche.",
+          en: "Reserved for list rows. On a grid it does not exist, and nobody looks for it."
+        )
+      ),
+    ],
+    whenToUse: Bilingual(
+      fr: "Des actions secondaires sur un élément identifiable. Jamais pour l'action principale : un menu contextuel ne se découvre pas.",
+      en: "Secondary actions on an identifiable item. Never for the primary action: a context menu is not discoverable."
+    ),
+    pitfall: Bilingual(
+      fr: "Le menu **remplace** l'aperçu de la vue : une carte au fond transparent y apparaît sans son fond, et paraît cassée.",
+      en: "The menu **replaces** the view's preview: a card with a transparent background shows up without it, and looks broken."
+    ),
+    documentation: URL(string: "https://developer.apple.com/documentation/swiftui/view/contextmenu(menuitems:)")
+  )
 }
 
 /// An app's icon, named by its **public slug**.

@@ -30,6 +30,7 @@ struct SceneEnvironment: ViewModifier {
   let backstage: BackstageController
   let sheets: SheetResolver
   let openSettings: OpenSettingsAction
+  let openResume: OpenResumeAction
 
   func body(content: Content) -> some View {
     content
@@ -41,6 +42,7 @@ struct SceneEnvironment: ViewModifier {
       .environment(\.routeResolver, .live)
       .environment(\.sheetResolver, sheets)
       .environment(\.openSettings, openSettings)
+      .environment(\.openResume, openResume)
       .tint(Color.accent)
   }
 }

@@ -18,6 +18,7 @@ package struct SectionShell<Content: View>: View {
   @Environment(\.routeResolver) private var routes
   @Environment(\.sheetResolver) private var sheets
   @Environment(\.openSettings) private var openSettings
+  @Environment(\.openResume) private var openResume
   @Chrome private var chrome
   @State private var router = Router()
 
@@ -40,7 +41,22 @@ package struct SectionShell<Content: View>: View {
         // The gear sits on every tab root rather than on one screen: settings
         // belong to the app, and a reader who wants them should not have to
         // remember which section hides them.
+        // Two permanent items, on every tab root.
+        //
+        // The résumé first: *"getting to the CV download has to be easier and
+        // more obvious."* It was a button halfway down the home screen, behind a
+        // scroll. A toolbar item is reachable from wherever the reader is, in
+        // one tap, and it is the same tap every time — which is what makes it
+        // findable rather than merely present.
+        //
+        // Settings second, because it is the one people look for last.
         .toolbar {
+          ToolbarItem(placement: .topBarTrailing) {
+            Button { openResume() } label: {
+              Label(chrome.resumeAction, icon: .resume)
+            }
+            .accessibilityLabel(chrome.resumeAction)
+          }
           ToolbarItem(placement: .topBarTrailing) {
             Button { openSettings() } label: {
               Label(chrome.settings, icon: .settings)

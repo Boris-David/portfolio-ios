@@ -12,6 +12,11 @@ enum BackstageLabels {
   static let pitfall: Bilingual = .init(fr: "Le piège", en: "The trap")
   static let documentation: Bilingual = .init(fr: "Documentation Apple", en: "Apple documentation")
   static let close: Bilingual = .init(fr: "Fermer", en: "Close")
+  static let learnMore: Bilingual = .init(fr: "En savoir plus", en: "Learn more")
+  static let learnMoreHint: Bilingual = .init(
+    fr: "Déplie l'explication entière, avec ce qui a été écarté",
+    en: "Unfolds the whole explanation, including what was ruled out"
+  )
   static let hint: Bilingual = .init(
     fr: "Explique pourquoi ce composant a été choisi",
     en: "Explains why this component was chosen"

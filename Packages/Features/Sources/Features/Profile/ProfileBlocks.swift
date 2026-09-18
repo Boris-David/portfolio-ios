@@ -7,279 +7,307 @@ import Presentation
 import SwiftUI
 import ViewKit
 
-/// The hero: availability, name, role, and the screenshot that illustrates it.
+/// The opening: a monogram, a name, one action.
+///
+/// ## What it stopped being, and why
+///
+/// It was a green-dotted pill reading "Open to opportunities", three
+/// icon-and-text lines, and two buttons side by side. The owner's verdict was
+/// exact: *"that's web, that's AI-generated."* And it is — that is the
+/// vocabulary of a landing page, where a visitor arrives cold and has to be sold
+/// something in one viewport.
+///
+/// An app opens differently. Somebody who launched it already decided to look;
+/// the first screen owes them an **identity**, not a pitch. So: a monogram to
+/// land the eye, the name, the signature, the role in one line, and **one**
+/// primary action. The availability is a quiet line of text where it belongs,
+/// not a floating badge demanding to be read first.
+///
+/// The long introduction moved to `AboutScreen`, one tap away. An opening gives
+/// the scale; the story is for whoever wants it.
+///
+/// ## Why `ZStack` here and not anywhere else
+///
+/// Three genuine layers: a wash that bleeds behind the monogram, the content,
+/// and the safe area. They overlap on purpose — a `VStack` would stack them,
+/// which is the opposite of what is wanted. Used because it is the right tool,
+/// not to have used it.
 struct HeroBlock: View {
   let profile: Profile
   @Environment(Router.self) private var router
+  @Environment(\.dynamicTypeSize) private var typeSize
   @ReducedMotion private var reducedMotion
   @Chrome private var chrome
 
+  private var monogram: Monogram { Monogram(profile.name) }
+
   var body: some View {
+    ZStack(alignment: .top) {
+      wash
+      content
+    }
+    .backstage(Self.heroNote)
+  }
+
+  /// A soft accent glow behind the monogram, bleeding past the reading column.
+  ///
+  /// Decorative, therefore hidden from VoiceOver and ignored for hit testing —
+  /// a gradient that swallowed taps meant for the button underneath would be a
+  /// defect nobody could see.
+  private var wash: some View {
+    RadialGradient(
+      colors: [Color.accentWash.opacity(Tokens.Opacity.heroWash), Color.paper.opacity(0)],
+      center: .top,
+      startRadius: 0,
+      endRadius: Tokens.Layout.heroWashRadius
+    )
+    .frame(height: Tokens.Layout.heroWashRadius)
+    // Bleeds under the navigation bar rather than starting at it: a gradient
+    // that begins exactly at a bar edge draws a visible band, which reads as a
+    // seam. Only visible on screen.
+    .ignoresSafeArea(edges: .top)
+    .allowsHitTesting(false)
+    .accessibilityHidden(true)
+  }
+
+  private var content: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s5) {
-      availability
-
-      VStack(alignment: .leading, spacing: Tokens.Space.s2) {
-        Text(profile.headline).eyebrowStyle()
-        Text(profile.name.display)
-          .font(Typography.hero)
-          .foregroundStyle(Color.ink)
-          .fixedSize(horizontal: false, vertical: true)
-
-        // The stroke draws under the name: a signature, not a decoration. It
-        // is **decorative** in the accessibility sense — VoiceOver has nothing
-        // to say about it — so it is hidden rather than announced as "image".
-        LottieAnimation("signature", bundle: .coreUI)
-          .frame(height: 34)
-          .frame(maxWidth: 260, alignment: .leading)
-          .accessibilityHidden(true)
-      }
-      .accessibilityElement(children: .combine)
-      // The annotation covers the **block** of name + signature, not the
-      // Lottie view alone.
-      //
-      // Two reasons. The note describes the treatment of the hero as a whole,
-      // not an isolated component. And above all: a `UIViewRepresentable` does
-      // not always report the frame imposed on it — the anchor taken from the
-      // Lottie view pointed at an empty band below it, which only became visible
-      // once the annotated area was drawn on screen.
-      .backstage(Self.lottieNote)
-
-      VStack(alignment: .leading, spacing: Tokens.Space.s3) {
-        ForEach(Array(profile.summary.enumerated()), id: \.offset) { _, paragraph in
-          RichTextView(paragraph)
-        }
-      }
-
-      identity
-      actions
+      identityCard
+      availabilityLine
+      primaryAction
+      aboutLink
     }
     .padding(.horizontal, Tokens.Space.s5)
-    .padding(.top, Tokens.Space.s5)
+    .padding(.top, Tokens.Space.s6)
   }
 
-  private var availability: some View {
-    HStack(spacing: Tokens.Space.s2) {
-      Circle()
-        .fill(Color.ok)
-        .frame(width: 8, height: 8)
-      Text(profile.availability)
-        .font(Typography.caption)
-        .foregroundStyle(Color.ink2)
-    }
-    .padding(.horizontal, Tokens.Space.s3)
-    .padding(.vertical, Tokens.Space.s2)
-    .background(Capsule().fill(Color.paper2))
-    .overlay(Capsule().strokeBorder(Color.line, lineWidth: Tokens.Stroke.regular))
-    .accessibilityElement(children: .combine)
-  }
+  // ── The card ───────────────────────────────────────────────────────────
 
-  private var identity: some View {
-    VStack(alignment: .leading, spacing: Tokens.Space.s2) {
-      row("mappin.and.ellipse", profile.location)
-      row("house", profile.remote)
-      row("globe", profile.languages)
-    }
-  }
-
-  private func row(_ symbol: String, _ label: String) -> some View {
-    HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s3) {
-      Image(systemName: symbol)
-        .font(.footnote)
-        .foregroundStyle(Color.accent)
-        .frame(width: 18)
-      Text(label)
-        .font(Typography.secondary)
-        .foregroundStyle(Color.ink2)
-        .fixedSize(horizontal: false, vertical: true)
-    }
-    .accessibilityElement(children: .combine)
-  }
-
-  private var actions: some View {
-    GlassGroup {
-      HStack(spacing: Tokens.Space.s3) {
-        Button {
-          router.present(.contact)
-        } label: {
-          Label(chrome.contactAction, systemImage: "envelope")
-        }
-        .buttonStyle(.adaptiveGlassProminent)
-
-        Button {
-          router.present(.resume)
-        } label: {
-          Label(chrome.resumeAction, systemImage: "doc.text")
-        }
-        .buttonStyle(.adaptiveGlass)
+  /// ## Why `ViewThatFits`
+  ///
+  /// At the accessibility text sizes, a monogram beside a name stops fitting —
+  /// the name wraps to three lines and the two columns fight over the width.
+  /// `ViewThatFits` takes the stacked arrangement instead, and it does so by
+  /// **measuring**, not by comparing against a size threshold somebody guessed.
+  private var identityCard: some View {
+    ViewThatFits(in: .horizontal) {
+      HStack(alignment: .center, spacing: Tokens.Space.s4) {
+        monogramBadge
+        nameAndRole
+      }
+      VStack(alignment: .leading, spacing: Tokens.Space.s4) {
+        monogramBadge
+        nameAndRole
       }
     }
-    .backstage(Self.glassNote)
+    .accessibilityElement(children: .combine)
+    .accessibilityLabel("\(profile.name.full). \(profile.headline)")
   }
 
-  // ── Coulisses ──────────────────────────────────────────────────────────
+  private var monogramBadge: some View {
+    Text(monogram.letters)
+      .font(.system(size: Tokens.Icon.feature, weight: .semibold, design: .serif))
+      .foregroundStyle(Color.accent)
+      .frame(width: Tokens.Layout.monogramSide, height: Tokens.Layout.monogramSide)
+      .background(
+        RoundedRectangle(cornerRadius: Tokens.Radius.lg, style: .continuous)
+          .fill(Color.accentWash)
+      )
+      .overlay(
+        RoundedRectangle(cornerRadius: Tokens.Radius.lg, style: .continuous)
+          .strokeBorder(Color.accent.opacity(Tokens.Opacity.annotation), lineWidth: Tokens.Stroke.hairline)
+      )
+      .accessibilityHidden(true)
+  }
 
-  static let lottieNote = BackstageNote(
-    id: "profile.lottie",
-    component: "Lottie · LottieAnimationView",
+  private var nameAndRole: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.s1) {
+      Text(profile.name.display)
+        .font(Typography.hero)
+        .foregroundStyle(Color.ink)
+        .fixedSize(horizontal: false, vertical: true)
+
+      // The stroke draws under the name: a signature, not a decoration. It is
+      // **decorative** in the accessibility sense — VoiceOver has nothing to
+      // say about it — so it is hidden rather than announced as "image".
+      LottieAnimation("signature", bundle: .coreUI)
+        .frame(height: Tokens.Layout.signatureHeight)
+        .frame(maxWidth: Tokens.Layout.signatureWidth, alignment: .leading)
+        .accessibilityHidden(true)
+
+      Text(profile.headline)
+        .font(Typography.secondary)
+        .foregroundStyle(Color.ink2)
+    }
+  }
+
+  // ── The quiet facts ────────────────────────────────────────────────────
+
+  /// Availability, location and languages as **one line of text**.
+  ///
+  /// They were three rows with icons — the shape a landing page uses to fill a
+  /// column. On a phone they are one sentence, read in the order somebody
+  /// actually needs them: is he available, where, in which languages.
+  private var availabilityLine: some View {
+    Text([profile.availability, profile.location, profile.languages].joined(separator: " · "))
+      .font(Typography.caption)
+      .foregroundStyle(Color.ink3)
+      .fixedSize(horizontal: false, vertical: true)
+      .accessibilityLabel(
+        [profile.availability, profile.location, profile.languages].joined(separator: ", ")
+      )
+  }
+
+  // ── One action, and one way in ─────────────────────────────────────────
+
+  /// ## Why one button and not two
+  ///
+  /// Two equal buttons side by side is a page asking the reader to choose before
+  /// they know anything. One primary action decides for them; the résumé is a
+  /// permanent toolbar item on every screen, which is both more findable and
+  /// less loud.
+  private var primaryAction: some View {
+    Button {
+      router.present(.contact)
+    } label: {
+      Label(chrome.contactAction, icon: .contact)
+        .frame(maxWidth: .infinity)
+    }
+    .buttonStyle(.adaptiveGlassProminent)
+    .backstage(Self.actionNote)
+  }
+
+  private var aboutLink: some View {
+    NavigationLink(value: Route.about) {
+      HStack(spacing: Tokens.Space.s2) {
+        Text(chrome.aboutLink)
+        Image(systemName: "arrow.right")
+          .font(.system(size: Tokens.Icon.caption, weight: .semibold))
+      }
+      .font(Typography.secondary)
+      .foregroundStyle(Color.accent)
+    }
+  }
+
+  // ── Backstage ──────────────────────────────────────────────────────────
+
+  static let heroNote = BackstageNote(
+    id: "profile.hero",
+    component: "ZStack · ViewThatFits",
     role: Bilingual(
-      fr: "Dessine le trait sous le nom, une fois, à l'ouverture.",
-      en: "Draws the stroke under the name, once, on open."
+      fr: "L'ouverture : un monogramme, un nom, une action.",
+      en: "The opening: a monogram, a name, one action."
     ),
     rationale: Bilingual(
       fr: """
-        Ce trait est une **courbe de Bézier animée par un tracé progressif** \
-        (*trim path*). Ni SwiftUI ni Core Animation ne savent lire un tel \
-        fichier : il faudrait réimplémenter un interpréteur d'animations After \
-        Effects.
+        La version précédente était une **page d'accueil web** : pastille verte \
+        à point, trois lignes à icônes, deux boutons côte à côte. Ce vocabulaire \
+        sert à vendre quelque chose à quelqu'un qui arrive froid.
 
-        C'est la règle qu'on s'applique partout ici : *une dépendance se \
-        justifie par ce qui serait pire sans elle, pas par ce qu'elle rend \
-        pratique.* Sans Lottie, c'est réellement pire. Sans Alamofire, non — \
-        d'où l'un et pas l'autre.
+        Une application s'ouvre autrement. Qui l'a lancée a déjà décidé de \
+        regarder : le premier écran lui doit une **identité**, pas un argumentaire.
 
-        Le fichier lui-même est écrit à la main, et sa couleur est **lue dans \
-        les tokens de design** : l'accent du trait est exactement l'accent du \
-        site.
+        `ZStack` porte trois couches qui se **chevauchent** vraiment — un halo \
+        qui déborde de la colonne de lecture, le contenu, la zone sûre. \
+        `ViewThatFits` mesure au lieu de comparer à un seuil : aux tailles \
+        d'accessibilité, le monogramme passe au-dessus du nom tout seul.
         """,
       en: """
-        This stroke is a **Bézier curve animated by a trim path**. Neither \
-        SwiftUI nor Core Animation can read such a file: you would have to \
-        reimplement an After Effects animation interpreter.
+        The previous version was a **web landing page**: green-dotted pill, \
+        three icon rows, two buttons side by side. That vocabulary exists to \
+        sell something to somebody who arrived cold.
 
-        It is the rule applied everywhere here: *a dependency earns its place \
-        by what would be worse without it, not by what it makes convenient.* \
-        Without Lottie it really is worse. Without Alamofire it is not — hence \
-        one and not the other.
+        An app opens differently. Whoever launched it already decided to look: \
+        the first screen owes them an **identity**, not a pitch.
 
-        The file itself is hand-authored, and its colour is **read from the \
-        design tokens**: the stroke's accent is exactly the site's accent.
+        `ZStack` carries three layers that genuinely **overlap** — a wash \
+        bleeding past the reading column, the content, the safe area. \
+        `ViewThatFits` measures rather than comparing against a threshold \
+        somebody guessed: at the accessibility sizes the monogram moves above \
+        the name on its own.
         """
     ),
     rejected: [
       .init(
-        Bilingual(fr: "Une animation SwiftUI sur `trim(from:to:)`", en: "A SwiftUI animation on `trim(from:to:)`"),
+        Bilingual(fr: "Une photo", en: "A portrait photograph"),
         because: Bilingual(
-          fr: "possible pour ce trait-ci, mais il faudrait redéfinir la courbe en Swift — donc la maintenir à deux endroits, alors qu'elle est dessinée ailleurs",
-          en: "doable for this one stroke, but the curve would have to be redefined in Swift — kept in two places, while it is drawn elsewhere"
+          fr: "Plusieurs pays déconseillent explicitement la photo sur un CV : elle invite un jugement qui n'a rien à voir avec le travail. Le monogramme donne le même point d'ancrage.",
+          en: "Several countries' hiring guidance advises against a CV photo: it invites a judgement that has nothing to do with the work. The monogram gives the same anchor."
         )
       ),
       .init(
-        Bilingual(fr: "Un GIF ou une vidéo", en: "A GIF or a video"),
+        Bilingual(fr: "Deux boutons côte à côte", en: "Two buttons side by side"),
         because: Bilingual(
-          fr: "pixellisé à l'échelle, sans transparence propre, et impossible à teinter depuis les tokens",
-          en: "pixelated when scaled, no clean transparency, and impossible to tint from the tokens"
+          fr: "Demander de choisir avant d'avoir rien lu. Le CV est désormais dans la barre d'outils de **tous** les écrans : plus trouvable, et moins bruyant.",
+          en: "It asks the reader to choose before they have read anything. The résumé is now a toolbar item on **every** screen: more findable, and quieter."
+        )
+      ),
+      .init(
+        Bilingual(fr: "Un seuil de `sizeCategory`", en: "A `sizeCategory` threshold"),
+        because: Bilingual(
+          fr: "Un seuil est une supposition sur une largeur. `ViewThatFits` mesure la vraie.",
+          en: "A threshold is a guess about a width. `ViewThatFits` measures the real one."
         )
       ),
     ],
     whenToUse: Bilingual(
-      fr: """
-        Pour une animation **vectorielle** conçue par un designer, avec des \
-        tracés, des masques ou des trajectoires. Pour un mouvement simple — une \
-        opacité, une translation, un ressort — SwiftUI suffit largement et pèse \
-        zéro octet.
-        """,
-      en: """
-        For a **vector** animation authored by a designer, with paths, masks or \
-        motion along a curve. For simple motion — opacity, translation, a \
-        spring — SwiftUI is plenty and weighs nothing.
-        """
+      fr: "`ZStack` quand les couches se chevauchent réellement — sinon c'est un `VStack` déguisé. `ViewThatFits` quand deux dispositions sont également valides et que seule la place tranche.",
+      en: "`ZStack` when the layers genuinely overlap — otherwise it is a `VStack` in disguise. `ViewThatFits` when two arrangements are equally valid and only the room decides."
     ),
     pitfall: Bilingual(
-      fr: """
-        La vue Lottie impose sa **taille intrinsèque** si on ne baisse pas ses \
-        priorités de compression : une animation plus grande que sa place fait \
-        alors exploser la mise en page autour d'elle, sans erreur ni \
-        avertissement.
-        """,
-      en: """
-        The Lottie view imposes its **intrinsic size** unless you lower its \
-        compression priorities: an animation larger than its slot then blows up \
-        the surrounding layout, with no error and no warning.
-        """
+      fr: "Un dégradé décoratif dans un `ZStack` intercepte les touches par défaut : sans `allowsHitTesting(false)`, il avale les taps destinés au bouton qu'il recouvre.",
+      en: "A decorative gradient in a `ZStack` intercepts touches by default: without `allowsHitTesting(false)` it swallows taps meant for the button underneath."
     ),
-    documentation: URL(string: "https://airbnb.io/lottie/#/ios")
+    documentation: URL(string: "https://developer.apple.com/documentation/swiftui/viewthatfits")
   )
 
-  static let glassNote = BackstageNote(
-    id: "profile.glass",
-    component: "GlassEffectContainer · glassEffect",
+  static let actionNote = BackstageNote(
+    id: "profile.action",
+    component: "Button · adaptiveGlassProminent",
     role: Bilingual(
-      fr: "Regroupe les deux boutons flottants pour qu'ils partagent une seule couche de verre.",
-      en: "Groups both floating buttons so they share a single glass layer."
+      fr: "L'unique action principale de l'écran d'ouverture.",
+      en: "The opening screen's one primary action."
     ),
     rationale: Bilingual(
       fr: """
-        Deux boutons de verre côte à côte sans conteneur sont deux verres \
-        **empilés** : le fond est échantillonné deux fois, et le rendu \
-        s'assombrit à leur intersection. `GlassEffectContainer` les fusionne en \
-        une couche.
+        Une action principale par écran, au plus. Deux boutons de même poids ne \
+        sont pas deux fois plus utiles : ils annulent la hiérarchie et le lecteur \
+        doit arbitrer à la place du concepteur.
 
-        L'application vise **iOS 18 et plus** tout en se compilant avec le SDK \
-        d'iOS 26. Plutôt que de semer des `if #available` dans les vues — où \
-        personne ne saurait plus ce que voit un utilisateur d'iOS 18 — \
-        l'intention est nommée (`.navigationGlass()`) et le rendu décidé à un \
-        seul endroit.
-
-        Sur iOS 18, le repli n'est pas « la même chose en moins bien » : c'est \
-        le matériau que le système emploie lui-même pour ses barres.
+        Le style se rend différemment sur les deux mondes — verre teinté sur \
+        iOS 26, aplat d'accent sur iOS 18 — parce que la même teinte à faible \
+        opacité sur un matériau translucide donne du blanc sur du pâle en thème \
+        clair. Mesuré à l'écran, pas supposé.
         """,
       en: """
-        Two glass buttons side by side without a container are two **stacked** \
-        panes: the backdrop is sampled twice and darkens where they overlap. \
-        `GlassEffectContainer` merges them into one layer.
+        One primary action per screen, at most. Two buttons of equal weight are \
+        not twice as useful: they cancel the hierarchy, and the reader ends up \
+        arbitrating in the designer's place.
 
-        The app targets **iOS 18 and later** while compiling against the iOS 26 \
-        SDK. Rather than scattering `if #available` through the views — where \
-        nobody would know what an iOS 18 user actually sees — the intent is \
-        named (`.navigationGlass()`) and the rendering decided in one place.
-
-        On iOS 18 the fallback is not “the same thing, worse”: it is the \
-        material the system itself uses for its bars.
+        The style renders differently in the two worlds — tinted glass on \
+        iOS 26, a solid accent fill on iOS 18 — because the same tint at low \
+        opacity over a translucent material gives white on pale in light theme. \
+        Measured on screen, not assumed.
         """
     ),
     rejected: [
       .init(
-        Bilingual(fr: "Ne cibler qu'iOS 26", en: "Targeting iOS 26 only"),
+        Bilingual(fr: "`.borderedProminent`", en: "`.borderedProminent`"),
         because: Bilingual(
-          fr: "exclut les appareils qui n'ont pas franchi la version majeure — une part qui se compte en dizaines de pour cent les premiers mois",
-          en: "excludes devices that have not moved to the major release — tens of percent in the first months"
-        )
-      ),
-      .init(
-        "`.background(.ultraThinMaterial)`",
-        because: Bilingual(
-          fr: "partout, l'application aurait l'air d'iOS 18 sur iOS 26, en renonçant au matériau du système",
-          en: "used everywhere, the app would look like iOS 18 on iOS 26, giving up the system material"
+          fr: "Il ignore Liquid Glass sur iOS 26 : le bouton aurait l'air d'iOS 17 au milieu d'une barre en verre.",
+          en: "It ignores Liquid Glass on iOS 26: the button would look like iOS 17 in the middle of a glass bar."
         )
       ),
     ],
     whenToUse: Bilingual(
-      fr: """
-        Liquid Glass est un matériau de la couche **navigation** : barres, \
-        contrôles flottants, accessoires. Posé sur du contenu — une liste, un \
-        paragraphe, une image — il dégrade le contraste et brouille la \
-        hiérarchie : tout se met à flotter, donc plus rien ne ressort.
-        """,
-      en: """
-        Liquid Glass is a material of the **navigation** layer: bars, floating \
-        controls, accessories. Applied to content — a list, a paragraph, an \
-        image — it degrades contrast and blurs hierarchy: everything floats, so \
-        nothing stands out.
-        """
+      fr: "L'action que l'écran existe pour proposer. S'il y en a deux, l'une des deux n'en est pas une.",
+      en: "The action the screen exists to offer. If there are two, one of them is not one."
     ),
     pitfall: Bilingual(
-      fr: """
-        `glassEffect(in:)` découpe selon la forme donnée. Sans forme explicite, \
-        c'est le rectangle englobant — et un bouton en capsule se retrouve avec \
-        des coins de verre carrés qui dépassent.
-        """,
-      en: """
-        `glassEffect(in:)` clips to the shape you pass. With no explicit shape \
-        it is the bounding rectangle — and a capsule button ends up with square \
-        glass corners sticking out.
-        """
+      fr: "`glassEffect` s'applique à la vue, jamais en arrière-plan : posé dans un `.background`, il **recouvre** le libellé et le bouton paraît vide.",
+      en: "`glassEffect` applies to the view, never as a background: put in `.background`, it **covers** the label and the button looks empty."
     ),
-    documentation: URL(string: "https://developer.apple.com/documentation/swiftui/glasseffectcontainer")
+    documentation: URL(string: "https://developer.apple.com/documentation/swiftui/buttonstyle")
   )
 }
 

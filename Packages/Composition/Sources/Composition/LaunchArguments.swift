@@ -31,10 +31,13 @@ struct LaunchArguments: Sendable {
   ///
   ///     xcrun simctl launch <device> dev.amissan.portfolio -settings
   let opensSettings: Bool
+  /// Opens the résumé cover on launch, same reason again.
+  let opensResume: Bool
 
   init(_ arguments: [String]) {
     isBackstageEnabled = arguments.contains("-backstage")
     opensSettings = arguments.contains("-settings")
+    opensResume = arguments.contains("-resume")
     initialSection = Self.section(in: arguments) ?? .profile
   }
 

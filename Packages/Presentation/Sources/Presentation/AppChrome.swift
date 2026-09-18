@@ -163,6 +163,10 @@ public struct AppChrome: Sendable, Hashable {
   }
 
   public let settings: String
+  public let aboutLink: String
+  public let copyLink: String
+  public let linkCopied: String
+  public let aboutTitle: String
   public let routeMissingTitle: String
   public let routeMissingMessage: String
   public let annotationHint: String
@@ -225,6 +229,10 @@ public extension AppChrome {
     thePitfall: "Le piège",
     appleDocumentation: "Documentation Apple",
     settings: "Réglages",
+    aboutLink: "Lire la présentation",
+    copyLink: "Copier le lien App Store",
+    linkCopied: "Lien copié",
+    aboutTitle: "À propos",
     routeMissingTitle: "Contenu introuvable",
     routeMissingMessage: "Ce projet n'existe pas dans le contenu chargé.",
     annotationHint: "Explique pourquoi ce composant a été choisi",
@@ -286,6 +294,10 @@ public extension AppChrome {
     thePitfall: "The trap",
     appleDocumentation: "Apple documentation",
     settings: "Settings",
+    aboutLink: "Read the introduction",
+    copyLink: "Copy the App Store link",
+    linkCopied: "Link copied",
+    aboutTitle: "About",
     routeMissingTitle: "Content not found",
     routeMissingMessage: "This project is not in the loaded content.",
     annotationHint: "Explains why this component was chosen",

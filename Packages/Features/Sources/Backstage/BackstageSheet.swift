@@ -4,7 +4,31 @@ import Domain
 import SwiftUI
 import ViewKit
 
-/// A component's explanation, in detail.
+/// A component's explanation, revealed in stages.
+///
+/// ## The tension this resolves, and it is a real one
+///
+/// The owner asked for **more** explanation inside an app he had already judged
+/// too textual. Both are true at once, and the answer is not to pick one: it is
+/// progressive disclosure.
+///
+/// 1. at rest, **nothing** — the app is an app;
+/// 2. annotations on: numbered pins;
+/// 3. a tap: the component's name and one sentence, at a small detent;
+/// 4. "learn more": the whole thing, with what was ruled out.
+///
+/// The long text does not disappear. It stops being the first thing anyone
+/// sees, which was the actual complaint.
+///
+/// ## Why the detent is the disclosure
+///
+/// A "read more" that expands a section inside a fixed sheet would push the
+/// content the reader is holding their thumb over. The detent moves the
+/// **sheet**, so the first sentence stays exactly where it was and more appears
+/// below it. It is also draggable, so the same gesture works without finding a
+/// button.
+///
+/// ## Why this order below
 ///
 /// It answers, in order, the questions a technical reviewer would ask: *what is
 /// it*, *why this one*, *what was ruled out*, *when to use it*, *what breaks*.
@@ -17,6 +41,13 @@ package struct BackstageSheet: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.contentLanguage) private var language
 
+  /// The height at which only the component's name and its one sentence show.
+  ///
+  /// A fraction and not `.medium`: half a phone is far more than one sentence
+  /// needs, and the point of the first stage is that it does not cover what it
+  /// describes.
+  @State private var detent: PresentationDetent = .fraction(0.32)
+
   public init(note: BackstageNote) {
     self.note = note
   }
@@ -26,6 +57,10 @@ package struct BackstageSheet: View {
       ScrollView {
         VStack(alignment: .leading, spacing: Tokens.Space.s5) {
           header
+
+          if detent != .large {
+            learnMore
+          }
 
           section(BackstageLabels.why(language)) {
             markdown(note.rationale(language))
@@ -84,7 +119,7 @@ package struct BackstageSheet: View {
     }
     // An explanation is skimmed first: a half-height sheet keeps the component
     // it describes in view, and expands for anyone who wants all of it.
-    .presentationDetents([.medium, .large])
+    .presentationDetents([.fraction(0.32), .large], selection: $detent)
     .presentationDragIndicator(.visible)
   }
 
@@ -102,6 +137,26 @@ package struct BackstageSheet: View {
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .accessibilityElement(children: .combine)
+  }
+
+  /// The step from "what is it" to "why, and what was ruled out".
+  ///
+  /// Present even though the sheet can be dragged: a gesture nobody is told
+  /// about is a gesture most readers never make. The button is the discoverable
+  /// path, the drag is the fast one.
+  private var learnMore: some View {
+    Button {
+      withAnimation(Motion.disclosure) { detent = .large }
+    } label: {
+      HStack(spacing: Tokens.Space.s2) {
+        Text(BackstageLabels.learnMore(language))
+        Image(systemName: "chevron.down")
+          .font(.system(size: Tokens.Icon.caption, weight: .semibold))
+      }
+      .font(Typography.secondary)
+      .foregroundStyle(Color.accent)
+    }
+    .accessibilityHint(BackstageLabels.learnMoreHint(language))
   }
 
   private func section(_ title: String, @ViewBuilder content: () -> some View) -> some View {
