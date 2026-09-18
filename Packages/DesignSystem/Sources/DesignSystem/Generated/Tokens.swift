@@ -257,5 +257,11 @@ extension Tokens {
     public static let heroWashRadius: CGFloat = 260
     public static let signatureHeight: CGFloat = 34
     public static let signatureWidth: CGFloat = 260
+    public static let timelineDot: CGFloat = 5
+    public static let stepBadge: CGFloat = 20
+    public static let backstagePin: CGFloat = 26
+    public static let comparisonLabelWidth: CGFloat = 112
+    public static let comparisonColumnWidth: CGFloat = 248
+    public static let popoverWidth: CGFloat = 300
   }
 }

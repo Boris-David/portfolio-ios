@@ -675,21 +675,32 @@ Découpage :
       le savait avant que la requête ne parte. `.unknown` ne court-circuite rien
       — ne pas savoir n'est pas une raison de renoncer
 
+- [x] **§3 l'écran de réglages** — langue, apparence, coulisses, réinitialisation
+- [x] **l'injection segmentée par écran** (§11) — chaque écran déclare son
+      protocole de dépendances, la racine prouve qu'elle sait le satisfaire.
+      Interface Segregation, vérifiée par le compilateur, sans conteneur
+- [x] **§6 l'accroche refaite** — monogramme, nom, signature, métier, **une**
+      action ; la présentation longue part dans « À propos »
+- [x] **§7 le CV en trois secondes** — `ToolbarItem` permanent sur tous les
+      écrans, ouverture en `fullScreenCover`
+- [x] **§8 les coulisses par paliers** — au repos rien, puis des pastilles, puis
+      une phrase, puis tout. Le palier de feuille **est** la révélation
+- [x] **§14 le rafraîchissement au retour** — premier plan et retour en ligne,
+      la première activation exclue, une seule requête par transition
+- [x] haptique (`sensoryFeedback` lié à une **valeur qui change**, jamais à un
+      tap), bandeaux, `confirmationDialog`
+- [x] `Scripts/screens.sh` — dix-huit captures, deux thèmes, `accessibility5`
+- [x] garde de langue : elle ne voyait que les fichiers **suivis**, donc un
+      fichier neuf passait au vert
+
 **À faire :**
 
 - [ ] convertir **web et api** en anglais (114 fichiers)
-- [ ] écran de réglages (§3) — branchera `PreferencesRepository`
-- [ ] refaire l'accroche (§6)
-- [ ] mouvement, haptique, bandeaux, Lottie (§4) — **0 `sensoryFeedback`
-      aujourd'hui, une seule animation**
-- [ ] catalogue des présentations (§5) — **0 `fullScreenCover`, 0 `popover`,
-      0 `confirmationDialog`, 0 `contextMenu`**
-- [ ] coulisses en révélation progressive (§8)
-- [ ] comparatif d'architectures (§9)
-- [ ] routes d'API dédiées (§10)
-- [ ] accessibilité (§13) — 8 libellés, **0 test Dynamic Type**
-
-- [ ] rafraîchissement au retour au premier plan (§14)
+- [ ] §5 le catalogue restant : `popover` iPad, `matchedGeometryEffect`,
+      `symbolEffect` pendant l'attente
+- [ ] §4.3 les animations Lottie
+- [ ] §9 le comparatif d'architectures
+- [ ] §13 la passe d'accessibilité complète, revue en captures
 - [ ] fastlane / TestFlight
 - [ ] paysage et écran partagé sur iPad
 

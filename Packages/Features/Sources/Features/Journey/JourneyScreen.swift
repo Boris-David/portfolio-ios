@@ -255,7 +255,7 @@ struct ExperienceCard: View {
         HStack(alignment: .top, spacing: Tokens.Space.s3) {
           Circle()
             .fill(Color.accent)
-            .frame(width: 5, height: 5)
+            .frame(width: Tokens.Layout.timelineDot, height: Tokens.Layout.timelineDot)
             .padding(.top, 8)
           RichTextView(highlight)
         }

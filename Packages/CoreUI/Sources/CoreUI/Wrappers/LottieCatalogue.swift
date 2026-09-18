@@ -97,24 +97,51 @@ extension LottieCatalogue {
     }
   }
 
-  /// The token colours this file is drawn with, as Lottie encodes them.
+  /// Where each token colour is used inside the file.
   ///
-  /// Internal, and it exists for one reason: it turns the table in this type's
-  /// documentation into something `LottieCatalogueTests` can execute. The test
-  /// reads every colour out of the JSON and checks it appears here — so a hand
-  /// edit to a `"c"` array that drifts off the palette fails the suite instead
-  /// of quietly shipping an off-brand animation.
-  var palette: [[Double]] {
+  /// ## Why a keypath and not just a list of colours
+  ///
+  /// A Lottie file bakes its colours in. The list alone was enough to *check*
+  /// them — and not enough to *change* them, which is what the dark theme needs:
+  /// both themes were getting the light values, and `accent` on dark paper came
+  /// out at about 2.3:1. Legible, and the dimmest thing on the screen.
+  ///
+  /// Pairing each colour with the layer it belongs to makes the swap possible:
+  /// `LottieAnimation` installs a value provider per keypath when the scheme is
+  /// dark. The `**` matches any depth of group below the layer, so the file can
+  /// be restructured inside a layer without this list moving.
+  ///
+  /// It also keeps the check: `LottieCatalogueTests` reads every colour out of
+  /// the JSON and asserts it appears here, so a hand edit that drifts off the
+  /// palette fails the suite instead of quietly shipping an off-brand animation.
+  var tints: [(keypath: String, palette: Tokens.Palette)] {
     switch self {
     case .signature:
-      [Self.channels(Tokens.Color.accent.light)]
+      [("stroke.**.Color", Tokens.Color.accent)]
     case .empty:
-      [Self.channels(Tokens.Color.ink3.light), Self.channels(Tokens.Color.line2.light)]
+      [("sheet.**.Color", Tokens.Color.ink3), ("ground.**.Color", Tokens.Color.line2)]
     case .unreachable:
-      [Self.channels(Tokens.Color.accent.light), Self.channels(Tokens.Color.ink3.light)]
+      [
+        ("break.**.Color", Tokens.Color.accent),
+        ("left end.**.Color", Tokens.Color.ink3),
+        ("right end.**.Color", Tokens.Color.ink3),
+      ]
     case .downloaded:
-      [Self.channels(Tokens.Color.ok.light)]
+      [("mark.**.Color", Tokens.Color.ok), ("ring.**.Color", Tokens.Color.ok)]
     }
+  }
+
+  /// The light values the JSON is authored with, derived from `tints`.
+  ///
+  /// Derived rather than listed a second time: two lists that must agree are two
+  /// lists that will not.
+  var palette: [[Double]] {
+    var seen: [[Double]] = []
+    for tint in tints {
+      let channels = Self.channels(tint.palette.light)
+      if !seen.contains(channels) { seen.append(channels) }
+    }
+    return seen
   }
 
   /// The frame count the file declares as its out point.

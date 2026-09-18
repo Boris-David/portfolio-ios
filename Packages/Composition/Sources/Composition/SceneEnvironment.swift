@@ -31,6 +31,7 @@ struct SceneEnvironment: ViewModifier {
   let sheets: SheetResolver
   let openSettings: OpenSettingsAction
   let openResume: OpenResumeAction
+  let zoom: Namespace.ID
 
   func body(content: Content) -> some View {
     content
@@ -39,7 +40,7 @@ struct SceneEnvironment: ViewModifier {
       .environment(settings)
       .environment(toasts)
       .environment(backstage)
-      .environment(\.routeResolver, .live)
+      .environment(\.routeResolver, .live(in: zoom))
       .environment(\.sheetResolver, sheets)
       .environment(\.openSettings, openSettings)
       .environment(\.openResume, openResume)

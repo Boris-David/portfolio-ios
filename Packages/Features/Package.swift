@@ -57,6 +57,7 @@ let package = Package(
         "FeatureBackstage",
         "FeatureContact",
         "FeatureSettings",
+        "FeatureArchitecture",
       ]
     ),
   ],
@@ -139,6 +140,7 @@ let package = Package(
     .target(name: "FeatureBackstage", dependencies: ["FeatureKit"], path: "Sources/Features/Backstage", swiftSettings: .strict),
     .target(name: "FeatureContact", dependencies: ["FeatureKit"], path: "Sources/Features/Contact", swiftSettings: .strict),
     .target(name: "FeatureSettings", dependencies: ["FeatureKit"], path: "Sources/Features/Settings", swiftSettings: .strict),
+    .target(name: "FeatureArchitecture", dependencies: ["FeatureKit"], path: "Sources/Features/Architecture", swiftSettings: .strict),
 
     .testTarget(name: "ViewKitTests", dependencies: ["ViewKit"], swiftSettings: .strict),
     .testTarget(name: "BackstageTests", dependencies: ["Backstage"], swiftSettings: .strict),

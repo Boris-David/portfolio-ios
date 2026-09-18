@@ -20,6 +20,7 @@ enum PortfolioMapper {
       caseStudies: dto.caseStudies.map(caseStudy),
       apps: try appCatalogue(from: dto.apps),
       expertise: dto.expertise.map(expertise),
+      architectures: try architectureDossier(from: dto.architectures),
       experience: try dto.experience.map(experience),
       background: try background(from: dto.background),
       skills: dto.skills.map { SkillGroup(id: $0.id, title: $0.title, items: $0.items) }
@@ -167,6 +168,71 @@ enum PortfolioMapper {
 
   static func expertise(_ dto: ExpertiseDTO) -> ExpertiseTopic {
     ExpertiseTopic(id: dto.id, title: dto.title, body: richText(dto.body))
+  }
+
+  // ── Architectures ──────────────────────────────────────────────────────
+
+  /// The patterns, then the codebases — in that order, because a codebase is
+  /// only readable once the pattern it points at exists.
+  static func architectureDossier(
+    from dto: ArchitectureDossierDTO
+  ) throws(MappingError) -> ArchitectureDossier {
+    let patterns = try dto.patterns.map(architecturePattern)
+
+    return ArchitectureDossier(
+      verifiedOn: dto.verifiedOn,
+      intro: richText(dto.intro),
+      patterns: patterns,
+      projects: try dto.projects.map { project throws(MappingError) in
+        // The reference is followed **here**, once. A dangling one is refused
+        // rather than dropped: a codebase shown without the pattern it is meant
+        // to illustrate says nothing, and silently omitting it would leave the
+        // comparison looking complete.
+        guard let pattern = patterns.first(where: { $0.id.rawValue == project.pattern }) else {
+          throw MappingError(
+            path: "architectures.projects[\(project.id)].pattern",
+            reason: .unknownValue(project.pattern)
+          )
+        }
+        return ProjectArchitecture(
+          id: project.id,
+          name: project.name,
+          context: project.context,
+          pattern: pattern,
+          stack: project.stack,
+          evidence: project.evidence.map {
+            ArchitectureEvidence(symbol: $0.symbol, count: $0.count)
+          },
+          reading: richText(project.reading)
+        )
+      }
+    )
+  }
+
+  /// A pattern outside the closed set **throws**, exactly like an application
+  /// role.
+  ///
+  /// The comparison is a table with one column per pattern. A fifth identifier
+  /// has no cell to go in, so accepting it would mean dropping a column — and a
+  /// comparison silently missing one of its terms is worse than no comparison.
+  static func architecturePattern(
+    _ dto: ArchitecturePatternDTO
+  ) throws(MappingError) -> ArchitecturePattern {
+    guard let id = ArchitecturePattern.Identifier(rawValue: dto.id) else {
+      throw MappingError(
+        path: "architectures.patterns[\(dto.id)].id",
+        reason: .unknownValue(dto.id)
+      )
+    }
+    return ArchitecturePattern(
+      id: id,
+      name: dto.name,
+      separates: dto.separates,
+      buys: richText(dto.buys),
+      costs: richText(dto.costs),
+      chooseWhen: richText(dto.chooseWhen),
+      breaksWhen: richText(dto.breaksWhen)
+    )
   }
 
   // ── Career ─────────────────────────────────────────────────────────────

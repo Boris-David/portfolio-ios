@@ -171,6 +171,7 @@ struct DependencyGraphTests {
   private static let screens = [
     "FeatureProfile", "FeatureWork", "FeatureJourney",
     "FeatureResume", "FeatureBackstage", "FeatureContact",
+    "FeatureArchitecture",
   ]
 
   /// Two screens that know each other stop being deliverable apart. They go

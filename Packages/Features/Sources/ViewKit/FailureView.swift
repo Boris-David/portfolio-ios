@@ -23,12 +23,23 @@ package struct FailureView: View {
 
   public var body: some View {
     VStack(spacing: Tokens.Space.s4) {
-      Image(failure.icon)
-        .font(.system(size: Tokens.Icon.hero, weight: .light))
-        .foregroundStyle(Color.ink3)
-        // The symbol breathes once on appearance — enough to catch the eye,
-        // not enough to distract from what there is to read.
-        .symbolEffect(.bounce, value: appeared)
+      // An animation where there is one, a symbol where there is not.
+      //
+      // The two failures worth animating are the ones a reader may sit in for a
+      // while — no route, nothing stored. A malformed payload is a developer's
+      // problem and gets a still symbol: animating it would dress up a defect.
+      if let animation = failure.icon.animation {
+        LottieAnimation(animation)
+          .frame(width: Tokens.Icon.hero * 3, height: Tokens.Icon.hero * 3)
+          .accessibilityHidden(true)
+      } else {
+        Image(failure.icon)
+          .font(.system(size: Tokens.Icon.hero, weight: .light))
+          .foregroundStyle(Color.ink3)
+          // The symbol breathes once on appearance — enough to catch the eye,
+          // not enough to distract from what there is to read.
+          .symbolEffect(.bounce, value: appeared)
+      }
 
       VStack(spacing: Tokens.Space.s2) {
         Text(failure.title)

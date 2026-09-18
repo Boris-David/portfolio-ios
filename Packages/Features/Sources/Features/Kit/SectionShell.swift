@@ -2,6 +2,7 @@ import Backstage
 import DesignSystem
 import Presentation
 import SwiftUI
+import TipKit
 import ViewKit
 
 /// The shell every tab is mounted in: a stack, its destinations, its sheets,
@@ -19,6 +20,7 @@ package struct SectionShell<Content: View>: View {
   @Environment(\.sheetResolver) private var sheets
   @Environment(\.openSettings) private var openSettings
   @Environment(\.openResume) private var openResume
+  @Environment(\.contentLanguage) private var language
   @Chrome private var chrome
   @State private var router = Router()
 
@@ -62,6 +64,8 @@ package struct SectionShell<Content: View>: View {
               Label(chrome.settings, icon: .settings)
             }
             .accessibilityLabel(chrome.settings)
+            // The one tip in the app, anchored to where the switch lives.
+            .popoverTip(BackstageTip(language: language))
           }
         }
         .navigationDestination(for: Route.self) { route in

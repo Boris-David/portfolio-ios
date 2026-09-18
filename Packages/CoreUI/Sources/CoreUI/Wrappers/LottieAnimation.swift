@@ -65,7 +65,12 @@ public struct LottieAnimation: UIViewRepresentable {
       loopMode: animation.repeats ? .loop : .playOnce,
       isPlaying: isPlaying
     )
+    catalogue = animation
   }
+
+  /// Set only when the animation came from the catalogue, which is the only
+  /// case where its colours are known and can therefore be swapped.
+  private var catalogue: LottieCatalogue?
 
   public func makeUIView(context: Context) -> Lottie.LottieAnimationView {
     let view = Lottie.LottieAnimationView(name: name, bundle: bundle)
@@ -88,7 +93,41 @@ public struct LottieAnimation: UIViewRepresentable {
       view.pause()
       return
     }
+    applyTheme(to: view, colorScheme: context.environment.colorScheme)
+
     guard !view.isAnimationPlaying else { return }
     view.play()
+  }
+
+  /// Repaints the animation for the theme on screen.
+  ///
+  /// ## The defect this closes
+  ///
+  /// A Lottie file bakes its colours in, and nothing here used to change them.
+  /// So both themes rendered the **light** palette: on dark paper, `accent` came
+  /// out at roughly 2.3:1 — legible, and the dimmest thing on the screen, which
+  /// is the opposite of what an accent is for.
+  ///
+  /// Every other colour in this app is dynamic by construction: `Tokens.Palette`
+  /// carries both values and `UIColor` picks. The animations were the one place
+  /// that escaped, because their colours live in a JSON file rather than in a
+  /// type.
+  ///
+  /// ## Why it runs on every update and not once
+  ///
+  /// The theme can change while the view is on screen — the reader switches it
+  /// in the settings sheet, or the sun sets and the system does. A one-shot in
+  /// `makeUIView` would be correct exactly until then.
+  private func applyTheme(to view: Lottie.LottieAnimationView, colorScheme: ColorScheme) {
+    guard let catalogue else { return }
+    for tint in catalogue.tints {
+      let components = colorScheme == .dark ? tint.palette.dark : tint.palette.light
+      view.setValueProvider(
+        ColorValueProvider(
+          LottieColor(r: components.red, g: components.green, b: components.blue, a: 1)
+        ),
+        keypath: AnimationKeypath(keypath: tint.keypath)
+      )
+    }
   }
 }

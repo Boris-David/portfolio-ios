@@ -11,6 +11,12 @@ import ViewKit
 /// The projects, told the way an engineer delivers: the problem, the decision,
 /// the result.
 public struct WorkScreen: View {
+  /// The namespace a card and its detail share so the push can be a zoom.
+  ///
+  /// Declared on the screen and not inside the card: a namespace per card would
+  /// match nothing, because the two halves of the transition have to agree on
+  /// the same one.
+  @Namespace private var zoom
   @Environment(PortfolioStore.self) private var store
   @Chrome private var chrome
 
@@ -41,7 +47,7 @@ public struct WorkScreen: View {
 
         VStack(spacing: Tokens.Space.s4) {
           ForEach(portfolio.caseStudies) { study in
-            CaseStudyCard(study: study)
+            CaseStudyCard(study: study, namespace: zoom)
           }
         }
         .padding(.horizontal, Tokens.Space.s5)
@@ -63,7 +69,11 @@ public struct WorkScreen: View {
 /// detail.
 struct CaseStudyCard: View {
   let study: CaseStudy
+  /// The namespace the zoom transition matches across.
+  let namespace: Namespace.ID
+
   @Environment(Router.self) private var router
+  @ReducedMotion private var reducedMotion
   @Chrome private var chrome
 
   var body: some View {

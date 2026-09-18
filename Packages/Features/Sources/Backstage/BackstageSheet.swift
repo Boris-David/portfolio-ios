@@ -173,7 +173,7 @@ package struct BackstageSheet: View {
       // candidates are good tools, in the wrong place.
       RoundedRectangle(cornerRadius: 1)
         .fill(Color.line2)
-        .frame(width: 3)
+        .frame(width: Tokens.Stroke.emphasis)
       VStack(alignment: .leading, spacing: 2) {
         Text(rejected.name(language))
           .font(Typography.bodyStrong)

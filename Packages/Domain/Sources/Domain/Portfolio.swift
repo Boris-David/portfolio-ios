@@ -11,6 +11,7 @@ public struct Portfolio: Sendable, Hashable {
   public let caseStudies: [CaseStudy]
   public let apps: AppCatalogue
   public let expertise: [ExpertiseTopic]
+  public let architectures: ArchitectureDossier
   public let experience: [Experience]
   public let background: Background
   public let skills: [SkillGroup]
@@ -22,6 +23,7 @@ public struct Portfolio: Sendable, Hashable {
     caseStudies: [CaseStudy],
     apps: AppCatalogue,
     expertise: [ExpertiseTopic],
+    architectures: ArchitectureDossier,
     experience: [Experience],
     background: Background,
     skills: [SkillGroup]
@@ -32,6 +34,7 @@ public struct Portfolio: Sendable, Hashable {
     self.caseStudies = caseStudies
     self.apps = apps
     self.expertise = expertise
+    self.architectures = architectures
     self.experience = experience
     self.background = background
     self.skills = skills

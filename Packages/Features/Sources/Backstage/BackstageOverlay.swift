@@ -71,7 +71,7 @@ package struct BackstageOverlay: ViewModifier {
         .font(.system(size: Tokens.Icon.caption, weight: .bold, design: .rounded))
         .monospacedDigit()
         .foregroundStyle(Color.onAccent)
-        .frame(width: 26, height: 26)
+        .frame(width: Tokens.Layout.backstagePin, height: Tokens.Layout.backstagePin)
         .background(Circle().fill(Color.accent))
         .overlay(Circle().strokeBorder(Color.paper, lineWidth: Tokens.Stroke.regular * 2))
     }

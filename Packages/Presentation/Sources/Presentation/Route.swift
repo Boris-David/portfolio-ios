@@ -13,4 +13,7 @@ public enum Route: Hashable, Sendable {
   /// The long-form introduction, which the first screen deliberately does not
   /// carry: an opening gives the scale, not the story.
   case about
+  /// The comparison of architecture patterns, and the codebases read against
+  /// them. A reading, not a destination — hence a push from the backstage tab.
+  case architectures
 }

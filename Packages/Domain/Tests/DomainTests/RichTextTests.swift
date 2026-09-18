@@ -92,7 +92,11 @@ extension Portfolio {
     ),
     metrics: [], sections: [], caseStudies: [],
     apps: AppCatalogue(verifiedOn: "2026-01-01", items: []),
-    expertise: [], experience: [],
+    expertise: [],
+    architectures: ArchitectureDossier(
+      verifiedOn: "2026-01-01", intro: "i", patterns: [], projects: []
+    ),
+    experience: [],
     background: Background(education: [], certifications: [], openProjects: []),
     skills: []
   )

@@ -91,6 +91,23 @@ public final class SettingsStore {
     await preferences.setBackstageEnabled(value)
   }
 
+  /// Turns the annotations on **for this launch only**, without writing.
+  ///
+  /// ## Why this is not `setBackstageEnabled(true)`
+  ///
+  /// Because a screenshot flag that modifies the reader's stored preferences is
+  /// a bug, and it was one: `-backstage` wrote the setting, so every capture
+  /// taken after it in the matrix came out with annotations on — including the
+  /// ones meant to show the app at rest. The matrix was not reproducible, and
+  /// nothing said so; the images simply looked wrong in a way that was easy to
+  /// blame on the app.
+  ///
+  /// It also mattered outside CI: anybody who launched with the flag once found
+  /// their app annotated for good.
+  public func forceBackstage() {
+    isBackstageEnabled = true
+  }
+
   /// Puts everything back. Announces only if it changed something visible.
   public func reset() async {
     await setAppearance(.system)

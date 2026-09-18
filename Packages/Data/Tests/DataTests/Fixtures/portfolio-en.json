@@ -1,7 +1,7 @@
 {
     "meta": {
         "locale": "en",
-        "contentVersion": "m6yzYcq8sta4bduuFvWIYl"
+        "contentVersion": "k-1WhyYb2nzwoPlkp3C9F9"
     },
     "data": {
         "profile": {
@@ -1218,6 +1218,787 @@
                 ]
             }
         ],
+        "deepDives": [
+            {
+                "expertise": "concurrency",
+                "lede": [
+                    {
+                        "text": "A concurrency bug is not reproduced, it is reasoned about. The real question is never whether the code works, it is ",
+                        "style": "plain"
+                    },
+                    {
+                        "text": "what stops it from not working",
+                        "style": "strong"
+                    },
+                    {
+                        "text": " — and the right answer is a compiler guarantee, not a promise kept at review time.",
+                        "style": "plain"
+                    }
+                ],
+                "sections": [
+                    {
+                        "slug": "what-a-lock-does-not-guarantee",
+                        "heading": "What a lock does not guarantee",
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "text": [
+                                    {
+                                        "text": "A lock protects state ",
+                                        "style": "plain"
+                                    },
+                                    {
+                                        "text": "provided you remember to take it everywhere",
+                                        "style": "strong"
+                                    },
+                                    {
+                                        "text": ". Nothing checks that: not the compiler, and not the tests, which pass for as long as the scheduling is kind to them. The day a new caller forgets, the fault shows up in production and nowhere else.",
+                                        "style": "plain"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "paragraph",
+                                "text": [
+                                    {
+                                        "text": "And a lock held across a suspension point is a deadlock waiting for its moment: the thread that resumes is not necessarily the one that took it.",
+                                        "style": "plain"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "slug": "isolation-as-a-type-property",
+                        "heading": "Isolation as a property of the type",
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "text": [
+                                    {
+                                        "text": "With an actor, isolation stops being a discipline and becomes a ",
+                                        "style": "plain"
+                                    },
+                                    {
+                                        "text": "property of the type",
+                                        "style": "strong"
+                                    },
+                                    {
+                                        "text": ". Every access from outside is serialised by construction, and forgetting is no longer expressible — it is not a rule you apply any more, it is a compile error.",
+                                        "style": "plain"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "paragraph",
+                                "text": [
+                                    {
+                                        "text": "The difficulty then moves onto what crosses the boundary: whatever goes in and out must be ",
+                                        "style": "plain"
+                                    },
+                                    {
+                                        "text": "Sendable",
+                                        "style": "code"
+                                    },
+                                    {
+                                        "text": ". That is where the real work happens, and where you find out which of the app's types were being shared without anyone ever deciding so.",
+                                        "style": "plain"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "slug": "one-remembered-task",
+                        "heading": "One remembered task rather than n tasks",
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "text": [
+                                    {
+                                        "text": "The pattern reaches well beyond renewing a token: ",
+                                        "style": "plain"
+                                    },
+                                    {
+                                        "text": "several callers need the same result, and exactly one job should start",
+                                        "style": "strong"
+                                    },
+                                    {
+                                        "text": ". The in-flight task is remembered, later callers are handed that one instead of creating another, and it is forgotten as soon as it completes.",
+                                        "style": "plain"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "list",
+                                "items": [
+                                    [
+                                        {
+                                            "text": "Without it, as many failing requests trigger as many concurrent renewals — which invalidate one another.",
+                                            "style": "plain"
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "text": "With it, the load no longer depends on the number of callers: it depends on the number of events.",
+                                            "style": "plain"
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "text": "The same reasoning holds for loading a shared resource, for a migration, for warming a cache.",
+                                            "style": "plain"
+                                        }
+                                    ]
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "slug": "what-it-still-costs",
+                        "heading": "What it still costs",
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "text": [
+                                    {
+                                        "text": "An actor is ",
+                                        "style": "plain"
+                                    },
+                                    {
+                                        "text": "not",
+                                        "style": "strong"
+                                    },
+                                    {
+                                        "text": " a critical section. It is reentrant: state may have changed during a suspension, so a value read before one must be read again after. Believing otherwise swaps a race for a wrong assumption — quieter, and far slower to find.",
+                                        "style": "plain"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "tags",
+                                "items": [
+                                    "actor",
+                                    "async/await",
+                                    "Task",
+                                    "Sendable",
+                                    "Reentrancy"
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "evidence": {
+                    "caseStudy": "mobile-ticketing",
+                    "chapter": "authentication"
+                }
+            },
+            {
+                "expertise": "boundaries",
+                "lede": [
+                    {
+                        "text": "A boundary that rests on goodwill is not a boundary. The only question that matters is: ",
+                        "style": "plain"
+                    },
+                    {
+                        "text": "what fails if someone crosses it?",
+                        "style": "strong"
+                    },
+                    {
+                        "text": " If the answer is a review comment, it will be crossed.",
+                        "style": "plain"
+                    }
+                ],
+                "sections": [
+                    {
+                        "slug": "a-folder-is-not-a-boundary",
+                        "heading": "A folder is not a boundary",
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "text": [
+                                    {
+                                        "text": "Three folders named ",
+                                        "style": "plain"
+                                    },
+                                    {
+                                        "text": "Domain",
+                                        "style": "code"
+                                    },
+                                    {
+                                        "text": ", ",
+                                        "style": "plain"
+                                    },
+                                    {
+                                        "text": "Data",
+                                        "style": "code"
+                                    },
+                                    {
+                                        "text": " and ",
+                                        "style": "plain"
+                                    },
+                                    {
+                                        "text": "Presentation",
+                                        "style": "code"
+                                    },
+                                    {
+                                        "text": " inside one target separate nothing at all: any file imports any other. The structure is there, the constraint is not — and it is the constraint that holds an architecture up, not the tree.",
+                                        "style": "plain"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "slug": "a-module-refuses",
+                        "heading": "A module, on the other hand, refuses",
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "text": [
+                                    {
+                                        "text": "When each layer is its own target, the rule becomes mechanical: a feature that imports the network ",
+                                        "style": "plain"
+                                    },
+                                    {
+                                        "text": "does not compile",
+                                        "style": "strong"
+                                    },
+                                    {
+                                        "text": ". The violation no longer surfaces in review, it surfaces in red, on the machine of whoever just wrote it.",
+                                        "style": "plain"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "paragraph",
+                                "text": [
+                                    {
+                                        "text": "What remains is stopping the graph itself from drifting: a test reads the manifest and refuses a new dependency. Without it, the boundary holds until the day someone adds, in perfectly good faith, the line that removes it.",
+                                        "style": "plain"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "slug": "the-default-belongs-to-the-product",
+                        "heading": "The default belongs to the product",
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "text": [
+                                    {
+                                        "text": "A per-vendor abstraction is only worth something once you decide ",
+                                        "style": "plain"
+                                    },
+                                    {
+                                        "text": "where the shared behaviour lives",
+                                        "style": "strong"
+                                    },
+                                    {
+                                        "text": ". Left inside the vendor modules, it is copied once per vendor. Lifted up to the product, it exists once, and a vendor overrides only what it actually means to change.",
+                                        "style": "plain"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "paragraph",
+                                "text": [
+                                    {
+                                        "text": "It is a rule that holds without arbitration: there is no discussion left about the right place, because there is only one.",
+                                        "style": "plain"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "slug": "where-i-stop",
+                        "heading": "Where I stop",
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "text": [
+                                    {
+                                        "text": "Piling up abstractions is not a goal. A protocol with a single implementation you will never replace costs an indirection at every read — a senior reviewer reads that as over-engineering, not as a quality.",
+                                        "style": "plain"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "list",
+                                "items": [
+                                    [
+                                        {
+                                            "text": "A port for whatever touches the outside world",
+                                            "style": "strong"
+                                        },
+                                        {
+                                            "text": ": network, disk, preferences, clock.",
+                                            "style": "plain"
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "text": "An abstraction where it buys something",
+                                            "style": "strong"
+                                        },
+                                        {
+                                            "text": ": real replaceability, testability without a simulator, or a team boundary.",
+                                            "style": "plain"
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "text": "Nothing elsewhere.",
+                                            "style": "strong"
+                                        },
+                                        {
+                                            "text": " Knowing where to stop proves more than protocols everywhere.",
+                                            "style": "plain"
+                                        }
+                                    ]
+                                ]
+                            },
+                            {
+                                "type": "tags",
+                                "items": [
+                                    "SPM",
+                                    "Targets per layer",
+                                    "Dependency inversion",
+                                    "Ports and adapters"
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "evidence": {
+                    "caseStudy": "mobile-ticketing",
+                    "chapter": "clean-architecture"
+                }
+            },
+            {
+                "expertise": "delivery",
+                "lede": [
+                    {
+                        "text": "Shipping is not the last step of development, it is part of the product. Whatever stays manual ends up depending on one person and one machine — and the day either is missing, the release is not delayed, it is ",
+                        "style": "plain"
+                    },
+                    {
+                        "text": "impossible",
+                        "style": "strong"
+                    },
+                    {
+                        "text": ".",
+                        "style": "plain"
+                    }
+                ],
+                "sections": [
+                    {
+                        "slug": "the-project-is-not-a-source-file",
+                        "heading": "The Xcode project is not a source file",
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "text": [
+                                    {
+                                        "text": "An ",
+                                        "style": "plain"
+                                    },
+                                    {
+                                        "text": ".xcodeproj",
+                                        "style": "code"
+                                    },
+                                    {
+                                        "text": " is serialised state, not an intention. Two people adding a file on the same day produce a conflict you do not resolve — you arbitrate it. Generating the project from a ",
+                                        "style": "plain"
+                                    },
+                                    {
+                                        "text": "readable specification",
+                                        "style": "strong"
+                                    },
+                                    {
+                                        "text": " makes the conflict readable again: you compare intentions, not identifiers.",
+                                        "style": "plain"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "slug": "signing-is-not-a-ritual",
+                        "heading": "Signing is not a ritual",
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "text": [
+                                    {
+                                        "text": "Certificates installed by hand on one machine are a ",
+                                        "style": "plain"
+                                    },
+                                    {
+                                        "text": "hidden dependency on that machine",
+                                        "style": "strong"
+                                    },
+                                    {
+                                        "text": ". Versioned and distributed, they become a project resource: any machine on the pipeline can publish, and nobody is a mandatory checkpoint any more.",
+                                        "style": "plain"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "slug": "shipping-is-not-releasing",
+                        "heading": "Shipping is not releasing",
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "text": [
+                                    {
+                                        "text": "A feature flag separates two decisions that get confused: ",
+                                        "style": "plain"
+                                    },
+                                    {
+                                        "text": "the code is in the build",
+                                        "style": "strong"
+                                    },
+                                    {
+                                        "text": " and ",
+                                        "style": "plain"
+                                    },
+                                    {
+                                        "text": "the feature is visible",
+                                        "style": "strong"
+                                    },
+                                    {
+                                        "text": ". Separating them removes the branch that lives too long, the painful merge, and the release window missed because of one feature that was not ready.",
+                                        "style": "plain"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "slug": "one-pipeline-per-module",
+                        "heading": "One pipeline per product, one per module",
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "text": [
+                                    {
+                                        "text": "A published module needs its own pipeline. Without one, it is only ever validated through the app that consumes it — too late, and with the root cause buried in a project ten times its size.",
+                                        "style": "plain"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "paragraph",
+                                "text": [
+                                    {
+                                        "text": "That is what KCalories was there to prove at the scale of one person: the pipeline held, and the next version did not have to wait until someone found the time to publish it.",
+                                        "style": "plain"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "tags",
+                                "items": [
+                                    "XcodeGen",
+                                    "fastlane",
+                                    "match",
+                                    "Jenkins",
+                                    "Feature flags",
+                                    "CI/CD"
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "evidence": {
+                    "caseStudy": "kcalories",
+                    "chapter": "product"
+                }
+            }
+        ],
+        "architectures": {
+            "verifiedOn": "2026-09-18",
+            "intro": [
+                {
+                    "text": "Three codebases, three patterns, one trajectory: ",
+                    "style": "plain"
+                },
+                {
+                    "text": "MVVM on UIKit towards Clean Architecture on SwiftUI",
+                    "style": "strong"
+                },
+                {
+                    "text": ". The counts below were measured in the repositories, not remembered — that is the only reason they are here.",
+                    "style": "plain"
+                }
+            ],
+            "patterns": [
+                {
+                    "id": "mvc",
+                    "name": "MVC",
+                    "separates": "The data, its display, and the controller holding both ends.",
+                    "buys": [
+                        {
+                            "text": "Nothing to set up",
+                            "style": "strong"
+                        },
+                        {
+                            "text": ": it is the model UIKit hands you, and it reads without explanation. On a simple screen, it is the shortest path from intent to pixel.",
+                            "style": "plain"
+                        }
+                    ],
+                    "costs": [
+                        {
+                            "text": "The controller becomes the only place to put whatever fits nowhere else — lifecycle, network calls, formatting, navigation. It grows, and no rule stands in its way.",
+                            "style": "plain"
+                        }
+                    ],
+                    "chooseWhen": [
+                        {
+                            "text": "A settings screen, a fixed detail view, a prototype you will throw away.",
+                            "style": "plain"
+                        }
+                    ],
+                    "breaksWhen": [
+                        {
+                            "text": "The moment the logic has to be tested: it lives in the controller, and the controller only exists with a loaded view.",
+                            "style": "plain"
+                        }
+                    ]
+                },
+                {
+                    "id": "mvp",
+                    "name": "MVP",
+                    "separates": "The decision from the display: the presenter decides, the view carries out.",
+                    "buys": [
+                        {
+                            "text": "The view becomes a ",
+                            "style": "plain"
+                        },
+                        {
+                            "text": "contract",
+                            "style": "strong"
+                        },
+                        {
+                            "text": " — a protocol. The logic is tested against a view double, with no simulator and no lifecycle to wake up.",
+                            "style": "plain"
+                        }
+                    ],
+                    "costs": [
+                        {
+                            "text": "Two protocols and a hand-written refresh per screen. The presenter pushes state method by method: one forgotten call is a screen that does not update.",
+                            "style": "plain"
+                        }
+                    ],
+                    "chooseWhen": [
+                        {
+                            "text": "A UIKit codebase where the logic must leave the controller without bringing in reactive plumbing.",
+                            "style": "plain"
+                        }
+                    ],
+                    "breaksWhen": [
+                        {
+                            "text": "In SwiftUI: pushing state into a view that recomputes itself means working against the framework.",
+                            "style": "plain"
+                        }
+                    ]
+                },
+                {
+                    "id": "mvvm",
+                    "name": "MVVM",
+                    "separates": "The displayable state from the view displaying it. The view observes; it is given no orders.",
+                    "buys": [
+                        {
+                            "text": "State is an ",
+                            "style": "plain"
+                        },
+                        {
+                            "text": "observable value",
+                            "style": "strong"
+                        },
+                        {
+                            "text": " rather than a sequence of calls: the view rebuilds from it, so it cannot fall out of step. It is exactly what SwiftUI expects.",
+                            "style": "plain"
+                        }
+                    ],
+                    "costs": [
+                        {
+                            "text": "The view model attracts everything — network, formatting, navigation — until it becomes the massive controller you were fleeing, under another name.",
+                            "style": "plain"
+                        }
+                    ],
+                    "chooseWhen": [
+                        {
+                            "text": "An app whose complexity is the interface, and whose domain holds few rules.",
+                            "style": "plain"
+                        }
+                    ],
+                    "breaksWhen": [
+                        {
+                            "text": "When the business rule weighs more than the screen: MVVM says nothing about where it should live.",
+                            "style": "plain"
+                        }
+                    ]
+                },
+                {
+                    "id": "clean",
+                    "name": "Clean Architecture",
+                    "separates": "The domain from everything else: the business rule knows nothing of the screen, the network or the store.",
+                    "buys": [
+                        {
+                            "text": "Dependencies point ",
+                            "style": "plain"
+                        },
+                        {
+                            "text": "inwards",
+                            "style": "strong"
+                        },
+                        {
+                            "text": ". Changing the interface or the transport touches no rule, and the domain is tested without standing anything up. When the boundary is a module, it stops being a convention — the compiler refuses to cross it.",
+                            "style": "plain"
+                        }
+                    ],
+                    "costs": [
+                        {
+                            "text": "Many more files, and a round trip per use case even when it only relays. On a trivial screen, the indirection costs more than it protects.",
+                            "style": "plain"
+                        }
+                    ],
+                    "chooseWhen": [
+                        {
+                            "text": "A product meant to last, several teams, or several implementations behind one rule.",
+                            "style": "plain"
+                        }
+                    ],
+                    "breaksWhen": [
+                        {
+                            "text": "When it holds by discipline rather than by the compiler: a folder named ",
+                            "style": "plain"
+                        },
+                        {
+                            "text": "Domain",
+                            "style": "code"
+                        },
+                        {
+                            "text": " that imports the network separates nothing.",
+                            "style": "plain"
+                        }
+                    ]
+                }
+            ],
+            "projects": [
+                {
+                    "id": "first-generation-platform",
+                    "name": "The first-generation platform",
+                    "context": "The white-label platform that the transport apps in production run on, on the iOS side.",
+                    "pattern": "mvvm",
+                    "stack": [
+                        "Swift",
+                        "UIKit",
+                        "Navigation by flow objects"
+                    ],
+                    "evidence": [
+                        {
+                            "symbol": "ViewController",
+                            "count": 304
+                        },
+                        {
+                            "symbol": "ViewModel",
+                            "count": 325
+                        },
+                        {
+                            "symbol": "Flow",
+                            "count": 124
+                        },
+                        {
+                            "symbol": "Presenter",
+                            "count": 14
+                        }
+                    ],
+                    "reading": [
+                        {
+                            "text": "MVVM on UIKit",
+                            "style": "strong"
+                        },
+                        {
+                            "text": ", with navigation lifted out of the controllers and carried by dedicated flow objects. The ratio between view models and presenters settles the question: MVP covers only a handful of modules — a leftover, not the pattern of the codebase.",
+                            "style": "plain"
+                        }
+                    ]
+                },
+                {
+                    "id": "current-generation-platform",
+                    "name": "The current platform",
+                    "context": "The next-generation platform, onto which the ticketing layer was carried over.",
+                    "pattern": "clean",
+                    "stack": [
+                        "Swift",
+                        "SwiftUI",
+                        "Clean Architecture",
+                        "Feature modules",
+                        "Dependency injection"
+                    ],
+                    "evidence": [
+                        {
+                            "symbol": "UseCase",
+                            "count": 677
+                        },
+                        {
+                            "symbol": "Repository",
+                            "count": 417
+                        },
+                        {
+                            "symbol": "Protocol",
+                            "count": 558
+                        },
+                        {
+                            "symbol": "Store",
+                            "count": 69
+                        }
+                    ],
+                    "reading": [
+                        {
+                            "text": "Clean Architecture modularised per feature",
+                            "style": "strong"
+                        },
+                        {
+                            "text": ": every feature carries its three layers — domain, infrastructure, presentation — and screen state is held by observable objects. The number of protocols is not a matter of style: it measures where the boundaries actually run.",
+                            "style": "plain"
+                        }
+                    ]
+                },
+                {
+                    "id": "kcalories",
+                    "name": "KCalories",
+                    "context": "My own product, published on the App Store: four stacks carried alone, from the first line to release.",
+                    "pattern": "clean",
+                    "stack": [
+                        "SwiftUI",
+                        "SwiftData",
+                        "Clean Architecture",
+                        "SPM modules",
+                        "Feature flags"
+                    ],
+                    "evidence": [],
+                    "reading": [
+                        {
+                            "text": "SwiftUI, SwiftData and Clean Architecture in SPM modules",
+                            "style": "strong"
+                        },
+                        {
+                            "text": ", laid down when nothing yet demanded them. On a one-person product, a boundary protects you from no other team — it stops the shortcut you would grant yourself.",
+                            "style": "plain"
+                        }
+                    ]
+                }
+            ]
+        },
         "experience": [
             {
                 "slug": "instant-system",

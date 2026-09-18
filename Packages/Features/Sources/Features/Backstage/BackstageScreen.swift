@@ -24,6 +24,9 @@ public struct BackstageScreen: View {
         VStack(alignment: .leading, spacing: Tokens.Space.s7) {
           intro
           LayersBlock()
+          // Straight after the layers of *this* app: the same question, asked of
+          // the codebases behind the career.
+          ArchitectureLinkRow()
           ChallengesBlock()
           WalkthroughsBlock()
           DependenciesBlock()
@@ -209,7 +212,7 @@ struct WalkthroughsBlock: View {
                     .font(.system(size: Tokens.Icon.badge, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(Color.onAccent)
-                    .frame(width: 20, height: 20)
+                    .frame(width: Tokens.Layout.stepBadge, height: Tokens.Layout.stepBadge)
                     .background(Circle().fill(Color.accent))
                   VStack(alignment: .leading, spacing: 1) {
                     Text(step.actor)

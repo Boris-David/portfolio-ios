@@ -59,6 +59,13 @@ APP="$(find ~/Library/Developer/Xcode/DerivedData -name 'Amissan.app' \
 
 xcrun simctl boot "$UDID" 2>/dev/null || true
 xcrun simctl bootstatus "$UDID" -b >/dev/null 2>&1 || true
+# A clean slate, once.
+#
+# Preferences survive a reinstall of the binary but not an uninstall, and a
+# matrix that inherits whatever the last run left behind is not a matrix. The
+# capture flags themselves no longer write anything — that was a defect, found
+# exactly here — but the reader's own settings would still leak in.
+xcrun simctl uninstall "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
 xcrun simctl install "$UDID" "$APP"
 
 mkdir -p "$OUT"

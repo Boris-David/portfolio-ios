@@ -138,6 +138,38 @@ public struct AppChrome: Sendable, Hashable {
   public let theProblem: String
   public let theSolution: String
   public let theLesson: String
+
+  // Architectures
+  public let architecturePatterns: String
+  public let architecturePatternsSummary: String
+  public let comparison: String
+  public let codebases: String
+  public let whatTheFilesShow: String
+  /// The label of one column of the comparison.
+  ///
+  /// The **questions** belong to the domain — dropping one would change what the
+  /// comparison claims, not how it looks. Their wording belongs here, because
+  /// only this layer can see the language on screen.
+  public func criterion(_ criterion: ArchitecturePattern.Criterion) -> String {
+    switch (criterion, language) {
+    case (.buys, .french): "Ce qu'il apporte"
+    case (.buys, .english): "What it buys"
+    case (.costs, .french): "Ce qu'il coûte"
+    case (.costs, .english): "What it costs"
+    case (.chooseWhen, .french): "Quand le choisir"
+    case (.chooseWhen, .english): "When to choose it"
+    case (.breaksWhen, .french): "Où il casse"
+    case (.breaksWhen, .english): "Where it breaks"
+    }
+  }
+  public let separatesLabel: String
+  /// Dates the counts, the way `verifiedOn` dates the App Store identifiers: a
+  /// measurement is worth what its date is worth.
+  public func countsTakenOn(_ date: String) -> String {
+    language == .french
+      ? "Comptes relevés dans les dépôts le \(date)."
+      : "Counts taken from the repositories on \(date)."
+  }
   public let whySoOne: String
   public let whatWasRejected: String
   public let whenToUse: String
@@ -165,6 +197,10 @@ public struct AppChrome: Sendable, Hashable {
   public let settings: String
   public let aboutLink: String
   public let copyLink: String
+  public let resumeReady: String
+  public let provenanceTitle: String
+  public let provenanceVersion: String
+  public let provenanceHint: String
   public let linkCopied: String
   public let aboutTitle: String
   public let routeMissingTitle: String
@@ -223,6 +259,12 @@ public extension AppChrome {
     theProblem: "Le problème",
     theSolution: "La solution",
     theLesson: "Ce qu'on en retient",
+    architecturePatterns: "Les motifs d'architecture",
+    architecturePatternsSummary: "Ce que chaque motif sépare, ce qu'il coûte, et où il casse — puis les bases de code lues à travers eux.",
+    comparison: "La comparaison",
+    codebases: "Les bases de code",
+    whatTheFilesShow: "Ce que montrent les fichiers",
+    separatesLabel: "Ce qu'il sépare",
     whySoOne: "Pourquoi celui-là",
     whatWasRejected: "Ce qui a été écarté",
     whenToUse: "Quand l'employer",
@@ -231,6 +273,10 @@ public extension AppChrome {
     settings: "Réglages",
     aboutLink: "Lire la présentation",
     copyLink: "Copier le lien App Store",
+    resumeReady: "CV prêt",
+    provenanceTitle: "D'où vient ce contenu",
+    provenanceVersion: "Empreinte",
+    provenanceHint: "Affiche la provenance et l'empreinte du contenu",
     linkCopied: "Lien copié",
     aboutTitle: "À propos",
     routeMissingTitle: "Contenu introuvable",
@@ -288,6 +334,12 @@ public extension AppChrome {
     theProblem: "The problem",
     theSolution: "The solution",
     theLesson: "What it teaches",
+    architecturePatterns: "Architecture patterns",
+    architecturePatternsSummary: "What each pattern separates, what it costs, and where it breaks — then the codebases read against them.",
+    comparison: "The comparison",
+    codebases: "The codebases",
+    whatTheFilesShow: "What the files show",
+    separatesLabel: "What it separates",
     whySoOne: "Why this one",
     whatWasRejected: "What was ruled out",
     whenToUse: "When to use it",
@@ -296,6 +348,10 @@ public extension AppChrome {
     settings: "Settings",
     aboutLink: "Read the introduction",
     copyLink: "Copy the App Store link",
+    resumeReady: "Résumé ready",
+    provenanceTitle: "Where this content came from",
+    provenanceVersion: "Fingerprint",
+    provenanceHint: "Shows the content's origin and fingerprint",
     linkCopied: "Link copied",
     aboutTitle: "About",
     routeMissingTitle: "Content not found",

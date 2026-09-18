@@ -1,3 +1,4 @@
+import CoreUI
 import Presentation
 import SwiftUI
 
@@ -47,5 +48,24 @@ public extension Label where Title == Text, Icon == Image {
   /// A label whose glyph comes from a presentation meaning.
   init(_ title: String, icon: Presentation.Icon) {
     self.init(title, systemImage: icon.systemName)
+  }
+}
+
+extension Icon {
+  /// The animation that says this better than a glyph does, when there is one.
+  ///
+  /// Same split as `systemName`: `Presentation` names a **meaning**, and this is
+  /// the one place that decides how it is drawn. A screen asks for `.offline`
+  /// and never learns that a Lottie file exists.
+  ///
+  /// `nil` is the common answer, deliberately. Animating everything is the same
+  /// mistake as animating nothing: it stops meaning anything.
+  var animation: LottieCatalogue? {
+    switch self {
+    case .offline: .unreachable
+    case .empty: .empty
+    case .succeeded: .downloaded
+    default: nil
+    }
   }
 }

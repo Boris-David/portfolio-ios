@@ -56,6 +56,12 @@
     "monogramSide": 72,
     "heroWashRadius": 260,
     "signatureHeight": 34,
-    "signatureWidth": 260
+    "signatureWidth": 260,
+    "timelineDot": 5,
+    "stepBadge": 20,
+    "backstagePin": 26,
+    "comparisonLabelWidth": 112,
+    "comparisonColumnWidth": 248,
+    "popoverWidth": 300
   }
 }

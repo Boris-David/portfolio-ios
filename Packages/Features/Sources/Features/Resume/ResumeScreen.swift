@@ -16,6 +16,7 @@ public struct ResumeScreen: View {
   @State private var store: ResumeStore
   @Environment(\.dismiss) private var dismiss
   @Environment(\.contentLanguage) private var language
+  @Environment(ToastCenter.self) private var toasts
   @Chrome private var chrome
 
   public init(dependencies: some ResumeDependencies) {
@@ -30,8 +31,21 @@ public struct ResumeScreen: View {
       Group {
         switch store.phase {
         case .initial, .loading:
-          ProgressView(chrome.resumeLoading)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+          // `.pulse` on the symbol rather than a bare spinner: it says *this
+          // particular thing* is on its way, where a spinner says only that
+          // something is. The label says which.
+          VStack(spacing: Tokens.Space.s4) {
+            Image(Icon.resume)
+              .font(.system(size: Tokens.Icon.hero, weight: .light))
+              .foregroundStyle(Color.ink3)
+              .symbolEffect(.pulse)
+            Text(chrome.resumeLoading)
+              .font(Typography.secondary)
+              .foregroundStyle(Color.ink2)
+          }
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .accessibilityElement(children: .combine)
+          .accessibilityLabel(chrome.resumeLoading)
         case .failed(let failure):
           FailureView(failure: failure) { Task { await store.load(in: language) } }
         case .loaded(let document):
@@ -69,6 +83,16 @@ public struct ResumeScreen: View {
       }
     }
     .task { await store.load(in: language) }
+    // The confirmation fires on the **phase**, not on the tap that started the
+    // download: a haptic tied to the intent would buzz before the document had
+    // arrived, and lie the day it never does.
+    .feedback(on: store.phase.isLoaded) { was, now in
+      now && !was ? .succeeded : nil
+    }
+    .onChange(of: store.phase.isLoaded) { was, now in
+      guard now, !was else { return }
+      toasts.show(chrome.resumeReady, kind: .succeeded, icon: .succeeded)
+    }
     .backstageOverlay()
   }
 
