@@ -21,7 +21,7 @@ import Foundation
 /// context to manage, a schema to migrate — to replace `Data.write(to:)`. A
 /// dependency is justified by what would be worse without it; here nothing would
 /// be worse.
-public actor FileStore: LocalStore {
+public actor FileStore: LocalStoring {
   private let directory: URL
   private let clock: any DateProviding
   private var directoryIsReady = false

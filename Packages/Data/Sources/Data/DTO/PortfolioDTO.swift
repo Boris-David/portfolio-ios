@@ -5,7 +5,7 @@ struct PortfolioDTO: Decodable {
   let caseStudies: [CaseStudyDTO]
   let apps: AppCatalogueDTO
   let expertise: [ExpertiseDTO]
-  let architectures: ArchitectureDossierDTO
+  let architectures: ArchitectureStudyDTO
   let experience: [ExperienceDTO]
   let background: BackgroundDTO
   let skills: [SkillGroupDTO]

@@ -23,19 +23,19 @@ import ViewKit
 /// shape of the code — suffixes and how many types carry them — which is exactly
 /// what the reading claims and nothing more.
 public struct ArchitectureScreen: View {
-  private let dossier: ArchitectureDossier
+  private let study: ArchitectureStudy
 
   @Localized(.interface) private var text
 
-  public init(dossier: ArchitectureDossier) {
-    self.dossier = dossier
+  public init(study: ArchitectureStudy) {
+    self.study = study
   }
 
   public var body: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: Tokens.Space.s7) {
         header
-        PatternComparisonBlock(patterns: dossier.patterns)
+        PatternComparisonBlock(patterns: study.patterns)
         codebases
       }
       .padding(.top, Tokens.Space.s4)
@@ -51,8 +51,8 @@ public struct ArchitectureScreen: View {
   /// it costs the first screenful for a word the reader has just read.
   private var header: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s3) {
-      RichTextView(dossier.intro)
-      Text(text(InterfaceText.countsTakenOn, dossier.verifiedOn))
+      RichTextView(study.intro)
+      Text(text(InterfaceText.countsTakenOn, study.verifiedOn))
         .font(Typography.caption)
         .foregroundStyle(Color.ink3)
     }
@@ -64,7 +64,7 @@ public struct ArchitectureScreen: View {
       Text(text(InterfaceText.codebases)).eyebrowStyle()
 
       VStack(spacing: Tokens.Space.s3) {
-        ForEach(dossier.projects) { project in
+        ForEach(study.projects) { project in
           CodebaseCard(project: project)
         }
       }

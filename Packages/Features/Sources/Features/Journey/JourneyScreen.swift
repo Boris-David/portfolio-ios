@@ -46,7 +46,7 @@ public struct JourneyScreen: View {
         TimelineBlock(
           title: text(InterfaceText.education),
           rows: portfolio.background.education.map { entry in
-            TimelineRow(
+            TimelineEntry(
               when: dates.years(entry.startYear, entry.endYear),
               what: entry.degree,
               detail: entry.detail.map { "\(entry.school) — \($0)" } ?? entry.school,
@@ -58,12 +58,12 @@ public struct JourneyScreen: View {
         TimelineBlock(
           title: text(InterfaceText.certifications),
           rows: portfolio.background.certifications.map { entry in
-            TimelineRow(
+            TimelineEntry(
               when: dates.long(entry.awardedOn),
               what: entry.name,
               detail: entry.issuer,
               link: entry.verifyURL.flatMap(URL.init(string:)).map {
-                TimelineRow.Link(label: text(InterfaceText.verifyCertificate), url: $0)
+                TimelineEntry.Link(label: text(InterfaceText.verifyCertificate), url: $0)
               }
             )
           }
@@ -72,12 +72,12 @@ public struct JourneyScreen: View {
         TimelineBlock(
           title: text(InterfaceText.openProjects),
           rows: portfolio.background.openProjects.map { project in
-            TimelineRow(
+            TimelineEntry(
               when: nil,
               what: project.name,
               detail: project.description.plain,
               link: project.sourceURL.flatMap(URL.init(string:)).map {
-                TimelineRow.Link(label: text(InterfaceText.sourceCode), url: $0)
+                TimelineEntry.Link(label: text(InterfaceText.sourceCode), url: $0)
               }
             )
           }
@@ -186,7 +186,7 @@ struct ExperienceCard: View {
 }
 
 /// One timeline row — education, certification, project.
-struct TimelineRow: Identifiable {
+struct TimelineEntry: Identifiable {
   struct Link {
     let label: String
     let url: URL
@@ -201,7 +201,7 @@ struct TimelineRow: Identifiable {
 
 struct TimelineBlock: View {
   let title: String
-  let rows: [TimelineRow]
+  let rows: [TimelineEntry]
   @Environment(\.openURL) private var openURL
 
   var body: some View {

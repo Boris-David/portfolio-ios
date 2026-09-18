@@ -21,7 +21,7 @@ import PackageDescription
 ///
 /// Because two abstractions over storage was exactly the duplication this
 /// package exists to end. `FileStore` keeps bulky content the system may purge;
-/// `KeyValueStore` keeps preferences that must never be purged. Same mechanism,
+/// `KeyValueStoring` keeps preferences that must never be purged. Same mechanism,
 /// opposite contracts — but one home.
 ///
 /// ## `dependencies: []`

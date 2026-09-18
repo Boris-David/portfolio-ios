@@ -23,7 +23,7 @@ import Testing
 /// correctly, because `UserDefaults` is not `Sendable`. The workaround was to
 /// rebuild an instance on every access.
 ///
-/// Since the mechanism moved behind `KeyValueStore`, a relaunch is one line:
+/// Since the mechanism moved behind `KeyValueStoring`, a relaunch is one line:
 /// build a second repository on the same store. No suites, no UUIDs, no
 /// concurrency workaround — and the test now says what it means instead of
 /// saying what `UserDefaults` needed.

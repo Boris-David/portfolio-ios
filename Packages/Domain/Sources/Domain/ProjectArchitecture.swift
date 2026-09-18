@@ -8,7 +8,7 @@ public struct ProjectArchitecture: Sendable, Hashable, Identifiable {
   ///
   /// The source sends an identifier and writes each pattern's trade-offs once,
   /// so that no codebase can restate them and let one copy drift. The crossing
-  /// from transport to domain follows that reference and refuses a dossier where
+  /// from transport to domain follows that reference and refuses a study where
   /// it dangles.
   ///
   /// So the entity carries the pattern, not its name. A screen never holds a

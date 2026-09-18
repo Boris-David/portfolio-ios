@@ -32,7 +32,7 @@ import ViewKit
 /// and the safe area. They overlap on purpose — a `VStack` would stack them,
 /// which is the opposite of what is wanted. Used because it is the right tool,
 /// not to have used it.
-struct HeroBlock: View {
+struct IdentityBlock: View {
   let profile: Profile
   @Environment(Router.self) private var router
   @Environment(\.dynamicTypeSize) private var typeSize
@@ -59,9 +59,9 @@ struct HeroBlock: View {
       colors: [Color.accentWash.opacity(Tokens.Opacity.heroWash), Color.paper.opacity(0)],
       center: .top,
       startRadius: 0,
-      endRadius: Tokens.Layout.heroWashRadius
+      endRadius: Tokens.Layout.identityWashRadius
     )
-    .frame(height: Tokens.Layout.heroWashRadius)
+    .frame(height: Tokens.Layout.identityWashRadius)
     // Bleeds under the navigation bar rather than starting at it: a gradient
     // that begins exactly at a bar edge draws a visible band, which reads as a
     // seam. Only visible on screen.

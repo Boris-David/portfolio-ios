@@ -65,7 +65,7 @@ struct MappingTests {
   /// would still look complete.
   @Test("refuse un motif hors de l'ensemble fermé, en nommant le champ")
   func refusesUnknownPattern() {
-    let dossier = ArchitectureDossierDTO(
+    let study = ArchitectureStudyDTO(
       verifiedOn: "2026-09-18",
       intro: [SpanDTO(text: "i", style: "plain")],
       patterns: [.stub(id: "viper")],
@@ -73,7 +73,7 @@ struct MappingTests {
     )
 
     #expect {
-      try PortfolioMapper.architectureDossier(from: dossier)
+      try PortfolioMapper.architectureStudy(from: study)
     } throws: { error in
       error as? MappingError == MappingError(
         path: "architectures.patterns[viper].id",
@@ -85,9 +85,9 @@ struct MappingTests {
   /// A codebase points at a pattern instead of restating it. A pointer that
   /// leads nowhere is refused rather than dropped: a codebase shown without the
   /// pattern it illustrates says nothing.
-  @Test("refuse un projet qui pointe vers un motif absent du dossier")
+  @Test("refuse un projet qui pointe vers un motif absent du study")
   func refusesDanglingPatternReference() {
-    let dossier = ArchitectureDossierDTO(
+    let study = ArchitectureStudyDTO(
       verifiedOn: "2026-09-18",
       intro: [SpanDTO(text: "i", style: "plain")],
       patterns: [.stub(id: "mvvm")],
@@ -95,7 +95,7 @@ struct MappingTests {
     )
 
     #expect {
-      try PortfolioMapper.architectureDossier(from: dossier)
+      try PortfolioMapper.architectureStudy(from: study)
     } throws: { error in
       error as? MappingError == MappingError(
         path: "architectures.projects[a-codebase].pattern",
@@ -108,17 +108,17 @@ struct MappingTests {
   /// downstream ever holds a project whose pattern might be missing.
   @Test("résout le motif de chaque base de code")
   func resolvesEachProjectsPattern() throws {
-    let dossier = try PortfolioMapper.architectureDossier(from: ArchitectureDossierDTO(
+    let study = try PortfolioMapper.architectureStudy(from: ArchitectureStudyDTO(
       verifiedOn: "2026-09-18",
       intro: [SpanDTO(text: "i", style: "plain")],
       patterns: [.stub(id: "mvvm"), .stub(id: "clean")],
       projects: [.stub(id: "a-codebase", pattern: "clean")]
     ))
 
-    let project = try #require(dossier.projects.first)
+    let project = try #require(study.projects.first)
     #expect(project.pattern.id == .clean)
     #expect(project.evidence == [ArchitectureEvidence(symbol: "UseCase", count: 677)])
-    #expect(dossier.verifiedOn == "2026-09-18")
+    #expect(study.verifiedOn == "2026-09-18")
   }
 }
 

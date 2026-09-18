@@ -11,7 +11,7 @@ import Domain
 /// reusable anywhere.
 ///
 /// So the split runs along that line. `Core` owns *how* a scalar survives a
-/// relaunch — `KeyValueStore`, and the single `UserDefaults` implementation
+/// relaunch — `KeyValueStoring`, and the single `UserDefaults` implementation
 /// behind it. This file owns *which* scalars, *under which keys*, and *what they
 /// mean*: an appearance, a language, a decision toggle.
 ///
@@ -19,7 +19,7 @@ import Domain
 ///
 /// ## Why a key-value store and not the file store next door
 ///
-/// `LocalStore` keeps the **cache** — bulky content the system is allowed to
+/// `LocalStoring` keeps the **cache** — bulky content the system is allowed to
 /// purge. Preferences must not be: somebody who set the app to English does not
 /// want to find it in French because the disk was full. Same mechanism, opposite
 /// contract.
@@ -30,9 +30,9 @@ public actor PreferencesRepository: PreferencesStoring {
     static let decision = "preference.decision"
   }
 
-  private let store: any KeyValueStore
+  private let store: any KeyValueStoring
 
-  public init(store: any KeyValueStore = UserDefaultsKeyValueStore()) {
+  public init(store: any KeyValueStoring = UserDefaultsKeyValueStore()) {
     self.store = store
   }
 

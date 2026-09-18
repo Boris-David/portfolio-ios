@@ -1,5 +1,5 @@
-/// The architecture dossier: the patterns compared, and the codebases read.
-public struct ArchitectureDossier: Sendable, Hashable {
+/// The architecture study: the patterns compared, and the codebases read.
+public struct ArchitectureStudy: Sendable, Hashable {
   /// The date the counts were taken from the repositories, published as it
   /// arrives.
   ///

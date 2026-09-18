@@ -36,7 +36,7 @@ import Networking
 /// impossible.
 public actor PortfolioRepository: PortfolioReading {
   private let client: any HTTPClient
-  private let store: any LocalStore
+  private let store: any LocalStoring
   private let endpoints: APIEndpoints
   private let seed: any SeedProviding
   private let clock: any DateProviding
@@ -47,7 +47,7 @@ public actor PortfolioRepository: PortfolioReading {
 
   public init(
     client: any HTTPClient,
-    store: any LocalStore,
+    store: any LocalStoring,
     seed: any SeedProviding,
     endpoints: APIEndpoints = .production,
     clock: any DateProviding = SystemClock(),

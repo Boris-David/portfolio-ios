@@ -47,7 +47,7 @@ actor HTTPClientSpy: HTTPClient {
 
 /// In-memory storage — `Data`'s tests are about policy, not about disks. The
 /// disk has tests of its own.
-actor LocalStoreStub: LocalStore {
+actor LocalStoreStub: LocalStoring {
   private var values: [String: StoredValue] = [:]
   private let directory = URL(fileURLWithPath: NSTemporaryDirectory())
 

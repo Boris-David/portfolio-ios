@@ -3,7 +3,7 @@ import Foundation
 /// `UserDefaults`, behind the port.
 ///
 /// The **one** place in the repository that names `UserDefaults`. Anything else
-/// that needs to remember a scalar depends on `KeyValueStore`.
+/// that needs to remember a scalar depends on `KeyValueStoring`.
 ///
 /// ## Why `@unchecked Sendable`, and why that is not a shortcut
 ///
@@ -17,7 +17,7 @@ import Foundation
 /// touches `UserDefaults`. The alternative — rebuilding an instance on every
 /// call — would trade a documented guarantee for a measurable cost and no extra
 /// safety.
-public struct UserDefaultsKeyValueStore: KeyValueStore, @unchecked Sendable {
+public struct UserDefaultsKeyValueStore: KeyValueStoring, @unchecked Sendable {
   private let defaults: UserDefaults
 
   public init(suiteName: String? = nil) {

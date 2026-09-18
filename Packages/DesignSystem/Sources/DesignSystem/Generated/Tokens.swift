@@ -254,12 +254,12 @@ extension Tokens {
     public static let pressedScale: CGFloat = 0.97
     public static let galleryHeight: CGFloat = 380
     public static let monogramSide: CGFloat = 72
-    public static let heroWashRadius: CGFloat = 260
+    public static let identityWashRadius: CGFloat = 260
     public static let signatureHeight: CGFloat = 34
     public static let signatureWidth: CGFloat = 260
     public static let timelineDot: CGFloat = 5
     public static let stepBadge: CGFloat = 20
-    public static let decisionPin: CGFloat = 26
+    public static let decisionBadge: CGFloat = 26
     public static let comparisonLabelWidth: CGFloat = 112
     public static let comparisonColumnWidth: CGFloat = 248
     public static let popoverWidth: CGFloat = 300

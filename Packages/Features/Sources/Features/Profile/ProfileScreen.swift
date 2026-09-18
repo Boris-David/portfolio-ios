@@ -34,7 +34,7 @@ public struct ProfileScreen: View {
     ScrollView {
       VStack(alignment: .leading, spacing: Tokens.Space.s7) {
         FreshnessBanner(snapshot: snapshot, language: store.language)
-        HeroBlock(profile: snapshot.portfolio.profile)
+        IdentityBlock(profile: snapshot.portfolio.profile)
         MetricsBlock(metrics: snapshot.portfolio.metrics)
         ExpertiseBlock(
           section: snapshot.portfolio.section("depth"),

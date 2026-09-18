@@ -42,8 +42,8 @@ struct RouteScreen: View {
       }
 
     case .architectures:
-      if let dossier = store.portfolio?.architectures {
-        ArchitectureScreen(dossier: dossier)
+      if let study = store.portfolio?.architectures {
+        ArchitectureScreen(study: study)
       } else {
         missing
       }

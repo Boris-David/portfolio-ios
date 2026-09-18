@@ -14,11 +14,11 @@
 ///
 /// ## Why it is not the file store
 ///
-/// `LocalStore` keeps **bulky content the system may purge** — a cache. This
+/// `LocalStoring` keeps **bulky content the system may purge** — a cache. This
 /// keeps **preferences**, which must never be purged: somebody who set the app
 /// to English does not want to find it in French because the disk filled up.
 /// Same mechanism, opposite contract, so two types.
-public protocol KeyValueStore: Sendable {
+public protocol KeyValueStoring: Sendable {
   func string(forKey key: String) -> String?
   func bool(forKey key: String) -> Bool
   func set(_ value: String, forKey key: String)

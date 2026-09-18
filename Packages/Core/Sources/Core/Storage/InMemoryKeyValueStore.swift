@@ -1,7 +1,7 @@
 import Foundation
 
 /// A store that forgets when the process ends — for tests and previews.
-public final class InMemoryKeyValueStore: KeyValueStore, @unchecked Sendable {
+public final class InMemoryKeyValueStore: KeyValueStoring, @unchecked Sendable {
   private let lock = NSLock()
   private var storage: [String: Any] = [:]
 

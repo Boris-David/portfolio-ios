@@ -20,7 +20,7 @@ enum PortfolioMapper {
       caseStudies: dto.caseStudies.map(caseStudy),
       apps: try appCatalogue(from: dto.apps),
       expertise: dto.expertise.map(expertise),
-      architectures: try architectureDossier(from: dto.architectures),
+      architectures: try architectureStudy(from: dto.architectures),
       experience: try dto.experience.map(experience),
       background: try background(from: dto.background),
       skills: dto.skills.map { SkillGroup(id: $0.id, title: $0.title, items: $0.items) }
@@ -174,12 +174,12 @@ enum PortfolioMapper {
 
   /// The patterns, then the codebases — in that order, because a codebase is
   /// only readable once the pattern it points at exists.
-  static func architectureDossier(
-    from dto: ArchitectureDossierDTO
-  ) throws(MappingError) -> ArchitectureDossier {
+  static func architectureStudy(
+    from dto: ArchitectureStudyDTO
+  ) throws(MappingError) -> ArchitectureStudy {
     let patterns = try dto.patterns.map(architecturePattern)
 
-    return ArchitectureDossier(
+    return ArchitectureStudy(
       verifiedOn: dto.verifiedOn,
       intro: richText(dto.intro),
       patterns: patterns,

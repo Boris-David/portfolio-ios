@@ -344,7 +344,7 @@ Ce qui sera fait :
 ## 12. La structure des dossiers
 
 **Demandé :** *« FeatureWork, FeatureJourney, etc. ? Faudrait peut-être un
-dossier Feature ? »*
+study Feature ? »*
 
 Oui. Les cibles gardent leur nom — c'est lui qui apparaît dans les imports — mais
 leurs sources passent sous `Sources/Features/<Nom>/` via le `path:` du manifeste.
@@ -825,8 +825,8 @@ avoir d'`import Textual` dans les fichiers de code, mais `import CoreUI` — com
 | Ce qu'il porte | Pourquoi là |
 |---|---|
 | `Clock` + `SystemClock` + `FixedClock` | trois couches injectent déjà une horloge par fermeture `() -> Date`. Trois fermetures, trois conventions |
-| `KeyValueStore` + `UserDefaultsKeyValueStore` | l'abstraction sur `UserDefaults`, qui n'a plus à être réécrite par qui en a besoin |
-| `FileStore`, `StorageKey`, `StoredValue`, `LocalStore` | l'ancien package `Persistence`, absorbé — deux abstractions du stockage, c'était exactement la duplication à éviter |
+| `KeyValueStoring` + `UserDefaultsKeyValueStore` | l'abstraction sur `UserDefaults`, qui n'a plus à être réécrite par qui en a besoin |
+| `FileStore`, `StorageKey`, `StoredValue`, `LocalStoring` | l'ancien package `Persistence`, absorbé — deux abstractions du stockage, c'était exactement la duplication à éviter |
 | `ConnectivityReporting` + `ConnectivityMonitor` | *« si le user est offline »*. Aujourd'hui c'est déduit d'un échec réseau ; un moniteur le **sait** avant d'essayer |
 | `EventBus` | *« des listeners auxquels peut s'abonner toute l'app »* |
 
@@ -860,7 +860,7 @@ l'exécution. Un `@Injected` est un localisateur de service déguisé — il cac
 graphe au lieu de le montrer.
 
 Ce qu'il apporte est plus utile : **le vocabulaire commun d'abstractions**
-(`Clock`, `KeyValueStore`, `ConnectivityReporting`, `EventPublishing`) et **leurs
+(`Clock`, `KeyValueStoring`, `ConnectivityReporting`, `EventPublishing`) et **leurs
 doubles**. Deux couches qui ont besoin d'une horloge dépendent du même protocole,
 et la racine de composition reste le seul endroit qui décide. C'est ça, « une
 seule implémentation partout ».
