@@ -7,10 +7,11 @@ et elle explique comment elle est faite.
 
 ## Ce qu'elle démontre
 
-**Un mode « coulisses », révélé par paliers.** Au repos, rien : c'est une
-application. Annotations activées, chaque composant reçoit une pastille ; au
-toucher, son nom et une phrase ; « en savoir plus », l'explication entière — ce
-qui a été écarté et pourquoi, quand l'employer, et le piège qu'il réserve.
+**Les décisions de conception, annotées à l'écran et révélées par paliers.** Au
+repos, rien : c'est une application. Annotations activées, chaque composant
+reçoit une pastille ; au toucher, son nom et une phrase ; « en savoir plus »,
+l'explication entière — ce qui a été **écarté** et pourquoi, quand l'employer, et
+le piège qu'il réserve. C'est la structure d'un ADR, à l'échelle du composant.
 
 **Une frontière tenue par le résolveur.** Chaque couche est un **package** SPM
 avec son propre manifeste. `Features/Package.swift` ne nomme jamais
@@ -55,23 +56,25 @@ Composition   tout                              le seul, et il n'a aucune logiqu
 ## Démarrer
 
 ```bash
-./Scripts/bootstrap.sh --open
+./Scripts/bootstrap.sh --clean --open
 ```
 
 Le `.xcodeproj` est **généré** et non versionné : il est donc périmé après
 n'importe quel `git checkout`. `bootstrap.sh` le régénère, restaure le verrou de
 versions, efface le graphe de packages que Xcode garde en cache, et résout.
 
-> ⚠️ Xcode doit être **fermé**. Il tient le graphe ouvert et continuerait à servir
-> l'ancien — des packages en dossiers bleus et un `import` qui ne résout pas,
-> alors que la ligne de commande compile le même projet sans broncher.
+`--clean` efface en plus le graphe de packages que Xcode garde en cache. C'est
+le drapeau qui répare l'état où trois packages s'affichent en **dossiers bleus**
+et où `import Composition` répond « no such module » — pendant que la ligne de
+commande compile le même projet sans broncher. Le script ferme Xcode lui-même et
+le rouvre : il tient le graphe, et sans ça il continuerait à servir l'ancien.
 
 Prérequis : Xcode 26 (SDK iOS 26), XcodeGen, Node 22, Python 3 avec Pillow.
 
 ## Vérifier
 
 ```bash
-./Scripts/test.sh              # 13 suites, 160 tests, sur simulateur
+./Scripts/test.sh              # 13 suites, 161 tests, sur simulateur
 ./Scripts/tokens.mjs --check   # le design descend bien des tokens
 ./Scripts/seed.sh --check      # la graine décrit encore ce que sert l'API
 ./Scripts/assets.py --check    # chaque actif attendu est présent
@@ -85,7 +88,7 @@ Prérequis : Xcode 26 (SDK iOS 26), XcodeGen, Node 22, Python 3 avec Pillow.
                                # d'accessibilité, et les écrans poussés
 ```
 
-**Et on regarde l'écran.** Sept défauts de cette base ne se voyaient qu'en
+**Et on regarde l'écran.** Huit défauts de cette base ne se voyaient qu'en
 capture, dont un titre tronqué qu'aucune exécution précédente n'avait montré
 parce que la matrice capturait au mauvais calibre — et le disait quand même en
 vert.
@@ -93,9 +96,11 @@ vert.
 ## Ce qui n'est écrit nulle part ici
 
 Aucun fait. Chiffres, dates, phrases : tout vient de l'API. Ce qui reste dans ce
-dépôt, ce sont les **libellés d'interface** (`AppChrome`) et la **documentation
-d'architecture** (`EngineeringRecord`, `<Feature>Notes`) — qui n'ont aucun sens sans
+dépôt, ce sont les **libellés d'interface** et la **documentation d'ingénierie**
+(`EngineeringRecord`, `<Feature>Decisions`) — qui n'ont aucun sens sans
 l'application.
 
-Et aucune de ces chaînes ne vit dans une vue : un écran nomme une clé typée, le
-texte vit dans un catalogue, et `check-layers.sh` refuse le contraire.
+Et aucune de ces chaînes ne vit dans une vue : un écran nomme une **clé typée**,
+le mot vit dans un `.xcstrings` qu'on édite sans ouvrir Xcode, et
+`check-strings.sh` refuse le contraire — comme il refuse une clé morte, une
+langue absente d'un seul catalogue, ou une vue qui lirait la langue.
