@@ -16,7 +16,7 @@ set -euo pipefail
 
 API="${API_BASE_URL:-https://api.amissan.dev}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DEST="$ROOT/Packages/AmissanKit/Sources/Data/Resources"
+DEST="$ROOT/Packages/AmissanKit/Sources/Adapters/Resources"
 CHECK=false
 [ "${1:-}" = "--check" ] && CHECK=true
 
