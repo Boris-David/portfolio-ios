@@ -73,10 +73,7 @@ struct LayersBlock: View {
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
       Text(chrome.architecture).eyebrowStyle()
-      Text(chrome.architectureIntro)
-        .font(Typography.body)
-        .foregroundStyle(Color.ink2)
-        .fixedSize(horizontal: false, vertical: true)
+      InlineMarkdown(chrome.architectureIntro)
 
       VStack(spacing: Tokens.Space.s3) {
         ForEach(AppDossier.layers) { layer in
@@ -91,10 +88,11 @@ struct LayersBlock: View {
                   Chip(chrome.noDependency, emphasis: .accented)
                 }
               }
-              Text(layer.responsibility(language))
-                .font(Typography.bodyStrong)
-                .foregroundStyle(Color.ink)
-                .fixedSize(horizontal: false, vertical: true)
+              InlineMarkdown(
+                layer.responsibility(language),
+                font: Typography.bodyStrong,
+                color: .ink
+              )
               StructuredText(markdown: layer.rule(language))
                 .font(Typography.secondary)
                 .foregroundStyle(Color.ink2)
@@ -203,10 +201,7 @@ struct WalkthroughsBlock: View {
             Text(walkthrough.title(language))
               .font(Typography.heading)
               .foregroundStyle(Color.ink)
-            Text(walkthrough.summary(language))
-              .font(Typography.secondary)
-              .foregroundStyle(Color.ink2)
-              .fixedSize(horizontal: false, vertical: true)
+            InlineMarkdown(walkthrough.summary(language), font: Typography.secondary)
 
             VStack(alignment: .leading, spacing: Tokens.Space.s3) {
               ForEach(Array(walkthrough.steps.enumerated()), id: \.offset) { index, step in
@@ -246,10 +241,7 @@ struct DependenciesBlock: View {
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
       Text(chrome.dependencies).eyebrowStyle()
-      Text(chrome.dependenciesRule)
-        .font(Typography.body)
-        .foregroundStyle(Color.ink2)
-        .fixedSize(horizontal: false, vertical: true)
+      InlineMarkdown(chrome.dependenciesRule)
 
       ForEach(AppDossier.dependencies) { call in
         Surface {

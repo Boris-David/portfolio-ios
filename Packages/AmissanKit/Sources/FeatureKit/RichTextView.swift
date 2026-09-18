@@ -50,3 +50,37 @@ public struct RichTextView: View {
     }
   }
 }
+
+
+/// Une ligne de Markdown **en ligne** — gras, italique, code, liens.
+///
+/// ## Pourquoi pas `Text(chaîne)` tout court
+///
+/// `Text` traite une `String` comme du texte littéral : `*est*` s'affiche avec
+/// ses astérisques, et `` `import` `` avec ses accents graves. Le défaut s'est
+/// vu à l'écran, dans l'onglet Coulisses — une application qui explique le soin
+/// qu'elle met aux détails en affichant du balisage brut se contredit elle-même.
+///
+/// `Text(LocalizedStringKey)` **interprète** le Markdown en ligne, et c'est
+/// exactement ce qu'il faut ici. Il ne gère ni listes ni blocs de code — pour
+/// ceux-là, `StructuredText` de Textual, qui coûte une dépendance et vaut son
+/// prix dans une explication technique, pas dans une phrase d'introduction.
+public struct InlineMarkdown: View {
+  private let source: String
+  private let font: Font
+  private let color: Color
+
+  public init(_ source: String, font: Font = Typography.body, color: Color = .ink2) {
+    self.source = source
+    self.font = font
+    self.color = color
+  }
+
+  public var body: some View {
+    Text(LocalizedStringKey(source))
+      .font(font)
+      .foregroundStyle(color)
+      .fixedSize(horizontal: false, vertical: true)
+      .frame(maxWidth: .infinity, alignment: .leading)
+  }
+}

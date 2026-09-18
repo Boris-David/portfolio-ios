@@ -31,7 +31,23 @@ public struct AppRoot: View {
     //   xcrun simctl launch <appareil> dev.amissan.portfolio -backstage
     isEnabled: ProcessInfo.processInfo.arguments.contains("-backstage")
   )
-  @State private var selection: FeatureKit.Section = .profile
+  @State private var selection: FeatureKit.Section = AppRoot.initialSection()
+
+  /// L'onglet d'ouverture, éventuellement imposé par un argument de lancement.
+  ///
+  /// Comme `-backstage`, il sert aux **captures automatisées** : sans lui, une
+  /// capture de l'onglet Parcours demande que quelqu'un touche l'écran — et une
+  /// capture qu'on ne peut pas reproduire ne finit jamais dans une CI.
+  ///
+  ///   xcrun simctl launch <appareil> dev.amissan.portfolio -tab journey
+  static func initialSection() -> FeatureKit.Section {
+    let arguments = ProcessInfo.processInfo.arguments
+    guard let index = arguments.firstIndex(of: "-tab"),
+          let raw = arguments[safe: index + 1],
+          let section = FeatureKit.Section(rawValue: raw)
+    else { return .profile }
+    return section
+  }
 
   /// Le chrome de la racine se **dérive** directement, sans passer par
   /// l'environnement.
@@ -235,5 +251,14 @@ private extension View {
       // dupliqué une commande qui existe déjà.
       self
     }
+  }
+}
+
+
+private extension Array {
+  /// Un accès borné : lire un argument qui suit un drapeau absent ne doit pas
+  /// faire tomber l'application.
+  subscript(safe index: Int) -> Element? {
+    indices.contains(index) ? self[index] : nil
   }
 }
