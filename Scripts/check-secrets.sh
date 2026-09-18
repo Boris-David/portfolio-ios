@@ -33,6 +33,26 @@ PATTERNS=(
 trouve=0
 fichiers="$(git ls-files)"
 
+# ── Refus par CHEMIN, avant même de regarder le contenu ──────────────────────
+#
+# Un fichier de signature se reconnaît à son extension, et le refuser par son nom
+# attrape le cas où son contenu ne ressemblerait à aucun motif connu — une clé
+# chiffrée, un format propriétaire, un fichier tronqué.
+#
+# Motivé par un incident réel le 2026-09-18 : une clé APNs a été déposée dans
+# l'arbre de ce dépôt. `.gitignore` l'a retenue, donc rien n'a fuité — mais un
+# `git add -f` suffisait, et une clé poussée sur un dépôt public est irréversible.
+INTERDITS_PAR_EXTENSION='\.(p8|p12|cer|mobileprovision|certSigningRequest|keystore|jks)$'
+
+while IFS= read -r fichier; do
+  if printf '%s' "$fichier" | grep -Eq "$INTERDITS_PAR_EXTENSION"; then
+    echo "✖ matériel de signature versionné : $fichier" >&2
+    echo "  Ces fichiers ne s'ajoutent jamais à un dépôt : ils vivent dans le" >&2
+    echo "  trousseau, dans les secrets GitHub, ou dans le dépôt privé de match." >&2
+    trouve=1
+  fi
+done <<< "$fichiers"
+
 while IFS= read -r fichier; do
   [ -f "$fichier" ] || continue
   # Ce script porte les motifs : il ne s'examine pas lui-même.
