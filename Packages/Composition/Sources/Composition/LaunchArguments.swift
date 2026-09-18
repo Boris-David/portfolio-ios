@@ -33,12 +33,38 @@ struct LaunchArguments: Sendable {
   let opensSettings: Bool
   /// Opens the résumé cover on launch, same reason again.
   let opensResume: Bool
+  /// A route to push on launch, so a **pushed** screen can be captured.
+  ///
+  /// The tab flags reach the four roots and the two covers; nothing reached a
+  /// destination inside a stack. The architecture comparison — the one screen a
+  /// `Grid` exists for — was invisible to the matrix because of it.
+  ///
+  ///     xcrun simctl launch <device> dev.amissan.portfolio -route architectures
+  let initialRoute: Route?
 
   init(_ arguments: [String]) {
     isBackstageEnabled = arguments.contains("-backstage")
     opensSettings = arguments.contains("-settings")
     opensResume = arguments.contains("-resume")
+    initialRoute = Self.route(in: arguments)
     initialSection = Self.section(in: arguments) ?? .profile
+  }
+
+  /// The route named after `-route`, if it is one the app knows.
+  ///
+  /// Only the routes that take **no argument** are reachable this way: a case
+  /// study needs a slug, and a flag that silently matched nothing would be worse
+  /// than one that does not exist.
+  private static func route(in arguments: [String]) -> Route? {
+    guard let flag = arguments.firstIndex(of: "-route") else { return nil }
+    let next = arguments.index(after: flag)
+    guard next < arguments.endIndex else { return nil }
+    return switch arguments[next] {
+    case "about": .about
+    case "architectures": .architectures
+    case "allApps": .allApps
+    default: nil
+    }
   }
 
   private static func section(in arguments: [String]) -> AppSection? {

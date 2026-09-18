@@ -32,6 +32,7 @@ struct SceneEnvironment: ViewModifier {
   let openSettings: OpenSettingsAction
   let openResume: OpenResumeAction
   let zoom: Namespace.ID
+  let initialRoute: Route?
 
   func body(content: Content) -> some View {
     content
@@ -44,6 +45,7 @@ struct SceneEnvironment: ViewModifier {
       .environment(\.sheetResolver, sheets)
       .environment(\.openSettings, openSettings)
       .environment(\.openResume, openResume)
+      .environment(\.initialRoute, initialRoute)
       .tint(Color.accent)
   }
 }

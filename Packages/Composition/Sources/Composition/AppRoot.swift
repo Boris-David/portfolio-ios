@@ -140,7 +140,8 @@ public struct AppRoot: View {
       sheets: resolver,
       openSettings: OpenSettingsAction { sheet = .settings },
       openResume: OpenResumeAction { cover = .resume },
-      zoom: zoom
+      zoom: zoom,
+      initialRoute: launch.initialRoute
     )
   }
 

@@ -20,6 +20,7 @@ package struct SectionShell<Content: View>: View {
   @Environment(\.sheetResolver) private var sheets
   @Environment(\.openSettings) private var openSettings
   @Environment(\.openResume) private var openResume
+  @Environment(\.initialRoute) private var initialRoute
   @Environment(\.contentLanguage) private var language
   @Chrome private var chrome
   @State private var router = Router()
@@ -76,6 +77,15 @@ package struct SectionShell<Content: View>: View {
         }
     }
     .sheet(item: $router.sheet) { sheets($0) }
+    // A route asked for at launch, pushed once the stack exists.
+    //
+    // It only serves reproducible screenshots of **pushed** screens, which no
+    // other flag could reach. Applied here rather than in the root because the
+    // stack that has to receive it is this one.
+    .task {
+      guard let initialRoute, router.path.isEmpty else { return }
+      router.push(initialRoute)
+    }
     .environment(router)
     .backstageOverlay()
   }

@@ -79,12 +79,38 @@ SCREENS=(
   "backstage|-backstage"
   "profile|-settings"
   "profile|-resume"
+  # A pushed screen needs the route flag: a tab flag cannot reach it, and
+  # without this the comparison table — the one screen a `Grid` exists for —
+  # is the only one the matrix never sees.
+  "backstage|-route architectures"
 )
+
+# ⚠️ `xcrun simctl ui … content_size` exits **0** on a value it rejects.
+#
+# The first version of this script passed `accessibility5`, which simctl prints
+# "Invalid argument" for and then reports success. `set -euo pipefail` never
+# fired, eighteen files were written, and the whole accessibility axis was
+# silently captured at the previous size. The captures looked plausible, which is
+# why nobody would have caught it by eye.
+#
+# So the value is read back and compared. The lesson is the repository's own: a
+# tool's exit code is a claim, and the observable result is the evidence.
+set_content_size() {
+  local wanted="$1"
+  xcrun simctl ui "$UDID" content_size "$wanted" >/dev/null 2>&1
+  local actual
+  actual="$(xcrun simctl ui "$UDID" content_size 2>/dev/null | tr -d '[:space:]')"
+  if [ "$actual" != "$wanted" ]; then
+    echo "✖ content_size stayed at '$actual' after asking for '$wanted'" >&2
+    echo "  simctl reports success on values it rejects — see the comment above." >&2
+    exit 1
+  fi
+}
 
 capture() {
   local tab="$1" flags="$2" appearance="$3" size="$4" name="$5"
   xcrun simctl ui "$UDID" appearance "$appearance" >/dev/null
-  xcrun simctl ui "$UDID" content_size "$size" >/dev/null
+  set_content_size "$size"
   xcrun simctl terminate "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
   # shellcheck disable=SC2086
   xcrun simctl launch "$UDID" "$BUNDLE" -tab "$tab" $flags >/dev/null
@@ -101,16 +127,16 @@ for entry in "${SCREENS[@]}"; do
   capture "$tab" "$flags" light large "${label}-light"
 done
 
-echo "── at accessibility5, where a layout falls apart"
+echo "── at the largest accessibility size, where a layout falls apart"
 for entry in "${SCREENS[@]}"; do
   tab="${entry%%|*}"; flags="${entry#*|}"
   label="$tab${flags:+${flags// /}}"
-  capture "$tab" "$flags" dark accessibility5 "${label}-ax5"
+  capture "$tab" "$flags" dark accessibility-extra-extra-extra-large "${label}-ax5"
 done
 
 # Leave the simulator as it was found: a device left at accessibility5 makes the
 # next person's screenshots look broken for a reason they will not guess.
-xcrun simctl ui "$UDID" content_size large >/dev/null
+set_content_size large
 xcrun simctl terminate "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
 
 echo

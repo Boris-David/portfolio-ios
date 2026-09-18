@@ -42,6 +42,27 @@ struct LaunchArgumentsTests {
     #expect(!LaunchArguments([]).opensSettings)
   }
 
+  @Test("-route pushes a screen that no tab flag can reach", arguments: [
+    ("about", Route.about),
+    ("architectures", Route.architectures),
+    ("allApps", Route.allApps),
+  ])
+  func routeFlag(_ pair: (String, Route)) {
+    #expect(LaunchArguments(["-route", pair.0]).initialRoute == pair.1)
+  }
+
+  /// Only routes that take no argument are reachable. A case study needs a slug,
+  /// and a flag that silently matched nothing would be worse than none at all.
+  @Test("an unknown or argument-taking route is refused", arguments: ["caseStudy", "nowhere", ""])
+  func unknownRoute(_ name: String) {
+    #expect(LaunchArguments(["-route", name]).initialRoute == nil)
+  }
+
+  @Test("-route with nothing after it does not read past the end")
+  func routeFlagWithoutValue() {
+    #expect(LaunchArguments(["-backstage", "-route"]).initialRoute == nil)
+  }
+
   /// The flags compose: a screenshot of the settings sheet with annotations on
   /// is one launch, not two.
   @Test("the flags compose")
