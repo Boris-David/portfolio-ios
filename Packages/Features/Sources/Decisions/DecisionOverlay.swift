@@ -22,7 +22,6 @@ package struct DecisionOverlay: ViewModifier {
   @Environment(DecisionController.self) private var decision
   @Environment(SettingsStore.self) private var settings
   @ReducedMotion private var reducedMotion
-  @Environment(\.contentLanguage) private var language
   @Localized(.decisions) private var text
 
   public init() {}

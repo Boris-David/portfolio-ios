@@ -72,7 +72,10 @@ check "Packages/Networking/Sources/Networking"    "Request|Response|Client|Error
 # do, and `ContentImageView` would say "view" twice. A role that cannot be
 # argued for does not get added — a list widened whenever it fires is a list
 # that stops meaning anything.
-VIEW_ROLES="Screen|View|Block|Card|Cell|Row|Sheet|Overlay|Banner|Shell|Style|Group|Image"
+# `Label` joined on 2026-09-18 for `SectionLabel`, and the reasoning is the bar
+# for joining: it names a kind of view exactly as `Card` and `Banner` do — a
+# word and a glyph, together — and `SectionLabelView` would say "view" twice.
+VIEW_ROLES="Screen|View|Block|Card|Cell|Row|Sheet|Overlay|Banner|Shell|Style|Group|Image|Label"
 for name in $(grep -rhoE "^(public |package |private )?struct [A-Za-z0-9_]+(<[^>]*>)?: (View|ViewModifier)" \
                 Packages/Features/Sources --include="*.swift" \
                 | sed -E 's/.*struct ([A-Za-z0-9_]+).*/\1/' | sort -u); do

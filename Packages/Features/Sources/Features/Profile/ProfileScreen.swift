@@ -13,12 +13,12 @@ import ViewKit
 /// to be findable without scrolling.
 public struct ProfileScreen: View {
   @Environment(PortfolioStore.self) private var store
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   public init() {}
 
   public var body: some View {
-    SectionShell(title: chrome.tabProfile) {
+    SectionShell(title: text(InterfaceText.tabProfile)) {
       // The four phases are rendered in one place, by one component.
       // No screen rewrites this switch: that is what makes them all behave
       // alike — same skeleton, same transition, same failure screen.

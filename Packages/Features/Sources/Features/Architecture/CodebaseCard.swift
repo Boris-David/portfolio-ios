@@ -13,7 +13,7 @@ import ViewKit
 struct CodebaseCard: View {
   let project: ProjectArchitecture
 
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   var body: some View {
     Surface {
@@ -52,7 +52,7 @@ struct CodebaseCard: View {
   /// taken and came back empty, which is not what happened.
   private var measurements: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s2) {
-      Text(chrome.whatTheFilesShow).eyebrowStyle()
+      Text(text(InterfaceText.whatTheFilesShow)).eyebrowStyle()
       ForEach(project.evidence) { EvidenceRow(evidence: $0) }
     }
     .padding(.top, Tokens.Space.s1)

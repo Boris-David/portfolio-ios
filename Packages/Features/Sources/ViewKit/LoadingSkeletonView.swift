@@ -11,7 +11,7 @@ import SwiftUI
 package struct LoadingSkeletonView: View {
   @State private var shimmer = false
   @ReducedMotion private var reducedMotion
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   public init() {}
 
@@ -26,7 +26,7 @@ package struct LoadingSkeletonView: View {
     }
     .padding(Tokens.Space.s5)
     .accessibilityElement()
-    .accessibilityLabel(chrome.loading)
+    .accessibilityLabel(text(InterfaceText.loading))
     .onAppear {
       guard !reducedMotion else { return }
       withAnimation(.easeInOut(duration: Tokens.Duration.shimmer).repeatForever(autoreverses: true)) {

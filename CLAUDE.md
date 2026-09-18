@@ -41,10 +41,11 @@ Core          rien            ← mécaniques : horloge, stockage, réseau-dispo
 Domain        rien            ← entités + ports. Zéro dépendance, et c'est le point
 Networking    rien
 DesignSystem  rien            ← le langage visuel. Des valeurs, rien qui dessine
+Localization  rien            ← lire un catalogue dans une langue NOMMÉE
 CoreUI        DesignSystem + Lottie + Textual   ← les composants, et SEUL à les connaître
 Data          Domain + Networking + Core        ← le seul qui voie les deux côtés
 Presentation  Domain                            ← et SURTOUT pas SwiftUI
-Features      Domain + Presentation + DesignSystem + CoreUI
+Features      Domain + Presentation + DesignSystem + CoreUI + Localization
 Composition   tout                              ← le seul, et il n'a aucune logique
 ```
 
@@ -88,13 +89,23 @@ La graine embarquée (`Packages/Data/Sources/Data/Resources/seed-*.json`) est **
 
 ### 4. La langue affichée est celle du contenu, pas celle de l'appareil
 
-Un catalogue de chaînes suit l'appareil. Le contenu vient de l'API. Les deux
-peuvent donc différer — et le défaut s'est produit : des onglets français
-au-dessus d'un texte anglais.
+Le *lookup par défaut* d'un catalogue suit l'appareil. Le contenu vient de
+l'API. Les deux peuvent donc différer — et le défaut s'est produit : des onglets
+français au-dessus d'un texte anglais.
 
-`\.contentLanguage` porte **une** langue, et `AppChrome` s'en dérive. Ne jamais
-réintroduire un `Localizable.xcstrings` pour le chrome sans rouvrir cette
-décision.
+Le texte vit donc dans des `.xcstrings`, **résolus par le sous-bundle
+`<code>.lproj`** et non par la préférence de l'appareil. `TextCatalogue` ne
+propose aucun appel sans langue, et `\.contentLanguage` la porte.
+
+⚠️ **Seule la couche vue résout une clé.** Résoudre demande un bundle, un
+catalogue compilé et la langue à l'écran : trois détails de livraison. Un
+presenter rend une **valeur** ou une **clé**, jamais une phrase — c'est ce qui le
+rend testable sans langue. `Presentation` ne déclare pas `Localization`, donc
+`import Localization` y répond « no such module ».
+
+⚠️ **Rien n'énumère les langues.** Ni un type, ni une vue. La liste est ce que le
+catalogue compilé contient (`TextCatalogue.languages`) ; une langue de plus est
+une colonne, pas un `case`. `Bilingual(fr:en:)` a été supprimé pour ça.
 
 ### 5. Un contenu incomplet arrête tout — il ne se replie jamais en silence
 
@@ -120,6 +131,7 @@ xcodegen generate
 ./Scripts/check-layers.sh      # aucune couche ne voit ce qu'elle ne doit pas
 ./Scripts/check-naming.sh      # le nom dit le rôle
 ./Scripts/check-suites.sh      # aucune suite ne s'est évaporée
+./Scripts/check-strings.sh     # chaque clé a sa traduction, chaque traduction sa clé
 ./Scripts/screens.sh           # 21 captures : 2 thèmes, la plus grande taille
                                # d'accessibilité, et les écrans poussés
 ```
@@ -157,9 +169,9 @@ censées montrer l'application au repos.
 | DTO, correspondances, dépôts, sources | `Packages/Data/Sources/Data/` |
 | Tokens, couleurs, typo, mouvement | `Packages/DesignSystem/` |
 | Composants, et Lottie / Textual / PDFKit | `Packages/CoreUI/` |
-| Phases, store, chrome, formatage, routes | `Packages/Presentation/` |
-| Vues partagées, environnement, icônes | `Packages/Features/Sources/ViewKit/` |
-| Annotations de coulisses | `Packages/Features/Sources/Decisions/` |
+| Phases, stores, formatage, routes — **des valeurs, jamais des phrases** | `Packages/Presentation/` |
+| Vues partagées, environnement, icônes, **catalogue d'interface** | `Packages/Features/Sources/ViewKit/` |
+| Annotations de décision de conception | `Packages/Features/Sources/Decisions/` |
 | Coquille d'écran, résolution de routes | `Packages/Features/Sources/Features/Kit/` |
 | Un écran | `Packages/Features/Sources/Features/<Nom>/` |
 | Le câblage | `Packages/Composition/` |

@@ -159,7 +159,14 @@ let package = Package(
     .target(name: "FeatureSettings", dependencies: ["FeatureKit"], path: "Sources/Features/Settings", resources: [.process("Resources")], swiftSettings: .strict),
     .target(name: "FeatureArchitecture", dependencies: ["FeatureKit"], path: "Sources/Features/Architecture", resources: [.process("Resources")], swiftSettings: .strict),
 
-    .testTarget(name: "ViewKitTests", dependencies: ["ViewKit"], swiftSettings: .strict),
+    .testTarget(
+      name: "ViewKitTests",
+      dependencies: ["ViewKit"],
+      // The interface catalogue itself, so "is every tab named?" is asked of
+      // the file that ships rather than of a copy written for the test.
+      resources: [.copy("../../Sources/ViewKit/Resources/Localizable.xcstrings")],
+      swiftSettings: .strict
+    ),
     .testTarget(
       name: "DecisionsTests",
       dependencies: ["Decisions"],

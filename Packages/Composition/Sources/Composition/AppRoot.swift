@@ -24,7 +24,7 @@ import ViewKit
 ///
 /// ## The one piece of logic that stayed, and why
 ///
-/// A language change has to reach the content: the chrome follows the reader's
+/// A language change has to reach the content: the interface follows the reader's
 /// choice instantly, but the text comes from the API and must be re-fetched.
 /// `SettingsStore` will not call `PortfolioStore` — that would tie the two
 /// together forever, for one line — so it **publishes a fact**, and this root
@@ -43,13 +43,6 @@ public struct AppRoot: View {
   private let environment: AppEnvironment
   private let launch: LaunchArguments
 
-  /// The chrome is derived **here**, without going through the environment.
-  ///
-  /// `AppRoot` is the view that *installs* `\.contentLanguage`, and a view does
-  /// not read back a value it sets itself — `.environment()` only applies to
-  /// descendants. The defect was visible on screen: English content under French
-  /// tabs.
-  private var chrome: AppChrome { .for(settings.resolvedLanguage) }
 
   /// The app's entry point into the scene.
   ///
@@ -80,17 +73,13 @@ public struct AppRoot: View {
     _store = State(initialValue: PortfolioStore(
       reading: environment.portfolio,
       language: settings.resolvedLanguage,
-      // The store needs the chrome to turn a domain failure into something a
-      // view can show. It takes a closure rather than a value so a language
-      // change is reflected without rebuilding the store.
-      chrome: { [weak settings] in AppChrome.for(settings?.resolvedLanguage ?? .french) }
     ))
     _selection = State(initialValue: launch.initialSection)
   }
 
   public var body: some View {
     AppTabs(selection: $selection)
-      .engineeringAccessory(chrome: chrome, isOn: decisionsBinding)
+      .engineeringAccessory(isOn: decisionsBinding)
       .toasts(toasts)
       .modifier(sceneEnvironment)
       .sheet(item: $sheet) { sheet in

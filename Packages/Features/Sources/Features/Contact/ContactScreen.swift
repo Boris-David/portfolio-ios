@@ -21,7 +21,7 @@ public struct ContactScreen: View {
   @Environment(PortfolioStore.self) private var store
   @Environment(\.dismiss) private var dismiss
   @Environment(\.openURL) private var openURL
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   public init() {}
 
@@ -64,11 +64,11 @@ public struct ContactScreen: View {
         }
       }
       .background(Color.paper)
-      .navigationTitle(chrome.contactTitle)
+      .navigationTitle(text(InterfaceText.contactTitle))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .confirmationAction) {
-          Button(chrome.close) { dismiss() }
+          Button(text(InterfaceText.close)) { dismiss() }
         }
       }
     }

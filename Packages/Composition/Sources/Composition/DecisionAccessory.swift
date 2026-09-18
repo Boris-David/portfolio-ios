@@ -2,6 +2,7 @@ import Decisions
 import DesignSystem
 import Presentation
 import SwiftUI
+import ViewKit
 
 /// The control docked under the tab bar on iOS 26.
 ///
@@ -10,18 +11,13 @@ import SwiftUI
 /// whole navigation — which is exactly what an annotations mode is.
 extension View {
   @ViewBuilder
-  func engineeringAccessory(chrome: AppChrome, isOn: Binding<Bool>) -> some View {
+  func engineeringAccessory(isOn: Binding<Bool>) -> some View {
     if #available(iOS 26.0, *) {
       tabViewBottomAccessory {
         Button {
           isOn.wrappedValue.toggle()
         } label: {
-          Label(
-            isOn.wrappedValue ? chrome.decisionsHide : chrome.decisionsShow,
-            systemImage: isOn.wrappedValue ? "number.circle.fill" : "number.circle"
-          )
-          .font(Typography.secondary)
-          .frame(maxWidth: .infinity)
+          DecisionsToggleLabel(isOn: isOn.wrappedValue)
         }
         .tint(Color.accent)
       }

@@ -22,7 +22,7 @@ package struct SectionShell<Content: View>: View {
   @Environment(\.openResume) private var openResume
   @Environment(\.initialRoute) private var initialRoute
   @Environment(\.contentLanguage) private var language
-  @Chrome private var chrome
+  @Localized(.interface) private var text
   @State private var router = Router()
 
   public init(title: String, @ViewBuilder content: () -> Content) {
@@ -56,15 +56,15 @@ package struct SectionShell<Content: View>: View {
         .toolbar {
           ToolbarItem(placement: .topBarTrailing) {
             Button { openResume() } label: {
-              Label(chrome.resumeAction, icon: .resume)
+              Label(text(InterfaceText.resumeAction), icon: .resume)
             }
-            .accessibilityLabel(chrome.resumeAction)
+            .accessibilityLabel(text(InterfaceText.resumeAction))
           }
           ToolbarItem(placement: .topBarTrailing) {
             Button { openSettings() } label: {
-              Label(chrome.settings, icon: .settings)
+              Label(text(InterfaceText.settings), icon: .settings)
             }
-            .accessibilityLabel(chrome.settings)
+            .accessibilityLabel(text(InterfaceText.settings))
             // The one tip in the app, anchored to where the switch lives.
             .popoverTip(DecisionsTip(language: language))
           }

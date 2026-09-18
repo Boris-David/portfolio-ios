@@ -14,12 +14,12 @@ import ViewKit
 /// what it kept.
 public struct EngineeringScreen: View {
   @Environment(SettingsStore.self) private var settings
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   public init() {}
 
   public var body: some View {
-    SectionShell(title: chrome.tabEngineering) {
+    SectionShell(title: text(InterfaceText.tabEngineering)) {
       ScrollView {
         VStack(alignment: .leading, spacing: Tokens.Space.s7) {
           intro
@@ -40,16 +40,16 @@ public struct EngineeringScreen: View {
   private var intro: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
       SectionHeader(
-        eyebrow: chrome.engineeringEyebrow,
-        title: chrome.engineeringTitle,
-        intro: chrome.engineeringIntro
+        eyebrow: text(InterfaceText.engineeringEyebrow),
+        title: text(InterfaceText.engineeringTitle),
+        intro: text(InterfaceText.engineeringIntro)
       )
 
       Toggle(isOn: Binding(
         get: { settings.showsDecisions },
         set: { value in Task { await settings.setShowsDecisions(value) } }
       )) {
-        Label(chrome.decisionsToggle, icon: .annotations)
+        Label(text(InterfaceText.decisionsToggle), icon: .annotations)
           .font(Typography.bodyStrong)
       }
       .tint(Color.accent)
@@ -62,7 +62,7 @@ public struct EngineeringScreen: View {
       HStack(spacing: Tokens.Space.s2) {
         Image(systemName: PlatformCapabilities.supportsLiquidGlass ? "sparkles" : "square.stack")
           .font(.footnote)
-        Text(chrome.renderingSummary(supportsLiquidGlass: PlatformCapabilities.supportsLiquidGlass))
+        Text(text(PlatformCapabilities.supportsLiquidGlass ? InterfaceText.renderingLiquidGlass : InterfaceText.renderingFallback))
           .font(Typography.caption)
       }
       .foregroundStyle(Color.ink3)
@@ -74,12 +74,12 @@ public struct EngineeringScreen: View {
 
 /// The layers, and what each one is **not** allowed to know.
 struct LayersBlock: View {
-  @Chrome private var chrome
+  @Localized(.interface) private var text
   @Environment(\.contentLanguage) private var language
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
-      Text(chrome.architecture).eyebrowStyle()
-      InlineMarkdown(chrome.architectureIntro)
+      Text(text(InterfaceText.architecture)).eyebrowStyle()
+      InlineMarkdown(text(InterfaceText.architectureIntro))
 
       VStack(spacing: Tokens.Space.s3) {
         ForEach(EngineeringRecord.layers) { layer in
@@ -91,7 +91,7 @@ struct LayersBlock: View {
                   .foregroundStyle(Color.accent)
                 Spacer(minLength: Tokens.Space.s2)
                 if layer.dependsOn.isEmpty {
-                  Chip(chrome.noDependency, emphasis: .accented)
+                  Chip(text(InterfaceText.noDependency), emphasis: .accented)
                 }
               }
               InlineMarkdown(
@@ -117,14 +117,14 @@ struct LayersBlock: View {
 
 /// The challenges, expandable.
 struct ChallengesBlock: View {
-  @Chrome private var chrome
+  @Localized(.interface) private var text
   @Environment(\.contentLanguage) private var language
   @State private var opened: Set<String> = []
   @ReducedMotion private var reducedMotion
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
-      Text(chrome.challenges).eyebrowStyle()
+      Text(text(InterfaceText.challenges)).eyebrowStyle()
 
       VStack(spacing: Tokens.Space.s3) {
         ForEach(EngineeringRecord.challenges) { challenge in
@@ -157,13 +157,13 @@ struct ChallengesBlock: View {
               }
               .buttonStyle(.plain)
               .accessibilityAddTraits(.isButton)
-              .accessibilityValue(opened.contains(challenge.id) ? chrome.expanded : chrome.collapsed)
+              .accessibilityValue(opened.contains(challenge.id) ? text(InterfaceText.expanded) : text(InterfaceText.collapsed))
 
               VStack(alignment: .leading, spacing: Tokens.Space.s4) {
                 Divider().overlay(Color.line)
-                labelled(chrome.theProblem, challenge.problem(language))
-                labelled(chrome.theSolution, challenge.solution(language))
-                labelled(chrome.theLesson, challenge.lesson(language))
+                labelled(text(InterfaceText.theProblem), challenge.problem(language))
+                labelled(text(InterfaceText.theSolution), challenge.solution(language))
+                labelled(text(InterfaceText.theLesson), challenge.lesson(language))
               }
               .padding(.horizontal, Tokens.Space.s4)
               .padding(.bottom, Tokens.Space.s4)
@@ -191,11 +191,11 @@ struct ChallengesBlock: View {
 
 /// The end-to-end walkthroughs: who does what, in order.
 struct WalkthroughsBlock: View {
-  @Chrome private var chrome
+  @Localized(.interface) private var text
   @Environment(\.contentLanguage) private var language
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
-      Text(chrome.endToEnd).eyebrowStyle()
+      Text(text(InterfaceText.endToEnd)).eyebrowStyle()
 
       ForEach(EngineeringRecord.walkthroughs) { walkthrough in
         Surface {
@@ -236,12 +236,12 @@ struct WalkthroughsBlock: View {
 
 /// The dependencies: the ones taken, the ones declined, and why.
 struct DependenciesBlock: View {
-  @Chrome private var chrome
+  @Localized(.interface) private var text
   @Environment(\.contentLanguage) private var language
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
-      Text(chrome.dependencies).eyebrowStyle()
-      InlineMarkdown(chrome.dependenciesRule)
+      Text(text(InterfaceText.dependencies)).eyebrowStyle()
+      InlineMarkdown(text(InterfaceText.dependenciesRule))
 
       ForEach(EngineeringRecord.dependencies) { call in
         Surface {
@@ -270,7 +270,7 @@ struct DependenciesBlock: View {
         .font(Typography.caption)
         .foregroundStyle(Color.ok)
     case .declined:
-      Label(chrome.declined, systemImage: "minus.circle")
+      Label(text(InterfaceText.declined), systemImage: "minus.circle")
         .font(Typography.caption)
         .foregroundStyle(Color.ink3)
     }

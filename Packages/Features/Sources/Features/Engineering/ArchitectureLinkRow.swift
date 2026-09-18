@@ -11,18 +11,18 @@ import ViewKit
 /// screen it opens lives in a sibling module this one cannot import — and that
 /// is the point, not an obstacle worked around.
 struct ArchitectureLinkRow: View {
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   var body: some View {
     NavigationLink(value: Route.architectures) {
       Surface {
         HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s3) {
           VStack(alignment: .leading, spacing: Tokens.Space.s1) {
-            Text(chrome.architecturePatterns)
+            Text(text(InterfaceText.architecturePatterns))
               .font(Typography.heading)
               .foregroundStyle(Color.ink)
               .multilineTextAlignment(.leading)
-            Text(chrome.architecturePatternsSummary)
+            Text(text(InterfaceText.architecturePatternsSummary))
               .font(Typography.secondary)
               .foregroundStyle(Color.ink2)
               .multilineTextAlignment(.leading)

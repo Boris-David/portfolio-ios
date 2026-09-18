@@ -19,7 +19,6 @@ struct RouteScreen: View {
   let zoom: Namespace.ID
 
   @Environment(PortfolioStore.self) private var store
-  @Chrome private var chrome
 
   var body: some View {
     switch route {
@@ -33,13 +32,7 @@ struct RouteScreen: View {
       } else {
         // A route to content that is not there — which happens with a deep link
         // received before the first load. Say so; do not show a blank screen.
-        // The glyph name never leaves `ViewKit`: this asks for the *meaning*
-        // and lets the view layer draw it.
-        ContentUnavailableView {
-          Label(chrome.routeMissingTitle, icon: .empty)
-        } description: {
-          Text(chrome.routeMissingMessage)
-        }
+        RouteMissingView()
       }
     case .about:
       if let profile = store.portfolio?.profile {
@@ -62,13 +55,7 @@ struct RouteScreen: View {
 
   /// A route to content that is not there — which happens with a deep link
   /// received before the first load. Say so; do not show a blank screen.
-  private var missing: some View {
-    ContentUnavailableView {
-      Label(chrome.routeMissingTitle, icon: .empty)
-    } description: {
-      Text(chrome.routeMissingMessage)
-    }
-  }
+  private var missing: some View { RouteMissingView() }
 }
 
 extension RouteResolver {

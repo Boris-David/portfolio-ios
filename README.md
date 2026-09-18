@@ -22,6 +22,12 @@ qu'on pourrait ajouter la dépendance au manifeste.
 refuse : le domaine ignore qu'une interface existe, la présentation ne dessine
 pas, et `Textual`, `Lottie`, `PDFKit` ne s'importent que dans `CoreUI`.
 
+**Le texte n'est pas dans le code, et la langue n'est pas celle de l'appareil.**
+Un écran nomme une clé typée ; le mot vit dans un `.xcstrings` qu'on édite sans
+ouvrir Xcode. Et il est résolu sur la langue du **contenu servi** — parce que la
+source peut ne pas avoir celle du téléphone, et que des onglets français au-dessus
+d'un texte anglais, c'est arrivé au premier lancement.
+
 **Liquid Glass sur iOS 26, iOS 18 sans compromis.** Une seule base de code.
 L'intention est nommée, le rendu décidé en un endroit, et la CI **lance
 réellement** l'application sur un runtime iOS 18.
@@ -37,10 +43,12 @@ Core          rien            mécaniques : horloge, stockage, connectivité, bu
 Domain        rien            entités + ports
 Networking    rien            HTTP
 DesignSystem  rien            le langage visuel — des valeurs, rien qui dessine
+Localization  rien            un catalogue, lu dans une langue NOMMÉE — jamais celle de l'appareil
 CoreUI        DesignSystem    les composants, et SEUL à connaître Lottie/Textual/PDFKit
 Data          Domain + Networking + Core        le seul qui voie les deux côtés
-Presentation  Domain                            et surtout pas SwiftUI
-Features      Domain + Presentation + DesignSystem + CoreUI
+Presentation  Domain                            ni SwiftUI ni catalogue : des valeurs
+                                                et des clés, jamais des phrases
+Features      Domain + Presentation + DesignSystem + CoreUI + Localization
 Composition   tout                              le seul, et il n'a aucune logique
 ```
 
@@ -63,7 +71,7 @@ Prérequis : Xcode 26 (SDK iOS 26), XcodeGen, Node 22, Python 3 avec Pillow.
 ## Vérifier
 
 ```bash
-./Scripts/test.sh              # 12 suites, 145 tests, sur simulateur
+./Scripts/test.sh              # 13 suites, 160 tests, sur simulateur
 ./Scripts/tokens.mjs --check   # le design descend bien des tokens
 ./Scripts/seed.sh --check      # la graine décrit encore ce que sert l'API
 ./Scripts/assets.py --check    # chaque actif attendu est présent
@@ -72,6 +80,7 @@ Prérequis : Xcode 26 (SDK iOS 26), XcodeGen, Node 22, Python 3 avec Pillow.
 ./Scripts/check-layers.sh      # aucune couche ne voit ce qu'elle ne doit pas
 ./Scripts/check-naming.sh      # le nom dit le rôle
 ./Scripts/check-suites.sh      # aucune suite ne s'est évaporée
+./Scripts/check-strings.sh     # chaque clé a sa traduction, chaque traduction sa clé
 ./Scripts/screens.sh           # 21 captures : 2 thèmes, la plus grande taille
                                # d'accessibilité, et les écrans poussés
 ```

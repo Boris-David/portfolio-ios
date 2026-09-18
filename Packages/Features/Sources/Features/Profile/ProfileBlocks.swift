@@ -37,7 +37,7 @@ struct HeroBlock: View {
   @Environment(Router.self) private var router
   @Environment(\.dynamicTypeSize) private var typeSize
   @ReducedMotion private var reducedMotion
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   private var monogram: Monogram { Monogram(profile.name) }
 
@@ -170,7 +170,7 @@ struct HeroBlock: View {
     Button {
       router.present(.contact)
     } label: {
-      Label(chrome.contactAction, icon: .contact)
+      Label(text(InterfaceText.contactAction), icon: .contact)
         .frame(maxWidth: .infinity)
     }
     .buttonStyle(.adaptiveGlassProminent)
@@ -180,7 +180,7 @@ struct HeroBlock: View {
   private var aboutLink: some View {
     NavigationLink(value: Route.about) {
       HStack(spacing: Tokens.Space.s2) {
-        Text(chrome.aboutLink)
+        Text(text(InterfaceText.aboutLink))
         Image(systemName: "arrow.right")
           .font(.system(size: Tokens.Icon.caption, weight: .semibold))
       }

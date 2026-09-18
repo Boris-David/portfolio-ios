@@ -26,7 +26,7 @@ import ViewKit
 /// reflex.
 package struct DesignDecision: Identifiable, Sendable {
   /// What was considered, then ruled out.
-  package struct Rejected: Sendable, Hashable, Identifiable {
+  package struct RejectedOption: Sendable, Hashable, Identifiable {
     package let id: Int
     package let name: String
     /// The reason, in one sentence that stands on its own.
@@ -84,14 +84,14 @@ package struct DesignDecision: Identifiable, Sendable {
   /// The count is not declared in Swift: a second source for it would have been
   /// free to disagree. A gap in the numbering would leave later entries unread,
   /// which is why `check-strings.sh` fails on a key nothing reaches.
-  package func rejected(_ language: Language) -> [Rejected] {
+  package func rejected(_ language: Language) -> [RejectedOption] {
     let wording = text(language)
-    var found: [Rejected] = []
+    var found: [RejectedOption] = []
     for index in 1...Self.mostRejectedCandidates {
       let name = key("rejected.\(index).name")
       guard wording.has(name) else { break }
       found.append(
-        Rejected(id: index, name: wording(name), because: wording(key("rejected.\(index).because")))
+        RejectedOption(id: index, name: wording(name), because: wording(key("rejected.\(index).because")))
       )
     }
     return found

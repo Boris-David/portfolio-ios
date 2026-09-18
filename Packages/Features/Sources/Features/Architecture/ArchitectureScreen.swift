@@ -25,7 +25,7 @@ import ViewKit
 public struct ArchitectureScreen: View {
   private let dossier: ArchitectureDossier
 
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   public init(dossier: ArchitectureDossier) {
     self.dossier = dossier
@@ -43,7 +43,7 @@ public struct ArchitectureScreen: View {
       .readableWidth()
     }
     .background(Color.paper)
-    .navigationTitle(chrome.architecturePatterns)
+    .navigationTitle(text(InterfaceText.architecturePatterns))
     .navigationBarTitleDisplayMode(.inline)
   }
 
@@ -52,7 +52,7 @@ public struct ArchitectureScreen: View {
   private var header: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s3) {
       RichTextView(dossier.intro)
-      Text(chrome.countsTakenOn(dossier.verifiedOn))
+      Text(text(InterfaceText.countsTakenOn, dossier.verifiedOn))
         .font(Typography.caption)
         .foregroundStyle(Color.ink3)
     }
@@ -61,7 +61,7 @@ public struct ArchitectureScreen: View {
 
   private var codebases: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
-      Text(chrome.codebases).eyebrowStyle()
+      Text(text(InterfaceText.codebases)).eyebrowStyle()
 
       VStack(spacing: Tokens.Space.s3) {
         ForEach(dossier.projects) { project in

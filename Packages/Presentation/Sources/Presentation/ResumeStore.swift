@@ -21,11 +21,9 @@ public final class ResumeStore {
   public private(set) var phase: ViewPhase<ResumeDocument> = .initial
 
   private let reading: any ResumeReading
-  private let chrome: () -> AppChrome
 
-  public init(reading: any ResumeReading, chrome: @escaping () -> AppChrome) {
+  public init(reading: any ResumeReading) {
     self.reading = reading
-    self.chrome = chrome
   }
 
   public func load(in language: Language) async {
@@ -33,9 +31,9 @@ public final class ResumeStore {
     do {
       phase = .loaded(try await reading.resume(in: language))
     } catch let failure as ContentUnavailable {
-      phase = .failed(PhaseFailure(failure, chrome: chrome()))
+      phase = .failed(PhaseFailure(failure))
     } catch {
-      phase = .failed(PhaseFailure(.unreachable, chrome: chrome()))
+      phase = .failed(PhaseFailure(.unreachable))
     }
   }
 }

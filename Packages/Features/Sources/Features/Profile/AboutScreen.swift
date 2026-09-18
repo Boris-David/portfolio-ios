@@ -20,7 +20,7 @@ import ViewKit
 public struct AboutScreen: View {
   private let profile: Profile
 
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   public init(profile: Profile) {
     self.profile = profile
@@ -53,7 +53,7 @@ public struct AboutScreen: View {
       .readableWidth()
     }
     .background(Color.paper)
-    .navigationTitle(chrome.aboutTitle)
+    .navigationTitle(text(InterfaceText.aboutTitle))
     .navigationBarTitleDisplayMode(.inline)
   }
 

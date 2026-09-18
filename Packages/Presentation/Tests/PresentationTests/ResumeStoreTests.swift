@@ -21,7 +21,7 @@ struct ResumeStoreTests {
   @Test("the first load goes from initial, through loading, to loaded")
   func firstLoadWalksThePhases() async {
     let reading = ResumeReadingSpy(.document(.stub), isGated: true)
-    let store = ResumeStore(reading: reading, chrome: { .french })
+    let store = ResumeStore(reading: reading)
 
     // Nothing has been asked for yet: the screen shows nothing, not a skeleton.
     #expect(store.phase == .initial)
@@ -35,16 +35,16 @@ struct ResumeStoreTests {
     #expect(store.phase == .loaded(.stub))
   }
 
-  /// The wording comes from the chrome handed in, never from a sentence written
-  /// in this layer — which is what lets the same failure read in French or in
-  /// English depending on the content the reader is looking at.
-  @Test("a failure is worded in the language on screen", arguments: Language.allCases)
-  func failureIsWordedFromTheChrome(_ language: Language) async {
-    let chrome = AppChrome.for(language)
-    let store = ResumeStore(
-      reading: ResumeReadingSpy(.unavailable(.unreachable)),
-      chrome: { chrome }
-    )
+  /// A failure carries the **cause**, never a sentence.
+  ///
+  /// This test used to hand the store a language and assert on two French
+  /// sentences. It cannot any more, and that is the improvement: the store has
+  /// no language to be given. What it decides — which glyph, and whether "try
+  /// again" would be honest — follows from the cause alone, and the wording is
+  /// read from the catalogue by whatever draws it.
+  @Test("a failure carries its cause, not its wording", arguments: Language.allCases)
+  func failureCarriesItsCause(_ language: Language) async {
+    let store = ResumeStore(reading: ResumeReadingSpy(.unavailable(.unreachable)))
 
     await store.load(in: language)
 
@@ -52,8 +52,7 @@ struct ResumeStoreTests {
       Issue.record("expected a failure, got \(store.phase)")
       return
     }
-    #expect(failure.title == chrome.unavailableTitle)
-    #expect(failure.message == chrome.unreachableMessage)
+    #expect(failure.cause == .unreachable)
     #expect(failure.icon == .offline)
     // The source may well answer next time: the button is honest here.
     #expect(failure.isRetryable)
@@ -69,8 +68,7 @@ struct ResumeStoreTests {
     let store = ResumeStore(
       reading: ResumeReadingSpy(
         .unavailable(.malformed(path: "resume.fileName", reason: .missingField))
-      ),
-      chrome: { .english }
+      )
     )
 
     await store.load(in: .english)
@@ -81,8 +79,9 @@ struct ResumeStoreTests {
     }
     #expect(!failure.isRetryable)
     #expect(failure.icon == .malformed)
-    #expect(failure.title == AppChrome.english.unreadableTitle)
-    #expect(failure.message.contains("resume.fileName"))
+    // The field path travels intact: it is the part of the diagnosis that is
+    // worth anything, and a sentence assembled here would have lost it.
+    #expect(failure.cause == .malformed(path: "resume.fileName", reason: .missingField))
   }
 
   /// An error the domain never named — a session that timed out, a disk that
@@ -91,10 +90,7 @@ struct ResumeStoreTests {
   /// which is the one outcome worse than an error.
   @Test("an error the domain does not name is still worded, never swallowed")
   func unnamedErrorStillReachesTheScreen() async {
-    let store = ResumeStore(
-      reading: ResumeReadingSpy(.unexpected(URLError(.timedOut))),
-      chrome: { .french }
-    )
+    let store = ResumeStore(reading: ResumeReadingSpy(.unexpected(URLError(.timedOut))))
 
     await store.load(in: .french)
 
@@ -102,7 +98,10 @@ struct ResumeStoreTests {
       Issue.record("expected a failure, got \(store.phase)")
       return
     }
-    #expect(failure.message == AppChrome.french.unreachableMessage)
+    // Reported as unreachable rather than swallowed: a `catch` that dropped it
+    // would leave the reader on a skeleton forever, which is the one outcome
+    // worse than an error.
+    #expect(failure.cause == .unreachable)
     #expect(failure.isRetryable)
   }
 
@@ -114,7 +113,7 @@ struct ResumeStoreTests {
   @Test("loading again keeps what is already on screen")
   func reloadDoesNotFallBackToASkeleton() async {
     let reading = ResumeReadingSpy(.document(.stub), isGated: true)
-    let store = ResumeStore(reading: reading, chrome: { .french })
+    let store = ResumeStore(reading: reading)
 
     let first = Task { await store.load(in: .french) }
     await reading.waitUntilCalled()

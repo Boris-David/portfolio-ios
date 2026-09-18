@@ -21,32 +21,31 @@ import ViewKit
 /// bar makes — that tapping it shows you where you were.
 struct AppTabs: View {
   @Binding var selection: AppSection
-  @Chrome private var chrome
 
   var body: some View {
     TabView(selection: $selection) {
       Tab(value: AppSection.profile) {
         ProfileScreen()
       } label: {
-        Label(AppSection.profile.title(chrome), icon: AppSection.profile.icon)
+        SectionLabel(.profile)
       }
 
       Tab(value: AppSection.work) {
         WorkScreen()
       } label: {
-        Label(AppSection.work.title(chrome), icon: AppSection.work.icon)
+        SectionLabel(.work)
       }
 
       Tab(value: AppSection.journey) {
         JourneyScreen()
       } label: {
-        Label(AppSection.journey.title(chrome), icon: AppSection.journey.icon)
+        SectionLabel(.journey)
       }
 
       Tab(value: AppSection.decision) {
         EngineeringScreen()
       } label: {
-        Label(AppSection.decision.title(chrome), icon: AppSection.decision.icon)
+        SectionLabel(.decision)
       }
     }
     // The bar shrinks as you read down: the content is what you came for, the

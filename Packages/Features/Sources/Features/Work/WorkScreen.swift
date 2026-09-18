@@ -18,12 +18,12 @@ public struct WorkScreen: View {
   /// the same one.
   @Namespace private var zoom
   @Environment(PortfolioStore.self) private var store
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   public init() {}
 
   public var body: some View {
-    SectionShell(title: chrome.tabWork) {
+    SectionShell(title: text(InterfaceText.tabWork)) {
       // The four phases are rendered in one place, by one component.
       // No screen rewrites this switch: that is what makes them all behave
       // alike — same skeleton, same transition, same failure screen.
@@ -74,7 +74,7 @@ struct CaseStudyCard: View {
 
   @Environment(Router.self) private var router
   @ReducedMotion private var reducedMotion
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   var body: some View {
     Button {
@@ -108,8 +108,8 @@ struct CaseStudyCard: View {
 
           HStack(spacing: Tokens.Space.s2) {
             Text(study.hasNamedChapters
-              ? chrome.chapterCount(study.chapters.count)
-              : chrome.readStudy)
+              ? text(InterfaceText.chapterCount, count: study.chapters.count)
+              : text(InterfaceText.readStudy))
               .font(Typography.caption)
               .foregroundStyle(Color.accent)
             Image(systemName: "arrow.right")
@@ -129,7 +129,7 @@ struct CaseStudyCard: View {
 struct AppsBlock: View {
   let section: Portfolio.Section?
   let catalogue: AppCatalogue
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   private let columns = [GridItem(.adaptive(minimum: 150), spacing: Tokens.Space.s3)]
 
@@ -157,7 +157,7 @@ struct AppsBlock: View {
           .fixedSize(horizontal: false, vertical: true)
       }
 
-      Text(chrome.verifiedOn(catalogue.verifiedOn))
+      Text(text(InterfaceText.verifiedOn, catalogue.verifiedOn))
         .font(Typography.caption)
         .foregroundStyle(Color.ink3)
     }
@@ -171,7 +171,7 @@ struct AppCell: View {
   let app: ProductionApp
   @Environment(\.openURL) private var openURL
   @Environment(ToastCenter.self) private var toasts
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   var body: some View {
     Button {
@@ -209,19 +209,19 @@ struct AppCell: View {
     .contextMenu {
       if let url = URL(string: app.appStoreURL) {
         ShareLink(item: url) {
-          Label(chrome.share, icon: .share)
+          Label(text(InterfaceText.share), icon: .share)
         }
         Button {
           UIPasteboard.general.url = url
-          toasts.show(chrome.linkCopied, kind: .succeeded, icon: .succeeded)
+          toasts.show(text(InterfaceText.linkCopied), kind: .succeeded, icon: .succeeded)
         } label: {
-          Label(chrome.copyLink, icon: .link)
+          Label(text(InterfaceText.copyLink), icon: .link)
         }
       }
     }
     .accessibilityElement(children: .combine)
     .accessibilityLabel("\(app.name), \(app.territory)")
-    .accessibilityHint(chrome.openInAppStore)
+    .accessibilityHint(text(InterfaceText.openInAppStore))
     .decision(WorkNotes.contextMenuNote)
   }
 }

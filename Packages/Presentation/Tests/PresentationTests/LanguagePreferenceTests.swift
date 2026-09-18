@@ -31,12 +31,8 @@ struct SectionTests {
     #expect(Set(icons).count == AppSection.allCases.count)
   }
 
-  @Test("every section is titled in both languages", arguments: AppSection.allCases)
-  func sectionsAreTitled(_ section: AppSection) {
-    #expect(!section.title(.french).isEmpty)
-    #expect(!section.title(.english).isEmpty)
-    #expect(section.title(.french) != section.title(.english) || section.title(.english) == "Decisions")
-  }
+  // Whether each section is *titled* moved to `ViewKitTests`: a title is read
+  // from a catalogue, and this layer no longer has one — which is the point.
 }
 
 struct RouterTests {
@@ -61,5 +57,5 @@ struct RouterTests {
 }
 
 private extension PhaseFailure {
-  static let stub = PhaseFailure(title: "t", message: "m", icon: .offline, isRetryable: true)
+  static let stub = PhaseFailure(.unreachable)
 }

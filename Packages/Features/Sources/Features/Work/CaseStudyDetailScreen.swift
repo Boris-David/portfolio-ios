@@ -84,7 +84,7 @@ struct ChapterDisclosureView: View {
 
   @State private var isOpen = false
   @ReducedMotion private var reducedMotion
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   var body: some View {
     Surface(padding: 0) {
@@ -134,7 +134,7 @@ struct ChapterDisclosureView: View {
     .buttonStyle(.plain)
     .accessibilityAddTraits(.isButton)
     .accessibilityLabel(chapter.title ?? "")
-    .accessibilityValue(isOpen ? chrome.expanded : chrome.collapsed)
+    .accessibilityValue(isOpen ? text(InterfaceText.expanded) : text(InterfaceText.collapsed))
     
   }
 

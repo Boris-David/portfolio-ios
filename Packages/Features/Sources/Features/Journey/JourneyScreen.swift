@@ -10,12 +10,12 @@ import ViewKit
 /// The journey: experience, education, certifications, skills.
 public struct JourneyScreen: View {
   @Environment(PortfolioStore.self) private var store
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   public init() {}
 
   public var body: some View {
-    SectionShell(title: chrome.tabJourney) {
+    SectionShell(title: text(InterfaceText.tabJourney)) {
       // The four phases are rendered in one place, by one component.
       // No screen rewrites this switch: that is what makes them all behave
       // alike — same skeleton, same transition, same failure screen.
@@ -44,7 +44,7 @@ public struct JourneyScreen: View {
         .decision(JourneyNotes.timelineNote)
 
         TimelineBlock(
-          title: chrome.education,
+          title: text(InterfaceText.education),
           rows: portfolio.background.education.map { entry in
             TimelineRow(
               when: dates.years(entry.startYear, entry.endYear),
@@ -56,28 +56,28 @@ public struct JourneyScreen: View {
         )
 
         TimelineBlock(
-          title: chrome.certifications,
+          title: text(InterfaceText.certifications),
           rows: portfolio.background.certifications.map { entry in
             TimelineRow(
               when: dates.long(entry.awardedOn),
               what: entry.name,
               detail: entry.issuer,
               link: entry.verifyURL.flatMap(URL.init(string:)).map {
-                TimelineRow.Link(label: chrome.verifyCertificate, url: $0)
+                TimelineRow.Link(label: text(InterfaceText.verifyCertificate), url: $0)
               }
             )
           }
         )
 
         TimelineBlock(
-          title: chrome.openProjects,
+          title: text(InterfaceText.openProjects),
           rows: portfolio.background.openProjects.map { project in
             TimelineRow(
               when: nil,
               what: project.name,
               detail: project.description.plain,
               link: project.sourceURL.flatMap(URL.init(string:)).map {
-                TimelineRow.Link(label: chrome.sourceCode, url: $0)
+                TimelineRow.Link(label: text(InterfaceText.sourceCode), url: $0)
               }
             )
           }
@@ -102,7 +102,7 @@ struct ExperienceCard: View {
 
   @State private var isOpen: Bool?
   @ReducedMotion private var reducedMotion
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   /// The most recent one is open on arrival — it is the one people came to
   /// read. `nil` means "not yet decided by the reader", which lets the initial
@@ -154,7 +154,7 @@ struct ExperienceCard: View {
     .buttonStyle(.plain)
     .accessibilityAddTraits(.isButton)
     .accessibilityLabel("\(job.role), \(job.organisation)")
-    .accessibilityValue(open ? chrome.expanded : chrome.collapsed)
+    .accessibilityValue(open ? text(InterfaceText.expanded) : text(InterfaceText.collapsed))
   }
 
   private var details: some View {
@@ -248,11 +248,11 @@ struct TimelineBlock: View {
 
 struct SkillsBlock: View {
   let groups: [SkillGroup]
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
-      Text(chrome.skills).eyebrowStyle()
+      Text(text(InterfaceText.skills)).eyebrowStyle()
       ForEach(groups) { group in
         VStack(alignment: .leading, spacing: Tokens.Space.s2) {
           Text(group.title)

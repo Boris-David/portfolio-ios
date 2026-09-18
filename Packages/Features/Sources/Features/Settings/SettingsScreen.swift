@@ -27,14 +27,13 @@ import ViewKit
 public struct SettingsScreen: View {
   @Environment(SettingsStore.self) private var settings
   @Environment(ToastCenter.self) private var toasts
-  @Environment(\.contentLanguage) private var language
+  @Localized(.interface) private var text
   @Environment(\.dismiss) private var dismiss
 
   @State private var isConfirmingReset = false
 
   public init() {}
 
-  private var chrome: SettingsChrome { .for(language) }
 
   public var body: some View {
     NavigationStack {
@@ -44,11 +43,11 @@ public struct SettingsScreen: View {
         engineeringSection
         resetSection
       }
-      .navigationTitle(chrome.title)
+      .navigationTitle(text(SettingsText.title))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .confirmationAction) {
-          Button(chrome.done) { dismiss() }
+          Button(text(SettingsText.done)) { dismiss() }
         }
       }
       // The haptic is tied to the value that changed, not to the tap: it cannot
@@ -67,17 +66,17 @@ public struct SettingsScreen: View {
 
   private var appearanceSection: some View {
     Section {
-      Picker(chrome.appearanceSection, selection: appearanceBinding) {
-        Text(chrome.appearanceSystem).tag(AppearancePreference.system)
-        Text(chrome.appearanceLight).tag(AppearancePreference.light)
-        Text(chrome.appearanceDark).tag(AppearancePreference.dark)
+      Picker(text(SettingsText.appearanceSection), selection: appearanceBinding) {
+        Text(text(SettingsText.appearanceSystem)).tag(AppearancePreference.system)
+        Text(text(SettingsText.appearanceLight)).tag(AppearancePreference.light)
+        Text(text(SettingsText.appearanceDark)).tag(AppearancePreference.dark)
       }
       .pickerStyle(.segmented)
       .decision(SettingsNotes.pickerNote)
     } header: {
-      Label(chrome.appearanceSection, icon: .appearance)
+      Label(text(SettingsText.appearanceSection), icon: .appearance)
     } footer: {
-      InlineMarkdown(chrome.appearanceNote, font: Typography.caption, color: .ink3)
+      InlineMarkdown(text(SettingsText.appearanceNote), font: Typography.caption, color: .ink3)
     }
   }
 
@@ -100,17 +99,17 @@ public struct SettingsScreen: View {
       //
       // The label still exists for VoiceOver, which is the whole reason to hide
       // it rather than remove it.
-      Picker(chrome.languageSection, selection: languageBinding) {
-        Text(chrome.languageSystem).tag(LanguagePreference.system)
-        Text(chrome.languageFrench).tag(LanguagePreference.fixed(.french))
-        Text(chrome.languageEnglish).tag(LanguagePreference.fixed(.english))
+      Picker(text(SettingsText.languageSection), selection: languageBinding) {
+        Text(text(SettingsText.languageSystem)).tag(LanguagePreference.system)
+        Text(text(SettingsText.languageFrench)).tag(LanguagePreference.fixed(.french))
+        Text(text(SettingsText.languageEnglish)).tag(LanguagePreference.fixed(.english))
       }
       .pickerStyle(.inline)
       .labelsHidden()
     } header: {
-      Label(chrome.languageSection, icon: .language)
+      Label(text(SettingsText.languageSection), icon: .language)
     } footer: {
-      InlineMarkdown(chrome.languageNote, font: Typography.caption, color: .ink3)
+      InlineMarkdown(text(SettingsText.languageNote), font: Typography.caption, color: .ink3)
     }
   }
 
@@ -122,11 +121,11 @@ public struct SettingsScreen: View {
   }
   private var engineeringSection: some View {
     Section {
-      Toggle(chrome.decisionsToggle, isOn: decisionsBinding)
+      Toggle(text(SettingsText.decisionsToggle), isOn: decisionsBinding)
     } header: {
-      Label(chrome.engineeringSection, icon: .annotations)
+      Label(text(SettingsText.engineeringSection), icon: .annotations)
     } footer: {
-      InlineMarkdown(chrome.designDecision, font: Typography.caption, color: .ink3)
+      InlineMarkdown(text(SettingsText.designDecision), font: Typography.caption, color: .ink3)
     }
   }
 
@@ -144,28 +143,28 @@ public struct SettingsScreen: View {
       Button(role: .destructive) {
         isConfirmingReset = true
       } label: {
-        Label(chrome.reset, icon: .reset)
+        Label(text(SettingsText.reset), icon: .reset)
       }
       // A confirmation dialog and not an alert: an alert is for a choice that
       // cannot be undone, and this one can — you simply set them again. The
       // dialog also rises from the button, which keeps the connection between
       // what was tapped and what is being asked.
       .confirmationDialog(
-        chrome.resetQuestion,
+        text(SettingsText.resetQuestion),
         isPresented: $isConfirmingReset,
         titleVisibility: .visible
       ) {
-        Button(chrome.resetConfirm, role: .destructive) {
+        Button(text(SettingsText.resetConfirm), role: .destructive) {
           Task {
             await settings.reset()
-            toasts.show(chrome.resetDone, kind: .succeeded, icon: .succeeded)
+            toasts.show(text(SettingsText.resetDone), kind: .succeeded, icon: .succeeded)
           }
         }
-        Button(chrome.resetCancel, role: .cancel) {}
+        Button(text(SettingsText.resetCancel), role: .cancel) {}
       }
       .decision(SettingsNotes.confirmationNote)
     } header: {
-      Text(chrome.resetSection)
+      Text(text(SettingsText.resetSection))
     }
   }
 }

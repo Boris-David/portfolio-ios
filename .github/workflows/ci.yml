@@ -88,6 +88,13 @@ jobs:
       - name: Every test target actually runs
         run: ./Scripts/check-suites.sh
 
+      # Text moved out of Swift and into string catalogues, which bought plurals
+      # that follow the language and cost the compile error a missing
+      # translation used to be. This is the repayment: a key with no entry now
+      # fails here instead of rendering itself on screen.
+      - name: Every string is translated, and every key reaches one
+        run: ./Scripts/check-strings.sh
+
   # ───────────────────────────────────────────────────────────────────────
   # Build and test
   # ───────────────────────────────────────────────────────────────────────

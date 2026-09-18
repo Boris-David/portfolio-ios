@@ -5,14 +5,16 @@ import SwiftUI
 
 /// The failure screen — a **dumb view**.
 ///
-/// It knows neither the domain, nor the store, nor what failed: it receives a
-/// title, a sentence, an icon, and possibly an action. That is what lets it be
-/// previewed in four variants without wiring anything up.
+/// It receives a cause, an icon and possibly an action — never an `Error`, and
+/// never a finished sentence. The wording is read from the catalogue here,
+/// because this is the last layer that may: `Presentation` decided **that** the
+/// content is unreadable and carried the field path proving it, and could not
+/// have written the sentence without a language it has no business holding.
 package struct FailureView: View {
   private let failure: PhaseFailure
   private let retry: (() -> Void)?
 
-  @Chrome private var chrome
+  @Localized(.interface) private var text
   @State private var appeared = false
   @ReducedMotion private var reducedMotion
 
@@ -42,7 +44,7 @@ package struct FailureView: View {
       }
 
       VStack(spacing: Tokens.Space.s2) {
-        Text(failure.title)
+        Text(text(failure.titleKey))
           .font(Typography.heading)
           .foregroundStyle(Color.ink)
           .multilineTextAlignment(.center)
@@ -54,7 +56,7 @@ package struct FailureView: View {
           // Found on the first correct run of `Scripts/screens.sh`. The previous
           // runs had captured that axis at the wrong size and shown nothing.
           .fixedSize(horizontal: false, vertical: true)
-        Text(failure.message)
+        Text(failure.message(text))
           .font(Typography.secondary)
           .foregroundStyle(Color.ink2)
           .multilineTextAlignment(.center)
@@ -64,7 +66,7 @@ package struct FailureView: View {
       // No button when retrying would change nothing: offering a useless
       // action is a promise that will not be kept.
       if failure.isRetryable, let retry {
-        Button(chrome.retry, action: retry)
+        Button(text(InterfaceText.retry), action: retry)
           .buttonStyle(.adaptiveGlassProminent)
           .padding(.top, Tokens.Space.s2)
       }
@@ -72,7 +74,7 @@ package struct FailureView: View {
     .padding(Tokens.Space.s6)
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .accessibilityElement(children: .contain)
-    .accessibilityLabel("\(failure.title). \(failure.message)")
+    .accessibilityLabel("\(text(failure.titleKey)). \(failure.message(text))")
     .task {
       guard !reducedMotion else { return }
       appeared = true
@@ -80,28 +82,24 @@ package struct FailureView: View {
   }
 }
 
+// The previews build the failure from a **cause**, exactly as the application
+// does. Handing the view two ready-made sentences would have previewed a state
+// the app can never produce.
+
 #Preview("Unreachable") {
-  FailureView(
-    failure: PhaseFailure(
-      title: "Contenu indisponible",
-      message: "La source n'a pas répondu, et rien n'est enregistré sur cet appareil.",
-      icon: .offline,
-      isRetryable: true
-    ),
-    retry: {}
-  )
-  .background(Color.paper)
+  FailureView(failure: PhaseFailure(.unreachable), retry: {})
+    .background(Color.paper)
 }
 
 #Preview("Unreadable — no retry") {
   FailureView(
-    failure: PhaseFailure(
-      title: "Contenu illisible",
-      message: "La source a répondu quelque chose d'inattendu en « profile.headline ».",
-      icon: .malformed,
-      isRetryable: false
-    ),
+    failure: PhaseFailure(.malformed(path: "profile.headline", reason: .missingField)),
     retry: nil
   )
   .background(Color.paper)
+}
+
+#Preview("Nothing at all") {
+  FailureView(failure: PhaseFailure(.nothingAvailable), retry: {})
+    .background(Color.paper)
 }

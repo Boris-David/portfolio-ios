@@ -39,8 +39,11 @@ import ViewKit
 /// precisely the part that separates a decision from a reflex.
 package struct DecisionSheet: View {
   private let note: DesignDecision
+
+  /// The decision's own sentences, already read in the language on screen. The
+  /// view never names a language — see `LocalizedDecision`.
+  @LocalizedDecision private var decision: DecisionText
   @Environment(\.dismiss) private var dismiss
-  @Environment(\.contentLanguage) private var language
   @Localized(.decisions) private var text
 
   /// The height at which only the component's name and its one sentence show.
@@ -52,6 +55,7 @@ package struct DecisionSheet: View {
 
   public init(note: DesignDecision) {
     self.note = note
+    _decision = LocalizedDecision(note)
   }
 
   public var body: some View {
@@ -65,10 +69,10 @@ package struct DecisionSheet: View {
           }
 
           section(text(DecisionLabels.why)) {
-            markdown(note.rationale(language))
+            markdown(decision.rationale)
           }
 
-          let rejected = note.rejected(language)
+          let rejected = decision.rejected
           if !rejected.isEmpty {
             section(text(DecisionLabels.rejected)) {
               VStack(alignment: .leading, spacing: Tokens.Space.s3) {
@@ -80,10 +84,10 @@ package struct DecisionSheet: View {
           }
 
           section(text(DecisionLabels.whenToUse)) {
-            markdown(note.whenToUse(language))
+            markdown(decision.whenToUse)
           }
 
-          if let pitfall = note.pitfall(language) {
+          if let pitfall = decision.pitfall {
             section(text(DecisionLabels.pitfall)) {
               HStack(alignment: .top, spacing: Tokens.Space.s3) {
                 Image(systemName: "exclamationmark.triangle.fill")
@@ -133,7 +137,7 @@ package struct DecisionSheet: View {
       Text(note.component)
         .font(Typography.code)
         .foregroundStyle(Color.accent)
-      Text(note.role(language))
+      Text(decision.role)
         .font(Typography.heading)
         .foregroundStyle(Color.ink)
         .fixedSize(horizontal: false, vertical: true)
@@ -170,7 +174,7 @@ package struct DecisionSheet: View {
     .frame(maxWidth: .infinity, alignment: .leading)
   }
 
-  private func rejectedRow(_ rejected: DesignDecision.Rejected) -> some View {
+  private func rejectedRow(_ rejected: DesignDecision.RejectedOption) -> some View {
     HStack(alignment: .top, spacing: Tokens.Space.s3) {
       // A bar rather than a cross: "ruled out" is not "bad". Most of these
       // candidates are good tools, in the wrong place.

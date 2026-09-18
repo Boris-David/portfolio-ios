@@ -36,17 +36,14 @@ public final class PortfolioStore {
   public private(set) var language: Language
 
   private let reading: any PortfolioReading
-  private let chrome: () -> AppChrome
   private var loadTask: Task<Void, Never>?
 
   public init(
     reading: any PortfolioReading,
     language: Language,
-    chrome: @escaping () -> AppChrome
   ) {
     self.reading = reading
     self.language = language
-    self.chrome = chrome
   }
 
   public var snapshot: PortfolioSnapshot? { phase.value }
@@ -72,10 +69,10 @@ public final class PortfolioStore {
         guard !Task.isCancelled else { return }
         // A failure never overwrites content already on screen: dated content
         // beats an error screen in the place of something readable.
-        if !phase.isLoaded { phase = .failed(PhaseFailure(unavailable, chrome: chrome())) }
+        if !phase.isLoaded { phase = .failed(PhaseFailure(unavailable)) }
       } catch {
         guard !Task.isCancelled else { return }
-        if !phase.isLoaded { phase = .failed(PhaseFailure(.unreachable, chrome: chrome())) }
+        if !phase.isLoaded { phase = .failed(PhaseFailure(.unreachable)) }
       }
     }
   }

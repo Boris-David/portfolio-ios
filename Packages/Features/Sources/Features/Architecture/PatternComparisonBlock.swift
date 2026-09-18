@@ -27,7 +27,7 @@ import ViewKit
 struct PatternComparisonBlock: View {
   let patterns: [ArchitecturePattern]
 
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   // The two column widths **scale with the text**. A column fixed at 248 points
   // holds seven words at the default size and two at the accessibility sizes,
@@ -45,7 +45,7 @@ struct PatternComparisonBlock: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
-      Text(chrome.comparison)
+      Text(text(InterfaceText.comparison))
         .eyebrowStyle()
         .padding(.horizontal, Tokens.Space.s5)
 
@@ -77,7 +77,7 @@ struct PatternComparisonBlock: View {
   /// The heading of each column: the pattern, and what it pulls apart.
   private var headerRow: some View {
     GridRow {
-      Text(chrome.separatesLabel)
+      Text(text(InterfaceText.separatesLabel))
         .eyebrowStyle()
         .frame(width: labelWidth, alignment: .leading)
 
@@ -101,7 +101,7 @@ struct PatternComparisonBlock: View {
 
   private func criterionRow(_ criterion: ArchitecturePattern.Criterion) -> some View {
     GridRow {
-      Text(chrome.criterion(criterion))
+      Text(text(criterion.labelKey))
         .eyebrowStyle()
         .frame(width: labelWidth, alignment: .leading)
 

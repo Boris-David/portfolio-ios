@@ -35,7 +35,7 @@ package struct FreshnessBanner: View {
   private let language: Language
 
   @State private var isShowingProvenance = false
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   public init(snapshot: PortfolioSnapshot, language: Language) {
     self.snapshot = snapshot
@@ -66,7 +66,7 @@ package struct FreshnessBanner: View {
       .buttonStyle(.plain)
       .accessibilityElement(children: .combine)
       .accessibilityLabel(message)
-      .accessibilityHint(chrome.provenanceHint)
+      .accessibilityHint(text(InterfaceText.provenanceHint))
       .popover(isPresented: $isShowingProvenance) {
         provenance
           .presentationCompactAdaptation(.popover)
@@ -77,7 +77,7 @@ package struct FreshnessBanner: View {
 
   private var provenance: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s3) {
-      Text(chrome.provenanceTitle).eyebrowStyle()
+      Text(text(InterfaceText.provenanceTitle)).eyebrowStyle()
       Text(FreshnessStyle(language: language).describe(snapshot.origin) ?? "")
         .font(Typography.secondary)
         .foregroundStyle(Color.ink)
@@ -85,7 +85,7 @@ package struct FreshnessBanner: View {
       // version carry the same content whatever their origin, and somebody
       // inspecting this app has every reason to check that for themselves.
       HStack(spacing: Tokens.Space.s2) {
-        Text(chrome.provenanceVersion)
+        Text(text(InterfaceText.provenanceVersion))
           .font(Typography.caption)
           .foregroundStyle(Color.ink3)
         Text(snapshot.contentVersion)

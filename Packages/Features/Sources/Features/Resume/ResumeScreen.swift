@@ -17,13 +17,10 @@ public struct ResumeScreen: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.contentLanguage) private var language
   @Environment(ToastCenter.self) private var toasts
-  @Chrome private var chrome
+  @Localized(.interface) private var text
 
   public init(dependencies: some ResumeDependencies) {
-    _store = State(initialValue: ResumeStore(
-      reading: dependencies.resume,
-      chrome: { AppChrome.for(.french) }
-    ))
+    _store = State(initialValue: ResumeStore(reading: dependencies.resume))
   }
 
   public var body: some View {
@@ -39,13 +36,13 @@ public struct ResumeScreen: View {
               .font(.system(size: Tokens.Icon.hero, weight: .light))
               .foregroundStyle(Color.ink3)
               .symbolEffect(.pulse)
-            Text(chrome.resumeLoading)
+            Text(text(InterfaceText.resumeLoading))
               .font(Typography.secondary)
               .foregroundStyle(Color.ink2)
           }
           .frame(maxWidth: .infinity, maxHeight: .infinity)
           .accessibilityElement(children: .combine)
-          .accessibilityLabel(chrome.resumeLoading)
+          .accessibilityLabel(text(InterfaceText.resumeLoading))
         case .failed(let failure):
           FailureView(failure: failure) { Task { await store.load(in: language) } }
         case .loaded(let document):
@@ -55,11 +52,11 @@ public struct ResumeScreen: View {
         }
       }
       .background(Color.paper2)
-      .navigationTitle(chrome.resumeTitle)
+      .navigationTitle(text(InterfaceText.resumeTitle))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
-          Button(chrome.close) { dismiss() }
+          Button(text(InterfaceText.close)) { dismiss() }
         }
         ToolbarItem(placement: .primaryAction) {
           if case .loaded(let document) = store.phase {
@@ -70,7 +67,7 @@ public struct ResumeScreen: View {
               item: document.fileURL,
               preview: SharePreview(document.fileName)
             ) {
-              Label(chrome.share, systemImage: "square.and.arrow.up")
+              Label(text(InterfaceText.share), systemImage: "square.and.arrow.up")
             }
             .decision(ResumeNotes.shareNote)
           }
@@ -91,7 +88,7 @@ public struct ResumeScreen: View {
     }
     .onChange(of: store.phase.isLoaded) { was, now in
       guard now, !was else { return }
-      toasts.show(chrome.resumeReady, kind: .succeeded, icon: .succeeded)
+      toasts.show(text(InterfaceText.resumeReady), kind: .succeeded, icon: .succeeded)
     }
     .decisionOverlay()
   }
@@ -106,7 +103,7 @@ public struct ResumeScreen: View {
         .truncationMode(.middle)
       Spacer(minLength: 0)
       if document.entityTag != nil {
-        Label(chrome.revalidated, systemImage: "checkmark.seal")
+        Label(text(InterfaceText.revalidated), systemImage: "checkmark.seal")
           .font(Typography.caption)
       }
     }
