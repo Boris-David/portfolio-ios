@@ -1144,3 +1144,35 @@ annoncent le résultat. L'audit dit que ce n'était pas nécessaire : les
 sous-titres l'annonçaient déjà, rendus en 13 pt `ink3`, le traitement d'une note
 de bas de page. Ce n'était pas le contenu, c'était la hiérarchie — et le contrat
 partagé avec le site n'a pas bougé.
+
+### Ce que l'usage réel a trouvé, et que les captures ne pouvaient pas trouver
+
+La matrice photographie des états au repos. Trois défauts ne vivaient que dans
+le **geste** — scroller, toucher, pousser — et il a fallu tenir l'app en main :
+
+| Défaut | Cause |
+|---|---|
+| les annotations ne s'affichaient que sur l'écran Réglages | la feuille avait **cinq ancres** liées au même optionnel ; SwiftUI choisissait, et il choisissait la dernière |
+| les numéros de pastille changeaient au défilement | le numéro était l'index dans l'ensemble **actuellement à l'écran**, et une `List` recycle ses lignes |
+| une étude de cas s'ouvrait sur la pastille 3 | un `NavigationStack` garde sa racine vivante, donc ses annotations restaient collectées en profondeur |
+
+Les deux premiers sont exactement la même erreur que celles déjà corrigées un
+cran plus tôt — deux ancres pour une présentation, un état recalculé au lieu
+d'être tenu. La première avait été corrigée sur `Sheet`/`FullScreenCover` et
+laissée debout ici.
+
+La numérotation est sortie du modificateur pour devenir `DecisionNumbering`, une
+valeur : un défaut qui a été livré mérite un test qui l'aurait attrapé, et dans
+un `ViewModifier` il n'était vérifiable qu'en scrollant un simulateur à l'œil.
+
+### Trois retours de l'auteur, après usage
+
+- **De l'ombre autour des cartes.** Ajoutée en **échelle** et non à plat —
+  `recessed` rien, `flat` au repos, `raised` nettement — parce qu'une ombre
+  identique partout écrase la hiérarchie, ce que ce dépôt refuse explicitement.
+- **La barre d'onglets se cache en profondeur.** Ça renverse une décision
+  inverse prise ici même ; les deux raisonnements sont gardés dans le code. Le
+  sien gagne : le lecteur est déjà dans un univers, et lui offrir quatre sorties
+  pendant sa lecture, c'est offrir de l'interrompre.
+- **Un modificateur se nomme là où il s'applique.** `.sceneEnvironment(scene)`
+  et plus `.modifier(sceneEnvironment)`, et `check-layers.sh` tient la règle.

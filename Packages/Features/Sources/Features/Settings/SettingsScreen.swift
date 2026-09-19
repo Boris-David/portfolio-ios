@@ -66,6 +66,9 @@ public struct SettingsScreen: View {
       // the settings screen simply looked like a screen with no decisions.
       .decisionOverlay()
     }
+    // Its own anchor, because a sheet cannot be presented from a view that is
+    // itself covered by one. The scene stands down while this is up.
+    .decisionSheet()
     // A settings sheet is a short task, and the screen underneath is worth
     // keeping in view: it is what the reader is about to see change.
     .presentationDetents([.large])

@@ -97,6 +97,9 @@ public struct ResumeScreen: View {
       toasts.show(text(InterfaceText.resumeReady), kind: .succeeded, icon: .succeeded)
     }
     .decisionOverlay()
+    // Same reason as the settings sheet: a cover is its own presentation
+    // context, and the scene's anchor cannot reach over it.
+    .decisionSheet()
   }
 
   /// ⚠️ This was a **permanent bar** across the bottom of the résumé, carrying

@@ -92,6 +92,12 @@ SCREENS=(
   "journey|"
   "product|"
   "work|-decisions"
+  # Annotations on a tab that is a `List`, and on a pushed screen. Both were
+  # broken in ways no other combination could show: the numbering renumbered
+  # itself as lazy rows recycled, and the sheet was presented by whichever of
+  # five anchors SwiftUI happened to pick.
+  "journey|-decisions"
+  "work|-decisions -route caseStudy:mobile-ticketing"
   "profile|-modal settings"
   # Settings **with** the annotations on.
   #

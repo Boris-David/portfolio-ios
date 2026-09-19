@@ -41,6 +41,21 @@ pendant que ses voisins ne le faisaient pas.
 bas. Un bloc qui doit déborder — un rayon qui défile latéralement — l'annule
 localement et le dit.
 
+## La barre d'onglets ne survit pas à une poussée
+
+Les quatre racines la gardent ; **tout écran poussé la cache**
+(`.toolbar(.hidden, for: .tabBar)`, posé une fois dans `SectionShell`). Un écran
+présenté la cache déjà tout seul, donc l'app est cohérente avec elle-même.
+
+⚠️ Cette règle en **remplace** une inverse, et les deux raisonnements comptent.
+L'ancienne : un lecteur arrive par un lien, lit une étude de cas, et veut les
+trois autres sections. La nouvelle, tranchée par l'auteur après usage : le
+lecteur est déjà dans un univers, et lui proposer quatre sorties pendant qu'il
+est à deux paragraphes du début, c'est proposer de l'interrompre.
+
+L'accessoire du bas (le CV) **reste** : il ne voyage pas avec la barre, et c'est
+tant mieux — le CV était censé être joignable partout.
+
 ## Une seule ancre de présentation
 
 `Modal` est un type, et le style (`sheet` / `fullScreen`) est une **propriété du
@@ -53,6 +68,12 @@ crash, pas un détail, et il avait déjà été payé une fois.
 
 ⚠️ Corollaire : `.decisionOverlay()` aussi se repose dans une feuille. L'écran
 Réglages émettait trois annotations que rien ne dessinait.
+
+⚠️ Et **un modificateur se nomme là où il s'applique**. `.modifier(x)` dit
+*qu'un* modificateur s'applique et jamais lequel. `check-layers.sh` refuse
+désormais un `.modifier(` en site d'appel ; la définition —
+`func nom() -> some View { modifier(X()) }` — est exactement ce à quoi sert une
+extension de `View`.
 
 ## Liquid Glass : la couche navigation, et elle seule
 
@@ -133,8 +154,37 @@ Sans `.clipped()`, il déborde par-dessus les cartes voisines pendant l'animatio
 
 ## Les annotations de décision
 
-`.decision(note)` pose une annotation. La couche `.decisionOverlay()` se pose
-**une fois par écran**, au niveau le plus haut, là où la géométrie est connue.
+`.decision(note)` pose une annotation. La couche `.decisionOverlay()` **dessine**
+les pastilles, une fois par écran, au niveau le plus haut où la géométrie est
+connue. Elle ne présente rien.
+
+`.decisionSheet(isEnabled:)` **présente** la note, et se pose une fois par
+contexte de présentation : la scène, et chaque écran que la scène présente.
+
+⚠️ Trois défauts, trouvés en usage réel et pas en capture :
+
+1. **La feuille avait cinq ancres.** L'overlay portait son propre `.sheet` lié
+   au contrôleur partagé : une par onglet plus une par écran présenté, toutes
+   sur le même optionnel. SwiftUI choisissait, et il choisissait les réglages —
+   toucher une pastille ailleurs ne faisait rien jusqu'à ce qu'on ouvre
+   Réglages. Même défaut que `Sheet` / `FullScreenCover`, corrigé un cran plus
+   tôt et laissé debout ici.
+2. **La numérotation se recalculait à chaque passe de layout.** Une `List`, une
+   `LazyVGrid` et un rayon horizontal construisent et jettent leur contenu au
+   défilement : les pastilles entraient et sortaient de l'ensemble collecté,
+   donc tout se renumérotait et la pastille 1 n'ouvrait plus ce qu'elle venait
+   d'ouvrir. Un numéro donné **à la première vue** ne peut pas faire ça —
+   `DecisionNumbering`, qui est une valeur pour être testable sans simulateur.
+3. **Un `NavigationStack` garde sa racine vivante sous un écran poussé**, donc
+   les annotations de la racine restaient collectées en profondeur : cadres
+   pointillés à des coordonnées sans rapport, et une étude de cas qui s'ouvrait
+   sur une pastille **3**. L'overlay ne garde que ce qui intersecte réellement
+   ses bornes.
+
+⚠️ **L'ordre des modificateurs décide de l'environnement d'une feuille.** Une
+feuille hérite de l'environnement tel qu'il est **au point où `.sheet` est
+attaché**. Posée après `.sceneEnvironment(scene)`, elle est *dehors* : *No
+Observable object of type DecisionController found*, au premier toucher.
 
 ⚠️ **`transformAnchorPreference`, jamais `anchorPreference`.** Le second
 *remplace* la préférence du sous-arbre : une annotation posée sur un conteneur
