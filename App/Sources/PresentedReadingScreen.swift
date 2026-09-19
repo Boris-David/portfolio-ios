@@ -28,10 +28,14 @@ struct PresentedReadingScreen: View {
       RouteScreen(route: route)
         .toolbar {
           ToolbarItem(placement: .cancellationAction) {
-            Button { dismiss() } label: { CloseLabel() }
+            Button { dismiss() } label: { CloseLabel(.mark) }
           }
         }
     }
+    // Full height, and leaveable two ways: the cross, and the downward swipe
+    // every sheet answers by default. Nothing here disables the gesture —
+    // `interactiveDismissDisabled` is for unsaved work, and a reading has none.
+    .presentationDetents([.large])
     .decisionSheet()
   }
 }
