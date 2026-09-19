@@ -27,7 +27,7 @@ public struct AboutScreen: View {
   }
 
   public var body: some View {
-    ScrollView {
+    SectionScrollView {
       VStack(alignment: .leading, spacing: Tokens.Space.s4) {
         ForEach(Array(profile.summary.enumerated()), id: \.offset) { _, paragraph in
           RichTextView(paragraph)
@@ -50,8 +50,7 @@ public struct AboutScreen: View {
         }
       }
       .frame(maxWidth: .infinity, alignment: .leading)
-      .padding(Tokens.Space.s5)
-      .readableWidth()
+      .padding(.vertical, Tokens.Space.s5)
     }
     .background(Color.paper)
     .navigationTitle(text(InterfaceText.aboutTitle))

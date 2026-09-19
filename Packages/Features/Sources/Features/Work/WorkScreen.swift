@@ -36,7 +36,6 @@ public struct WorkScreen: View {
             title: section.title,
             intro: section.intro?.plain
           )
-          .padding(.horizontal, Tokens.Space.s5)
         }
 
         VStack(spacing: Tokens.Space.s4) {
@@ -44,7 +43,6 @@ public struct WorkScreen: View {
             CaseStudyCard(study: study)
           }
         }
-        .padding(.horizontal, Tokens.Space.s5)
 
         AppsBlock(
           section: portfolio.section("apps"),
@@ -155,86 +153,7 @@ struct AppsBlock: View {
         .font(Typography.caption)
         .foregroundStyle(Color.ink3)
     }
-    .padding(.horizontal, Tokens.Space.s5)
     .reveal()
   }
 
-}
-
-struct AppCell: View {
-  let app: ProductionApp
-  @Environment(\.openURL) private var openURL
-  @Environment(ToastCenter.self) private var toasts
-  @Localized(.interface) private var text
-
-  var body: some View {
-    Button {
-      if let url = URL(string: app.appStoreURL) { openURL(url) }
-    } label: {
-      VStack(alignment: .leading, spacing: Tokens.Space.s2) {
-        AppIconView(slug: app.slug)
-        Text(app.name)
-          .font(Typography.bodyStrong)
-          .foregroundStyle(Color.ink)
-          .lineLimit(1)
-        Text(app.territory)
-          .font(Typography.caption)
-          .foregroundStyle(Color.ink3)
-          .lineLimit(1)
-      }
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .padding(Tokens.Space.s3)
-      .background(
-        RoundedRectangle(cornerRadius: Tokens.Radius.md, style: .continuous)
-          .fill(Color.paper2)
-      )
-      .overlay(
-        RoundedRectangle(cornerRadius: Tokens.Radius.md, style: .continuous)
-          .strokeBorder(Color.line, lineWidth: Tokens.Stroke.regular)
-      )
-    }
-    .buttonStyle(.pressableCard)
-    // Secondary actions, out of the way until asked for.
-    //
-    // A long press on a card is the iOS idiom for "what else can I do with
-    // this". Putting a share button on thirty-three cards would have doubled the
-    // grid's visual weight for something almost nobody wants — and the one
-    // person who does already knows where to look.
-    .contextMenu {
-      if let url = URL(string: app.appStoreURL) {
-        ShareLink(item: url) {
-          Label(text(InterfaceText.share), icon: .share)
-        }
-        Button {
-          UIPasteboard.general.url = url
-          toasts.show(text(InterfaceText.linkCopied), kind: .succeeded, icon: .succeeded)
-        } label: {
-          Label(text(InterfaceText.copyLink), icon: .link)
-        }
-      }
-    }
-    .accessibilityElement(children: .combine)
-    .accessibilityLabel("\(app.name), \(app.territory)")
-    .accessibilityHint(text(InterfaceText.openInAppStore))
-    .decision(WorkDecisions.contextMenu)
-  }
-}
-
-/// An app's icon, named by its **public slug**.
-///
-/// Never by an internal network identifier: those do not leave the building, and
-/// an image path is public content just as much as a sentence is.
-struct AppIconView: View {
-  let slug: String
-
-  var body: some View {
-    ContentImage(slug, kind: .appIcon)
-      .frame(width: Tokens.Layout.appIconSide, height: Tokens.Layout.appIconSide)
-      .clipShape(RoundedRectangle(cornerRadius: Tokens.Layout.appIconRadius, style: .continuous))
-      .overlay(
-        RoundedRectangle(cornerRadius: Tokens.Layout.appIconRadius, style: .continuous)
-          .strokeBorder(Color.line, lineWidth: Tokens.Stroke.hairline)
-      )
-      .accessibilityHidden(true)
-  }
 }

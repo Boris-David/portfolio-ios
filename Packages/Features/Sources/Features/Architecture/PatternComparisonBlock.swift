@@ -47,7 +47,6 @@ struct PatternComparisonBlock: View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
       Text(text(InterfaceText.comparison))
         .eyebrowStyle()
-        .padding(.horizontal, Tokens.Space.s5)
 
       ScrollView(.horizontal) {
         Grid(

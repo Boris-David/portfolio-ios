@@ -65,7 +65,6 @@ public struct EngineeringScreen: View {
       }
       .foregroundStyle(Color.ink3)
     }
-    .padding(.horizontal, Tokens.Space.s5)
     .padding(.top, Tokens.Space.s4)
   }
 }
@@ -108,7 +107,6 @@ struct LayersBlock: View {
         }
       }
     }
-    .padding(.horizontal, Tokens.Space.s5)
     .reveal()
   }
 }
@@ -174,7 +172,6 @@ struct ChallengesBlock: View {
         }
       }
     }
-    .padding(.horizontal, Tokens.Space.s5)
     .reveal()
   }
 
@@ -227,7 +224,6 @@ struct WalkthroughsBlock: View {
         }
       }
     }
-    .padding(.horizontal, Tokens.Space.s5)
     .reveal()
   }
 }
@@ -256,7 +252,6 @@ struct DependenciesBlock: View {
         }
       }
     }
-    .padding(.horizontal, Tokens.Space.s5)
     .reveal()
   }
 

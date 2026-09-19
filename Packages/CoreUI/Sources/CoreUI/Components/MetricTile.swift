@@ -34,15 +34,31 @@ public struct MetricTile: View {
           // for the whole count.
           .monospacedDigit()
           .contentTransition(.numericText())
+          // ⚠️ A figure never wraps. Three tiles side by side give each about a
+          // third of the screen, and `> 99,8` broke across **three lines** —
+          // ">", then "99,", then "8". A number cut in half is not a smaller
+          // number, it is a defect, and it was on the screen that carries the
+          // app's only hard reliability figure.
+          //
+          // Shrinking is the right answer rather than a smaller size for all
+          // three: `~5` keeps its weight, and the one value with five glyphs
+          // gives up the points it needs. The floor is set where the caption
+          // under it is still smaller.
+          .lineLimit(1)
+          .minimumScaleFactor(Tokens.TypeScale.body / Tokens.TypeScale.large)
         if let unit {
           Text(unit)
             .font(Typography.heading)
             .foregroundStyle(Color.accent)
+            .lineLimit(1)
         }
       }
+      // The caption says what the number **means**, and it was set 13 pt in
+      // `ink3` — the treatment for a footnote — under a 34 pt figure. A reader
+      // who skims takes the number and never learns what it counts.
       Text(caption)
-        .font(Typography.caption)
-        .foregroundStyle(Color.ink3)
+        .font(Typography.secondary)
+        .foregroundStyle(Color.ink2)
         .fixedSize(horizontal: false, vertical: true)
     }
     .frame(maxWidth: .infinity, alignment: .leading)

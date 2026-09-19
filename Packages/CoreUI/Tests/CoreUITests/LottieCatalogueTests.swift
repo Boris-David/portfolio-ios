@@ -13,9 +13,8 @@ import Testing
 struct LottieCatalogueTests {
   /// The canvas the hand-authored files share.
   ///
-  /// `signature.json` set 120 as the height and 60 as the frame rate; the three
-  /// state animations keep the height and square it, because they are shown in
-  /// a slot that has no reason to be wide. Written here rather than in the
+  /// The three animations are square, 120 by 120, because they are shown in a
+  /// slot that has no reason to be wide. Written here rather than in the
   /// catalogue: it is a fact about the files, and the only thing that cares is
   /// this check.
   private let canvasSide: Double = 120

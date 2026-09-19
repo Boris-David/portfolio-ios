@@ -28,7 +28,6 @@ package enum InterfaceText {
   package static let codebases: TextKey = "interface.codebases"
   package static let collapsed: TextKey = "interface.collapsed"
   package static let comparison: TextKey = "interface.comparison"
-  package static let contactAction: TextKey = "interface.contactAction"
   package static let contactTitle: TextKey = "interface.contactTitle"
   package static let copyLink: TextKey = "interface.copyLink"
   package static let decisionsToggle: TextKey = "interface.decisionsToggle"

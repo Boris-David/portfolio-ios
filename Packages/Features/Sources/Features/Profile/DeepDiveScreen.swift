@@ -31,7 +31,7 @@ public struct DeepDiveScreen: View {
   }
 
   public var body: some View {
-    ScrollView {
+    SectionScrollView {
       VStack(alignment: .leading, spacing: Tokens.Space.s6) {
         header
 
@@ -48,9 +48,6 @@ public struct DeepDiveScreen: View {
           }
         }
       }
-      .padding(.horizontal, Tokens.Space.s5)
-      .padding(.bottom, Tokens.Space.s8)
-      .readableWidth()
     }
     .background(Color.paper)
     .navigationTitle(topic.title)

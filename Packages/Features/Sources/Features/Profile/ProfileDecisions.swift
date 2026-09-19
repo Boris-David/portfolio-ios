@@ -16,8 +16,14 @@ import Localization
 enum ProfileDecisions {
   static let hero = DesignDecision(
     id: "profile.hero",
-    component: "ZStack · ViewThatFits",
-    documentation: URL(string: "https://developer.apple.com/documentation/swiftui/viewthatfits"),
+    component: "Label · fixedSize",
+    documentation: URL(string: "https://developer.apple.com/documentation/swiftui/view/fixedsize(horizontal:vertical:)"),
+    in: .profile
+  )
+  static let shelf = DesignDecision(
+    id: "profile.shelf",
+    component: "ScrollView(.horizontal) · scrollTargetBehavior",
+    documentation: URL(string: "https://developer.apple.com/documentation/swiftui/view/scrolltargetbehavior(_:)"),
     in: .profile
   )
   static let action = DesignDecision(

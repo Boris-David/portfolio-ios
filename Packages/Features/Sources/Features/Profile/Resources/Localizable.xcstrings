@@ -98,33 +98,35 @@
       }
     },
     "profile.hero.pitfall": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A decorative gradient in a `ZStack` intercepts touches by default: without `allowsHitTesting(false)` it swallows taps meant for the button underneath."
+            "value": "Without `fixedSize(horizontal:false, vertical:true)` a line **truncates** instead of wrapping, and only at the accessibility sizes: \"Ingénieur iOS senior\" came out as \"Ingénieur iOS s…\" — the one line on the first screen that says what he does. Invisible when reading the file, obvious in a capture."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un dégradé décoratif dans un `ZStack` intercepte les touches par défaut : sans `allowsHitTesting(false)`, il avale les taps destinés au bouton qu'il recouvre."
+            "value": "Sans `fixedSize(horizontal:false, vertical:true)`, une ligne **tronque** au lieu de passer à la ligne, et seulement aux tailles d'accessibilité : « Ingénieur iOS senior » sortait en « Ingénieur iOS s… » — la seule ligne du premier écran qui dit son métier. Invisible en lisant le fichier, évident en capture."
           }
         }
       }
     },
     "profile.hero.rationale": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The previous version was a **web landing page**: green-dotted pill, three icon rows, two buttons side by side. That vocabulary exists to sell something to somebody who arrived cold.\n\nAn app opens differently. Whoever launched it already decided to look: the first screen owes them an **identity**, not a pitch.\n\n`ZStack` carries three layers that genuinely **overlap** — a wash bleeding past the reading column, the content, the safe area. `ViewThatFits` measures rather than comparing against a threshold somebody guessed: at the accessibility sizes the monogram moves above the name on its own."
+            "value": "This block gave up 106 pt of decoration — a 72 pt monogram and an animated signature — on the screen that decides whether anybody reads on. A monogram is what you put when you have neither a photograph nor a product; he has thirty-five, and they sit two blocks down in the space this gave back.\n\nWhat took its place: **`profile.remote`**. Remote work was decoded, modelled, carried through three layers and **displayed by nobody**. It is a recruiter's first filter, and it was the one fact the app did not say."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La version précédente était une **page d'accueil web** : pastille verte à point, trois lignes à icônes, deux boutons côte à côte. Ce vocabulaire sert à vendre quelque chose à quelqu'un qui arrive froid.\n\nUne application s'ouvre autrement. Qui l'a lancée a déjà décidé de regarder : le premier écran lui doit une **identité**, pas un argumentaire.\n\n`ZStack` porte trois couches qui se **chevauchent** vraiment — un halo qui déborde de la colonne de lecture, le contenu, la zone sûre. `ViewThatFits` mesure au lieu de comparer à un seuil : aux tailles d'accessibilité, le monogramme passe au-dessus du nom tout seul."
+            "value": "Ce bloc a perdu 106 pt de décoration — un monogramme de 72 pt et une signature animée — sur l'écran qui décide si quelqu'un lit la suite. Un monogramme, c'est ce qu'on met quand on n'a ni photo ni produit ; il en a trente-cinq, et ils sont deux blocs plus bas grâce à la place reprise ici.\n\nCe qui est arrivé à la place : **`profile.remote`**. Le télétravail était décodé, modélisé, transporté sur trois couches et **affiché par personne**. C'est le premier filtre d'un recruteur, et c'était le seul fait que l'application ne disait pas."
           }
         }
       }
@@ -146,11 +148,12 @@
       }
     },
     "profile.hero.rejected.1.name": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A portrait photograph"
+            "value": "A photograph"
           }
         },
         "fr": {
@@ -162,97 +165,103 @@
       }
     },
     "profile.hero.rejected.2.because": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "It asks the reader to choose before they have read anything. The résumé is now a toolbar item on **every** screen: more findable, and quieter."
+            "value": "72 pt for two letters, plus an animated signature under it: 106 pt that prove nothing, right above the fold. A portfolio shows the work, not the initials."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Demander de choisir avant d'avoir rien lu. Le CV est désormais dans la barre d'outils de **tous** les écrans : plus trouvable, et moins bruyant."
+            "value": "72 pt pour deux lettres, plus une signature animée en dessous : 106 pt qui ne prouvent rien, juste au-dessus de la ligne de flottaison. Un portfolio montre le travail, pas les initiales."
           }
         }
       }
     },
     "profile.hero.rejected.2.name": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Two buttons side by side"
+            "value": "A monogram"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deux boutons côte à côte"
+            "value": "Un monogramme"
           }
         }
       }
     },
     "profile.hero.rejected.3.because": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A threshold is a guess about a width. `ViewThatFits` measures the real one."
+            "value": "Asking for a decision on the sixth line of the app, before there is anything to decide about. The same action sits at the foot of this very scroll, after the argument."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un seuil est une supposition sur une largeur. `ViewThatFits` mesure la vraie."
+            "value": "Demander une décision à la sixième ligne de l'application, avant qu'il y ait de quoi décider. La même action est au bas de ce défilement, après l'argument."
           }
         }
       }
     },
     "profile.hero.rejected.3.name": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A `sizeCategory` threshold"
+            "value": "A \"contact me\" button here"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un seuil de `sizeCategory`"
+            "value": "Un bouton « Me contacter » ici"
           }
         }
       }
     },
     "profile.hero.role": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The opening: a monogram, a name, one action."
+            "value": "The opening: the name, the role, and the working condition."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "L'ouverture : un monogramme, un nom, une action."
+            "value": "L'ouverture : le nom, le rôle, et la condition de travail."
           }
         }
       }
     },
     "profile.hero.whenToUse": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "`ZStack` when the layers genuinely overlap — otherwise it is a `VStack` in disguise. `ViewThatFits` when two arrangements are equally valid and only the room decides."
+            "value": "Accented text rather than a pill when one fact has to stand out without borrowing a landing page's vocabulary. `fixedSize(horizontal:false, vertical:true)` on every line that can wrap at the accessibility sizes."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "`ZStack` quand les couches se chevauchent réellement — sinon c'est un `VStack` déguisé. `ViewThatFits` quand deux dispositions sont également valides et que seule la place tranche."
+            "value": "Un texte accentué plutôt qu'une pastille quand un fait doit ressortir sans emprunter le vocabulaire d'une page d'atterrissage. `fixedSize(horizontal:false, vertical:true)` sur chaque ligne qui peut passer à la ligne aux tailles d'accessibilité."
           }
         }
       }
@@ -493,6 +502,108 @@
           "stringUnit": {
             "state": "translated",
             "value": "`ScrollView` dès que la mise en page est libre. `List` quand les éléments sont homogènes, nombreux, et qu'on veut le recyclage de cellules, le glissement latéral et la sélection."
+          }
+        }
+      }
+    },
+    "profile.shelf.pitfall": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A shelf that stops at the page's gutter reads as ending there. It runs the full width — margin cancelled, inset given back inside — or the last visible card looks like the last one there is."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un rayon qui s'arrête à la gouttière de la page se lit comme s'il finissait là. Il court sur toute la largeur — marge annulée, encart rendu à l'intérieur — sinon la dernière carte visible semble être la dernière tout court."
+          }
+        }
+      }
+    },
+    "profile.shelf.rationale": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It is not a claim: every icon is an app anybody can download today, and the ticketing layer inside it is his. The argument is carried by the objects, not by the sentence above them.\n\nIt was **1 050 pt down the second tab**. Nobody reading for thirty seconds reached it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce n'est pas une affirmation : chaque icône est une application téléchargeable aujourd'hui, et la couche billettique qu'elle embarque est la sienne. L'argument est porté par les objets, pas par la phrase au-dessus.\n\nElle était **1 050 pt plus bas, dans le deuxième onglet**. Personne qui lit trente secondes ne l'atteignait."
+          }
+        }
+      }
+    },
+    "profile.shelf.rejected.1.because": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thirty-three cells is a whole screen on the first screen. The count is in the heading: a reader who never scrolls the shelf has already had the fact."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trente-trois cellules, c'est un écran entier sur le premier écran. Le compte est dans le titre : un lecteur qui ne fait jamais défiler le rayon a déjà eu le fait."
+          }
+        }
+      }
+    },
+    "profile.shelf.rejected.1.name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The full grid here"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La grille complète ici"
+          }
+        }
+      }
+    },
+    "profile.shelf.role": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The apps in production, on a shelf."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les applications en production, en rayon."
+          }
+        }
+      }
+    },
+    "profile.shelf.whenToUse": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A horizontal shelf when the message is \"there are many of these, and this is what they look like\"; a grid when the reader came to browse. `scrollTargetBehavior(.viewAligned)` so each card comes to rest under the finger."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un rayon horizontal quand le message est « il y en a beaucoup, et voilà à quoi ça ressemble » ; une grille quand on vient pour parcourir. `scrollTargetBehavior(.viewAligned)` pour que chaque carte s'arrête sous le doigt."
           }
         }
       }

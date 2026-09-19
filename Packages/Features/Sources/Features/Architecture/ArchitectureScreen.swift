@@ -32,15 +32,13 @@ public struct ArchitectureScreen: View {
   }
 
   public var body: some View {
-    ScrollView {
+    SectionScrollView {
       VStack(alignment: .leading, spacing: Tokens.Space.s7) {
         header
         PatternComparisonBlock(patterns: study.patterns)
         codebases
       }
       .padding(.top, Tokens.Space.s4)
-      .padding(.bottom, Tokens.Space.s8)
-      .readableWidth()
     }
     .background(Color.paper)
     .navigationTitle(text(InterfaceText.architecturePatterns))
@@ -56,7 +54,6 @@ public struct ArchitectureScreen: View {
         .font(Typography.caption)
         .foregroundStyle(Color.ink3)
     }
-    .padding(.horizontal, Tokens.Space.s5)
   }
 
   private var codebases: some View {
@@ -69,7 +66,6 @@ public struct ArchitectureScreen: View {
         }
       }
     }
-    .padding(.horizontal, Tokens.Space.s5)
     .reveal()
   }
 }

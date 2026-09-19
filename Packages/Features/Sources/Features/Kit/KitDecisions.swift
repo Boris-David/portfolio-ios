@@ -20,6 +20,15 @@ enum KitDecisions {
     documentation: URL(string: "https://developer.apple.com/documentation/swiftui/view/presentationcompactadaptation(_:)"),
     in: .kit
   )
+  /// Annotated here and not in `WorkDecisions` because the component it marks
+  /// — `AppCell` — moved into this module the day a second feature drew apps.
+  /// A decision that stays behind when its component leaves annotates nothing.
+  static let contextMenu = DesignDecision(
+    id: "shared.contextmenu",
+    component: "contextMenu · ShareLink",
+    documentation: URL(string: "https://developer.apple.com/documentation/swiftui/view/contextmenu(menuitems:)"),
+    in: .kit
+  )
 }
 
 extension TextCatalogue {

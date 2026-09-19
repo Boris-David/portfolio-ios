@@ -21,7 +21,7 @@ public struct CaseStudyDetailScreen: View {
   }
 
   public var body: some View {
-    ScrollView {
+    SectionScrollView {
       VStack(alignment: .leading, spacing: Tokens.Space.s5) {
         header
 
@@ -44,8 +44,7 @@ public struct CaseStudyDetailScreen: View {
           ForEach(study.tags, id: \.self) { Chip($0) }
         }
       }
-      .padding(Tokens.Space.s5)
-      .padding(.bottom, Tokens.Space.s8)
+      .padding(.top, Tokens.Space.s4)
     }
     .background(Color.paper)
     .navigationTitle(study.title)

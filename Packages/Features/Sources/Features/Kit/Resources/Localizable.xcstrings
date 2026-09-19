@@ -1,6 +1,134 @@
 {
   "sourceLanguage": "fr",
   "strings": {
+    "shared.contextmenu.pitfall": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The menu **replaces** the view's preview: a card with a transparent background shows up without it, and looks broken."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le menu **remplace** l'aperçu de la vue : une carte au fond transparent y apparaît sans son fond, et paraît cassée."
+          }
+        }
+      }
+    },
+    "shared.contextmenu.rationale": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A long press on a card is the iOS idiom for \"what else can I do with this\". Putting a share button on thirty-three cards would have doubled the grid's visual weight for something almost nobody wants — and the one person who does already knows where to look."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un appui long sur une carte est l'idiome iOS de « qu'est-ce que je peux faire d'autre avec ça ». Poser un bouton de partage sur trente-trois cartes aurait doublé le poids visuel de la grille pour ce que presque personne ne cherche — et celui qui le cherche sait déjà où regarder."
+          }
+        }
+      }
+    },
+    "shared.contextmenu.rejected.1.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thirty-three buttons for a secondary action: the grid stops being a grid."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trente-trois boutons pour une action secondaire : la grille cesse d'être une grille."
+          }
+        }
+      }
+    },
+    "shared.contextmenu.rejected.1.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A share button on every card"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un bouton de partage sur chaque carte"
+          }
+        }
+      }
+    },
+    "shared.contextmenu.rejected.2.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reserved for list rows. On a grid it does not exist, and nobody looks for it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réservé aux lignes de liste. Sur une grille, il n'existe pas et personne ne le cherche."
+          }
+        }
+      }
+    },
+    "shared.contextmenu.rejected.2.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A swipe action"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un balayage latéral"
+          }
+        }
+      }
+    },
+    "shared.contextmenu.role": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share or copy an app's App Store link, without cluttering the grid."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partager ou copier le lien App Store d'une application, sans encombrer la grille."
+          }
+        }
+      }
+    },
+    "shared.contextmenu.whenToUse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Secondary actions on an identifiable item. Never for the primary action: a context menu is not discoverable."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des actions secondaires sur un élément identifiable. Jamais pour l'action principale : un menu contextuel ne se découvre pas."
+          }
+        }
+      }
+    },
     "shared.freshness.pitfall": {
       "localizations": {
         "en": {

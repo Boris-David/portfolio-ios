@@ -32,7 +32,6 @@ public struct JourneyScreen: View {
       VStack(alignment: .leading, spacing: Tokens.Space.s7) {
         if let section = portfolio.section("background") {
           SectionHeader(eyebrow: section.eyebrow, title: section.title)
-            .padding(.horizontal, Tokens.Space.s5)
         }
 
         VStack(spacing: Tokens.Space.s3) {
@@ -40,7 +39,6 @@ public struct JourneyScreen: View {
             ExperienceCard(job: job, dates: dates, startsOpen: index == 0)
           }
         }
-        .padding(.horizontal, Tokens.Space.s5)
         .decision(JourneyDecisions.timeline)
 
         TimelineBlock(
@@ -247,7 +245,6 @@ struct TimelineBlock: View {
         }
       }
     }
-    .padding(.horizontal, Tokens.Space.s5)
     .reveal()
   }
 }
@@ -271,7 +268,6 @@ struct SkillsBlock: View {
         }
       }
     }
-    .padding(.horizontal, Tokens.Space.s5)
     .reveal()
   }
 }

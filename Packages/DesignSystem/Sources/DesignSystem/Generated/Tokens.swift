@@ -217,7 +217,6 @@ extension Tokens {
     public static let hairlineOnGlass: Double = 0.6
     public static let annotation: Double = 0.55
     public static let shimmer: Double = 0.55
-    public static let heroWash: Double = 0.55
   }
 
   /// Animation durations, in seconds.
@@ -251,12 +250,10 @@ extension Tokens {
     public static let readingWidthInBodies: CGFloat = 40
     public static let appIconSide: CGFloat = 44
     public static let appIconRadius: CGFloat = 10
+    public static let shelfCellWidth: CGFloat = 150
     public static let pressedScale: CGFloat = 0.97
     public static let galleryHeight: CGFloat = 380
-    public static let monogramSide: CGFloat = 72
-    public static let identityWashRadius: CGFloat = 260
-    public static let signatureHeight: CGFloat = 34
-    public static let signatureWidth: CGFloat = 260
+    public static let showcaseHeight: CGFloat = 240
     public static let timelineDot: CGFloat = 5
     public static let stepBadge: CGFloat = 20
     public static let decisionBadge: CGFloat = 26

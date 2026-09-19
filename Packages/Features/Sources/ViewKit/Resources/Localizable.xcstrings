@@ -233,22 +233,6 @@
         }
       }
     },
-    "interface.contactAction": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Get in touch"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Me contacter"
-          }
-        }
-      }
-    },
     "interface.contactTitle": {
       "localizations": {
         "en": {

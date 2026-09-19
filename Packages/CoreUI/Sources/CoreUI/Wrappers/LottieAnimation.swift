@@ -6,9 +6,9 @@ import SwiftUI
 /// ## The name deliberately does not say "Lottie"
 ///
 /// This type and its file are the **only** place in the repository that names
-/// the library. Everything above asks for `LottieAnimation("signature")` — no,
-/// it asks for an animation; the day the renderer changes, this file changes and
-/// nothing else does. That is the point of the wrapper, and it is why `CoreUI`
+/// the library. Everything above asks for an animation by its `LottieCatalogue`
+/// case and never spells a file name; the day the renderer changes, this file
+/// changes and nothing else does. That is the point of the wrapper, and it is why `CoreUI`
 /// is the only package whose manifest declares Lottie.
 ///
 /// ## Why a dependency here, and not for the network

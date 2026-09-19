@@ -23,6 +23,8 @@ extension Icon {
     case .failed: "exclamationmark.circle.fill"
     case .informed: "info.circle"
 
+    case .remote: "house"
+
     case .settings: "gearshape"
     case .language: "globe"
     case .appearance: "circle.lefthalf.filled"

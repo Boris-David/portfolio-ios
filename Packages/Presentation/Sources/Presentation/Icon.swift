@@ -36,6 +36,9 @@ public enum Icon: Sendable, Hashable, CaseIterable {
   case failed
   case informed
 
+  /// Where he will work from — the reader's first filter.
+  case remote
+
   // Actions and settings
   case settings
   case language

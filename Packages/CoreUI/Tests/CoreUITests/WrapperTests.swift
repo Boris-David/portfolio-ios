@@ -24,10 +24,16 @@ struct WrapperTests {
 
   @Test("the animation wrapper reads this package's bundle by default")
   func animationUsesOwnBundle() {
-    // The signature animation is a resource of `CoreUI`. `Bundle.module` is
-    // internal to each target, so a screen asking for it would get its own
-    // bundle and find nothing — silently. `.coreUI` names the right one.
-    #expect(Bundle.coreUI.url(forResource: "signature", withExtension: "json") != nil)
+    // The animations are resources of `CoreUI`. `Bundle.module` is internal to
+    // each target, so a screen asking for one would get its own bundle and find
+    // nothing — silently. `.coreUI` names the right one.
+    //
+    // Asserted over the whole catalogue rather than on one file: naming a
+    // single animation is how this check survived that animation being deleted
+    // in a form that still compiled and still said nothing.
+    for animation in LottieCatalogue.allCases {
+      #expect(Bundle.coreUI.url(forResource: animation.fileName, withExtension: "json") != nil)
+    }
   }
 }
 

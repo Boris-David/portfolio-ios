@@ -30,7 +30,7 @@ import DesignSystem
 ///
 /// | Token | Hex (light) | In the JSON | Used by |
 /// |---|---|---|---|
-/// | `Tokens.Color.accent.light` | `#2743D6` | `[0.1529, 0.2627, 0.8392, 1]` | `signature`, `unreachable` |
+/// | `Tokens.Color.accent.light` | `#2743D6` | `[0.1529, 0.2627, 0.8392, 1]` | `unreachable` |
 /// | `Tokens.Color.ink3.light` | `#5B5546` | `[0.3569, 0.3333, 0.2745, 1]` | `empty`, `unreachable` |
 /// | `Tokens.Color.line2.light` | `#C9C1B1` | `[0.7882, 0.7569, 0.6941, 1]` | `empty` |
 /// | `Tokens.Color.ok.light` | `#1E7F4F` | `[0.1176, 0.4980, 0.3098, 1]` | `downloaded` |
@@ -47,7 +47,7 @@ import DesignSystem
 ///
 /// Every timing in the three files is a value from the `duration` group of
 /// `design/tokens.ios.json`, at 60 frames per second — the frame rate
-/// `signature.json` established:
+/// the catalogue is authored at:
 ///
 /// | Token | Seconds | Frames | Where |
 /// |---|---|---|---|
@@ -59,8 +59,6 @@ import DesignSystem
 /// files run 2 × 66 = 132 frames, or 2.2 s. The curves are the `ease` tokens,
 /// written as Lottie keyframe tangents.
 public enum LottieCatalogue: Sendable, Hashable, CaseIterable {
-  /// The stroke drawn under the author's name.
-  case signature
   /// Nothing to show here — a dashed page, floating over its own shadow.
   case empty
   /// The content could not be reached — a severed link, cut by a slash.
@@ -77,7 +75,6 @@ extension LottieCatalogue {
   /// be renamed independently, and the mapping is something a reader can see.
   var fileName: String {
     switch self {
-    case .signature: "signature"
     case .empty: "empty"
     case .unreachable: "unreachable"
     case .downloaded: "downloaded"
@@ -88,11 +85,11 @@ extension LottieCatalogue {
   ///
   /// The rule is what the animation *is*, not where it is shown: a **state**
   /// loops, an **event** plays once and settles on its final frame. Both empty
-  /// and unreachable are states the screen stays in; a signature and a finished
-  /// download are things that happened.
+  /// and unreachable are states the screen stays in; a finished download is a
+  /// thing that happened.
   var repeats: Bool {
     switch self {
-    case .signature, .downloaded: false
+    case .downloaded: false
     case .empty, .unreachable: true
     }
   }
@@ -116,8 +113,6 @@ extension LottieCatalogue {
   /// palette fails the suite instead of quietly shipping an off-brand animation.
   var tints: [(keypath: String, palette: Tokens.Palette)] {
     switch self {
-    case .signature:
-      [("stroke.**.Color", Tokens.Color.accent)]
     case .empty:
       [("sheet.**.Color", Tokens.Color.ink3), ("ground.**.Color", Tokens.Color.line2)]
     case .unreachable:
@@ -153,9 +148,6 @@ extension LottieCatalogue {
   /// hand-written file stay in step.
   var frameCount: Double {
     switch self {
-    case .signature:
-      // Predates the duration tokens: 72 frames, written before this rule.
-      72
     case .empty, .unreachable:
       2 * Self.frames(Tokens.Duration.counter)
     case .downloaded:
@@ -163,9 +155,9 @@ extension LottieCatalogue {
     }
   }
 
-  /// The frame rate every file in the catalogue is authored at, set by
-  /// `signature.json` and kept for the rest: two rates in one bundle is a
-  /// discrepancy nobody remembers on the day they edit the second file.
+  /// The frame rate every file in the catalogue is authored at. One rate for
+  /// the bundle: two is a discrepancy nobody remembers on the day they edit the
+  /// second file.
   static let frameRate: Double = 60
 
   private static func frames(_ seconds: Double) -> Double {

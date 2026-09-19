@@ -23,7 +23,29 @@ import ViewKit
 /// whose bar label and whose title disagree. The section *is* the identity —
 /// the word, the glyph, and now the stack that answers to it.
 package struct SectionShell<Content: View>: View {
+  /// How a section's screen begins.
+  ///
+  /// Not a display mode passed through: the choice is editorial, and naming it
+  /// after its mechanism ("inline") would leave the next reader guessing why
+  /// one tab differs.
+  package enum Opening {
+    /// The system's large title opens the screen. For a section that is a
+    /// **collection** — the title names what the list below it holds, then
+    /// collapses into the bar as the reader scrolls.
+    case sectionTitle
+    /// The content opens itself. For a section whose first block is already a
+    /// masthead.
+    ///
+    /// Measured, not assumed: with a large title, the profile tab read
+    /// *"Profil"* in New York at 34 pt and then *"Amissan Amoussou-G."* in New
+    /// York at 34 pt, forty points below it. Two titles in the same face and
+    /// the same size, and the eye takes the second for a subtitle of the first
+    /// — so the app's own name for its author looked like a caption.
+    case content
+  }
+
   private let section: AppSection
+  private let opening: Opening
   private let content: Content
 
   @Environment(\.routeResolver) private var routes
@@ -45,8 +67,13 @@ package struct SectionShell<Content: View>: View {
   /// precisely how the app came to ship a zoom that matched nothing.
   @Namespace private var zoom
 
-  package init(_ section: AppSection, @ViewBuilder content: () -> Content) {
+  package init(
+    _ section: AppSection,
+    opening: Opening = .sectionTitle,
+    @ViewBuilder content: () -> Content
+  ) {
     self.section = section
+    self.opening = opening
     self.content = content()
   }
 
@@ -71,8 +98,9 @@ package struct SectionShell<Content: View>: View {
         // anchor a large-title collapse animates against.
         //
         // In depth it is `.inline`, which each pushed screen sets: down there
-        // the title is a landmark, not an opening.
-        .navigationBarTitleDisplayMode(.large)
+        // the title is a landmark, not an opening. And one root is `.inline`
+        // too — see `Opening.content`.
+        .navigationBarTitleDisplayMode(opening == .sectionTitle ? .large : .inline)
         .toolbar { toolbar }
         .navigationDestination(for: Route.self) { route in
           // ⚠️ The tab bar **stays**, and it used to be hidden here.
