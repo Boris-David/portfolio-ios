@@ -151,7 +151,9 @@ package struct SectionShell<Content: View>: View {
     // stack that has to receive it is this one.
     .task {
       guard let initialRoute, router.path.isEmpty else { return }
-      router.push(initialRoute)
+      // Through the same action as a tap, so the flag cannot capture a screen
+      // the reader would never be shown that way.
+      openRoute(initialRoute)
     }
   }
 
