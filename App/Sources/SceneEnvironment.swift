@@ -22,6 +22,16 @@ import SwiftUI
 ///
 /// It was found by launching the app with `-settings` and looking. Nothing in
 /// the build said a word.
+///
+/// ## And the second half of the same defect
+///
+/// Applying it correctly on every anchor only works if you can count the
+/// anchors. There were two — this one and a `.sheet` on every section's stack —
+/// and the second never applied it. It had simply never been reached, because
+/// nothing but the contact card used it.
+///
+/// There is now one `Modal` type and one anchor. The list below is applied
+/// twice in `AppRoot`, on lines you can see without scrolling.
 struct SceneEnvironment: ViewModifier {
   let language: Language
   let portfolio: PortfolioStore
@@ -29,10 +39,9 @@ struct SceneEnvironment: ViewModifier {
   let settings: SettingsStore
   let toasts: ToastCenter
   let decision: DecisionController
-  let sheets: SheetResolver
-  let openSettings: OpenSettingsAction
-  let openResume: OpenResumeAction
-  let zoom: Namespace.ID
+  let reselection: SectionReselection
+  let present: PresentAction
+  let modals: ModalResolver
   let initialRoute: Route?
 
   func body(content: Content) -> some View {
@@ -43,10 +52,10 @@ struct SceneEnvironment: ViewModifier {
       .environment(settings)
       .environment(toasts)
       .environment(decision)
-      .environment(\.routeResolver, .live(in: zoom))
-      .environment(\.sheetResolver, sheets)
-      .environment(\.openSettings, openSettings)
-      .environment(\.openResume, openResume)
+      .environment(reselection)
+      .environment(\.routeResolver, .live)
+      .environment(\.modalResolver, modals)
+      .environment(\.present, present)
       .environment(\.initialRoute, initialRoute)
       .tint(Color.accent)
   }

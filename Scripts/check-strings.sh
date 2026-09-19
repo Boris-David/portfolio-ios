@@ -167,6 +167,55 @@ for source, catalogue_path in NAMESPACES.items():
 sys.exit(status)
 PY
 
+# ── A typed key that nothing renders is a dead entry ─────────────────────────
+#
+# The check above pairs the constants with the catalogue, which keeps the two in
+# step — but says nothing about whether anybody *uses* the constant. Both sides
+# stay perfectly consistent while a word nobody renders is translated, reviewed
+# and shipped.
+#
+# It was not hypothetical: `interface.decisionsShow` and `interface.decisionsHide`
+# survived the removal of the control that said them, in both languages, and
+# every guard passed. `interface.annotationHint` had been dead longer.
+#
+# ⚠️ It counts **uses**, not files. A first version asked "is this name in any
+# other file", and three tab titles came back clean because a doc comment
+# mentioned them — while two of the keys it was meant to catch got through for
+# the same reason. Comment lines are skipped, and the declaration itself does
+# not count as a use of what it declares.
+python3 - <<'DEADKEYS' || status=1
+import pathlib, re, sys
+
+DECLARATIONS = [
+    "Packages/Features/Sources/ViewKit/Localization/InterfaceText.swift",
+    "Packages/Features/Sources/Decisions/DecisionLabels.swift",
+]
+
+# Every line of Swift that is neither a comment nor a key declaration. A key is
+# alive if one of these names it — including a line in its own file, which is
+# where `AppSection.titleKey` maps a section to its word.
+code = []
+for path in pathlib.Path(".").glob("[PA]*/**/*.swift"):
+    for line in path.read_text().splitlines():
+        stripped = line.strip()
+        if stripped.startswith("//") or ": TextKey =" in line:
+            continue
+        code.append(line)
+code = "\n".join(code)
+
+status = 0
+for source in DECLARATIONS:
+    text = pathlib.Path(source).read_text()
+    for name in sorted(set(re.findall(r"static let (\w+): TextKey", text))):
+        if re.search(r"\b" + name + r"\b", code):
+            continue
+        print(f"\u2716 {source}: '{name}' is declared and translated, and nothing renders it",
+              file=sys.stderr)
+        status = 1
+
+sys.exit(status)
+DEADKEYS
+
 # ── A screen never writes a sentence ─────────────────────────────────────────
 #
 # The rule the whole migration exists for: a view names a key, the catalogue

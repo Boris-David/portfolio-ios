@@ -20,10 +20,13 @@ import ViewKit
 /// shares or scans. A tab that performs an action breaks the one promise a tab
 /// bar makes — that tapping it shows you where you were.
 struct AppTabs: View {
-  @Binding var selection: AppSection
+  /// Not `@Binding` by name only: the scene hands over a **proxy** whose setter
+  /// also sees the write that changes nothing — tapping the selected tab. See
+  /// `AppRoot.tabSelection`.
+  let selection: Binding<AppSection>
 
   var body: some View {
-    TabView(selection: $selection) {
+    TabView(selection: selection) {
       Tab(value: AppSection.profile) {
         ProfileScreen()
       } label: {

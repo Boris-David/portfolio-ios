@@ -18,7 +18,7 @@ public struct ProfileScreen: View {
   public init() {}
 
   public var body: some View {
-    SectionShell(title: text(InterfaceText.tabProfile)) {
+    SectionShell(.profile) {
       // The four phases are rendered in one place, by one component.
       // No screen rewrites this switch: that is what makes them all behave
       // alike — same skeleton, same transition, same failure screen.
@@ -31,7 +31,7 @@ public struct ProfileScreen: View {
   // ───────────────────────────────────────────────────────────────────────
 
   private func content(_ snapshot: PortfolioSnapshot) -> some View {
-    ScrollView {
+    SectionScrollView {
       VStack(alignment: .leading, spacing: Tokens.Space.s7) {
         FreshnessBanner(snapshot: snapshot, language: store.language)
         IdentityBlock(profile: snapshot.portfolio.profile)
@@ -42,8 +42,6 @@ public struct ProfileScreen: View {
         )
         ContactBlock(contact: snapshot.portfolio.profile.contact)
       }
-      .padding(.bottom, Tokens.Space.s8)
-      .readableWidth()
     }
     // Pull to refresh: the expected gesture, and it genuinely waits for the
     // end — an indicator that vanishes before the content arrives reads as the

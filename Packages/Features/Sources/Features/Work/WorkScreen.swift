@@ -11,19 +11,13 @@ import ViewKit
 /// The projects, told the way an engineer delivers: the problem, the decision,
 /// the result.
 public struct WorkScreen: View {
-  /// The namespace a card and its detail share so the push can be a zoom.
-  ///
-  /// Declared on the screen and not inside the card: a namespace per card would
-  /// match nothing, because the two halves of the transition have to agree on
-  /// the same one.
-  @Namespace private var zoom
   @Environment(PortfolioStore.self) private var store
   @Localized(.interface) private var text
 
   public init() {}
 
   public var body: some View {
-    SectionShell(title: text(InterfaceText.tabWork)) {
+    SectionShell(.work) {
       // The four phases are rendered in one place, by one component.
       // No screen rewrites this switch: that is what makes them all behave
       // alike — same skeleton, same transition, same failure screen.
@@ -34,7 +28,7 @@ public struct WorkScreen: View {
   }
 
   private func content(_ portfolio: Portfolio) -> some View {
-    ScrollView {
+    SectionScrollView {
       VStack(alignment: .leading, spacing: Tokens.Space.s7) {
         if let section = portfolio.section("case-studies") {
           SectionHeader(
@@ -47,7 +41,7 @@ public struct WorkScreen: View {
 
         VStack(spacing: Tokens.Space.s4) {
           ForEach(portfolio.caseStudies) { study in
-            CaseStudyCard(study: study, namespace: zoom)
+            CaseStudyCard(study: study)
           }
         }
         .padding(.horizontal, Tokens.Space.s5)
@@ -58,8 +52,6 @@ public struct WorkScreen: View {
         )
       }
       .padding(.top, Tokens.Space.s4)
-      .padding(.bottom, Tokens.Space.s8)
-      .readableWidth()
     }
     .refreshable { await store.refresh() }
   }
@@ -69,11 +61,8 @@ public struct WorkScreen: View {
 /// detail.
 struct CaseStudyCard: View {
   let study: CaseStudy
-  /// The namespace the zoom transition matches across.
-  let namespace: Namespace.ID
 
   @Environment(Router.self) private var router
-  @ReducedMotion private var reducedMotion
   @Localized(.interface) private var text
 
   var body: some View {
@@ -121,6 +110,11 @@ struct CaseStudyCard: View {
       }
     }
     .buttonStyle(.pressableCard)
+    // The card is the thing the detail screen grows out of. It took a namespace
+    // as a parameter and never used it, so the push matched nothing and fell
+    // back to a slide — silently, because a zoom with one half is not an error.
+    // The namespace now comes from the stack that holds both halves.
+    .zoomSource(study.slug)
     .reveal()
   }
 }

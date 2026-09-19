@@ -15,7 +15,7 @@ public struct JourneyScreen: View {
   public init() {}
 
   public var body: some View {
-    SectionShell(title: text(InterfaceText.tabJourney)) {
+    SectionShell(.journey) {
       // The four phases are rendered in one place, by one component.
       // No screen rewrites this switch: that is what makes them all behave
       // alike — same skeleton, same transition, same failure screen.
@@ -28,7 +28,7 @@ public struct JourneyScreen: View {
   private func content(_ portfolio: Portfolio) -> some View {
     let dates = DateStyle(language: store.language)
 
-    return ScrollView {
+    return SectionScrollView {
       VStack(alignment: .leading, spacing: Tokens.Space.s7) {
         if let section = portfolio.section("background") {
           SectionHeader(eyebrow: section.eyebrow, title: section.title)

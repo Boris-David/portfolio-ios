@@ -18,7 +18,6 @@ import Presentation
 package enum InterfaceText {
   package static let aboutLink: TextKey = "interface.aboutLink"
   package static let aboutTitle: TextKey = "interface.aboutTitle"
-  package static let annotationHint: TextKey = "interface.annotationHint"
   package static let architecture: TextKey = "interface.architecture"
   package static let architectureIntro: TextKey = "interface.architectureIntro"
   package static let architecturePatterns: TextKey = "interface.architecturePatterns"
@@ -32,8 +31,6 @@ package enum InterfaceText {
   package static let contactAction: TextKey = "interface.contactAction"
   package static let contactTitle: TextKey = "interface.contactTitle"
   package static let copyLink: TextKey = "interface.copyLink"
-  package static let decisionsHide: TextKey = "interface.decisionsHide"
-  package static let decisionsShow: TextKey = "interface.decisionsShow"
   package static let decisionsToggle: TextKey = "interface.decisionsToggle"
   package static let declined: TextKey = "interface.declined"
   package static let dependencies: TextKey = "interface.dependencies"
@@ -143,7 +140,6 @@ package enum SettingsText {
   package static let resetDone: TextKey = "settings.resetDone"
   package static let resetQuestion: TextKey = "settings.resetQuestion"
   package static let resetSection: TextKey = "settings.resetSection"
-  package static let saved: TextKey = "settings.saved"
   package static let title: TextKey = "settings.title"
 }
 

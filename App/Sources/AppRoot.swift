@@ -36,10 +36,9 @@ public struct AppRoot: View {
   @State private var settings: SettingsStore
   @State private var toasts = ToastCenter()
   @State private var decision = DecisionController()
+  @State private var reselection = SectionReselection()
   @State private var selection: AppSection
-  @State private var sheet: Sheet?
-  @State private var cover: FullScreenCover?
-  @Namespace private var zoom
+  @State private var modal: Modal?
 
   private let environment: AppEnvironment
   private let launch: LaunchArguments
@@ -87,22 +86,21 @@ public struct AppRoot: View {
   }
 
   public var body: some View {
-    AppTabs(selection: $selection)
-      .engineeringAccessory(isOn: decisionsBinding)
+    AppTabs(selection: tabSelection)
+      .resumeAccessory(present: presentAction)
       .toasts(toasts)
       .modifier(sceneEnvironment)
-      .sheet(item: $sheet) { sheet in
-        // The same environment, applied again: a sheet is hosted outside the
-        // presenting view's tree and inherits nothing from it.
-        resolver(sheet)
-          .modifier(sceneEnvironment)
+      // The **one** place the app presents anything over the scene. Which
+      // presentation a modal gets is the modal's own answer, not the caller's
+      // — see `Modal.style`.
+      //
+      // The environment is applied again inside, because a presented screen is
+      // hosted outside the presenting view's tree and inherits nothing from it.
+      .sheet(item: modalBinding(.sheet)) { modal in
+        resolver(modal).modifier(sceneEnvironment)
       }
-      // A document, not a detour. The résumé takes the whole screen: it wants
-      // the width, and leaving it should be a decision rather than a stray
-      // downward swipe.
-      .fullScreenCover(item: $cover) { cover in
-        FullScreenResolver.live(environment)(cover)
-          .modifier(sceneEnvironment)
+      .fullScreenCover(item: modalBinding(.fullScreen)) { modal in
+        resolver(modal).modifier(sceneEnvironment)
       }
       // `nil` means "follow the device", which is what `preferredColorScheme`
       // expects for that case — not a third scheme.
@@ -115,8 +113,8 @@ public struct AppRoot: View {
         // only**, and does not write: a screenshot flag that changes what the
         // reader stored is a bug, and it was one.
         if launch.showsDecisions { settings.forceDecisions() }
-        if launch.opensSettings { sheet = .settings }
-        if launch.opensResume { cover = .resume }
+        if launch.opensSettings { modal = .settings }
+        if launch.opensResume { modal = .resume }
         store.load()
       }
       .task { await followLanguageChanges() }
@@ -136,7 +134,11 @@ public struct AppRoot: View {
       }
   }
 
-  private var resolver: SheetResolver { .live(environment) }
+  private var resolver: ModalResolver { .live(environment) }
+
+  private var presentAction: PresentAction {
+    PresentAction { modal = $0 }
+  }
 
   private var sceneEnvironment: SceneEnvironment {
     SceneEnvironment(
@@ -146,18 +148,45 @@ public struct AppRoot: View {
       settings: settings,
       toasts: toasts,
       decision: decision,
-      sheets: resolver,
-      openSettings: OpenSettingsAction { sheet = .settings },
-      openResume: OpenResumeAction { cover = .resume },
-      zoom: zoom,
+      reselection: reselection,
+      present: presentAction,
+      modals: resolver,
       initialRoute: launch.initialRoute
     )
   }
 
-  private var decisionsBinding: Binding<Bool> {
+  /// The half of `modal` a given presentation is responsible for.
+  ///
+  /// One piece of state, two anchors: whichever anchor the current modal does
+  /// not belong to sees `nil` and stays closed. Dismissing only clears the
+  /// state when it is that anchor's modal — without the guard, the cover's
+  /// binding would clear a sheet the moment it appeared.
+  private func modalBinding(_ style: Modal.Style) -> Binding<Modal?> {
     Binding(
-      get: { settings.showsDecisions },
-      set: { value in Task { await settings.setShowsDecisions(value) } }
+      get: { modal?.style == style ? modal : nil },
+      set: { value in
+        guard value == nil, modal?.style == style else { return }
+        modal = nil
+      }
+    )
+  }
+
+  /// The tab bar's selection, with the one gesture `TabView` does not report.
+  ///
+  /// A binding is only written when the value **changes**, so tapping the tab
+  /// you are already on writes nothing — SwiftUI does call the setter, with the
+  /// same value. That equal write is the gesture, and this is the only place in
+  /// the app that can see it.
+  private var tabSelection: Binding<AppSection> {
+    Binding(
+      get: { selection },
+      set: { section in
+        if section == selection {
+          reselection.record(section)
+        } else {
+          selection = section
+        }
+      }
     )
   }
 

@@ -78,6 +78,14 @@ SCREENS=(
   "journey|"
   "decision|-decisions"
   "profile|-settings"
+  # Settings **with** the annotations on.
+  #
+  # The mode was captured on one tab and the settings sheet was captured with
+  # the mode off, so the one combination nobody had was the one that mattered:
+  # this screen emitted three annotations that nothing drew, because a sheet is
+  # its own view tree and had never been given a `.decisionOverlay()`. Neither
+  # of the two captures could show it; their intersection does.
+  "profile|-settings -decisions"
   "profile|-resume"
   # A pushed screen needs the route flag: a tab flag cannot reach it, and
   # without this the comparison table — the one screen a `Grid` exists for —

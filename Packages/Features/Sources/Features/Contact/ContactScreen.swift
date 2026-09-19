@@ -72,7 +72,12 @@ public struct ContactScreen: View {
         }
       }
     }
-    .presentationDetents([.medium])
+    // Medium by default, and expandable — not medium only. At the
+    // accessibility text sizes the address and three links no longer fit in
+    // half a screen, and a sheet that can only be scrolled inside a fixed
+    // window is the one place a reader cannot make room.
+    .presentationDetents([.medium, .large])
+    .presentationDragIndicator(.visible)
   }
 
   private func open(_ string: String) {

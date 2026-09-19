@@ -19,8 +19,8 @@ public struct EngineeringScreen: View {
   public init() {}
 
   public var body: some View {
-    SectionShell(title: text(InterfaceText.tabEngineering)) {
-      ScrollView {
+    SectionShell(.decision) {
+      SectionScrollView {
         VStack(alignment: .leading, spacing: Tokens.Space.s7) {
           intro
           LayersBlock()
@@ -31,8 +31,6 @@ public struct EngineeringScreen: View {
           WalkthroughsBlock()
           DependenciesBlock()
         }
-        .padding(.bottom, Tokens.Space.s8)
-        .readableWidth()
       }
     }
   }

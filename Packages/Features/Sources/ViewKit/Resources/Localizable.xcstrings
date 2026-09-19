@@ -33,22 +33,6 @@
         }
       }
     },
-    "interface.annotationHint": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Explains why this component was chosen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Explique pourquoi ce composant a été choisi"
-          }
-        }
-      }
-    },
     "interface.architecture": {
       "localizations": {
         "en": {
@@ -373,38 +357,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ce qu'il coûte"
-          }
-        }
-      }
-    },
-    "interface.decisionsHide": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hide the decision"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Masquer les décisions"
-          }
-        }
-      }
-    },
-    "interface.decisionsShow": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show the decision"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Afficher les décisions"
           }
         }
       }
@@ -1749,22 +1701,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Repartir de zéro"
-          }
-        }
-      }
-    },
-    "settings.saved": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saved"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enregistré"
           }
         }
       }

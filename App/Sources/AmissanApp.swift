@@ -1,3 +1,4 @@
+import DesignSystem
 import SwiftUI
 
 /// The entry point.
@@ -26,6 +27,16 @@ import SwiftUI
 /// was: `Features/Package.swift`.
 @main
 struct AmissanApp: App {
+  /// The one thing that has to happen before the first frame.
+  ///
+  /// The navigation bar's large title is dressed through UIKit's appearance
+  /// proxy, which applies to bars created **after** it is set. Installed in the
+  /// initialiser rather than in a `.task`, which runs once the first bar
+  /// already exists — and would have shown the system face for one frame.
+  init() {
+    NavigationAppearance.install()
+  }
+
   var body: some Scene {
     WindowGroup {
       AppRoot()

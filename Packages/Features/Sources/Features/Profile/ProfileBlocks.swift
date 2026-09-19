@@ -34,7 +34,7 @@ import ViewKit
 /// not to have used it.
 struct IdentityBlock: View {
   let profile: Profile
-  @Environment(Router.self) private var router
+  @Environment(\.present) private var present
   @Environment(\.dynamicTypeSize) private var typeSize
   @ReducedMotion private var reducedMotion
   @Localized(.interface) private var text
@@ -177,7 +177,7 @@ struct IdentityBlock: View {
   /// less loud.
   private var primaryAction: some View {
     Button {
-      router.present(.contact)
+      present(.contact)
     } label: {
       Label(text(InterfaceText.contactAction), icon: .contact)
         .frame(maxWidth: .infinity)

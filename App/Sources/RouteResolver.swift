@@ -1,3 +1,4 @@
+import CoreUI
 import FeatureArchitecture
 import FeatureKit
 import FeatureProfile
@@ -22,7 +23,6 @@ import ViewKit
 /// only module that sees everything, turns it into a view.
 struct RouteScreen: View {
   let route: Route
-  let zoom: Namespace.ID
 
   @Environment(PortfolioStore.self) private var store
 
@@ -31,10 +31,12 @@ struct RouteScreen: View {
     case .caseStudy(let slug):
       if let study = store.portfolio?.caseStudies.first(where: { $0.slug == slug }) {
         CaseStudyDetailScreen(study: study)
-          // The other half of the zoom. `.zoom` needs both a source and a
-          // destination naming the same identity; with only one, the push
-          // silently falls back to the default slide.
-          .navigationTransition(.zoom(sourceID: slug, in: zoom))
+          // The other half of the zoom. It needs both a source and a
+          // destination naming the same identity **in the same namespace**;
+          // with only one, the push silently falls back to a slide. The
+          // namespace comes from the section's stack, which is the one view
+          // that contains both halves — see `EnvironmentValues.zoomNamespace`.
+          .zoomDestination(slug)
       } else {
         // A route to content that is not there — which happens with a deep link
         // received before the first load. Say so; do not show a blank screen.
@@ -73,15 +75,10 @@ struct RouteScreen: View {
 
 extension RouteResolver {
   /// The resolution the application installs into the environment.
-  ///
-  /// It takes the zoom namespace because the two halves of that transition live
-  /// in two different features: the card is in `FeatureWork`, the destination is
-  /// resolved here. Neither can own the namespace, so the place that sees both
-  /// does.
   @MainActor
-  static func live(in zoom: Namespace.ID) -> RouteResolver {
+  static var live: RouteResolver {
     RouteResolver { route in
-      AnyView(RouteScreen(route: route, zoom: zoom))
+      AnyView(RouteScreen(route: route))
     }
   }
 }
