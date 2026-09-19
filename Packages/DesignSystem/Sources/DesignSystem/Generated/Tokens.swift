@@ -230,6 +230,7 @@ extension Tokens {
     public static let toggle: Double = 0.28
     public static let pop: Double = 0.5
     public static let counter: Double = 1.1
+    public static let welcome: Double = 1.4
     public static let shimmer: Double = 0.9
   }
 
@@ -251,6 +252,8 @@ extension Tokens {
     public static let readingWidthInBodies: CGFloat = 40
     public static let appIconSide: CGFloat = 44
     public static let appIconRadius: CGFloat = 10
+    public static let signatureHeight: CGFloat = 44
+    public static let signatureWidth: CGFloat = 280
     public static let productIconSide: CGFloat = 76
     public static let shelfCellWidth: CGFloat = 150
     public static let pressedScale: CGFloat = 0.97

@@ -60,6 +60,7 @@ package enum InterfaceText {
   package static let routeMissingTitle: TextKey = "interface.routeMissingTitle"
   package static let separatesLabel: TextKey = "interface.separatesLabel"
   package static let settings: TextKey = "interface.settings"
+  package static let welcome: TextKey = "interface.welcome"
   package static let share: TextKey = "interface.share"
   package static let skills: TextKey = "interface.skills"
   package static let sourceCode: TextKey = "interface.sourceCode"

@@ -30,7 +30,7 @@ import DesignSystem
 ///
 /// | Token | Hex (light) | In the JSON | Used by |
 /// |---|---|---|---|
-/// | `Tokens.Color.accent.light` | `#2743D6` | `[0.1529, 0.2627, 0.8392, 1]` | `unreachable` |
+/// | `Tokens.Color.accent.light` | `#2743D6` | `[0.1529, 0.2627, 0.8392, 1]` | `signature`, `unreachable` |
 /// | `Tokens.Color.ink3.light` | `#5B5546` | `[0.3569, 0.3333, 0.2745, 1]` | `empty`, `unreachable` |
 /// | `Tokens.Color.line2.light` | `#C9C1B1` | `[0.7882, 0.7569, 0.6941, 1]` | `empty` |
 /// | `Tokens.Color.ok.light` | `#1E7F4F` | `[0.1176, 0.4980, 0.3098, 1]` | `downloaded` |
@@ -59,6 +59,12 @@ import DesignSystem
 /// files run 2 × 66 = 132 frames, or 2.2 s. The curves are the `ease` tokens,
 /// written as Lottie keyframe tangents.
 public enum LottieCatalogue: Sendable, Hashable, CaseIterable {
+  /// The stroke drawn under the author's name, on the welcome screen.
+  ///
+  /// ⚠️ It was deleted once, correctly: the identity block it lived under had
+  /// gone, so nothing called it and the repository forbids dead code. It came
+  /// back with a caller — which is the only reason an asset comes back.
+  case signature
   /// Nothing to show here — a dashed page, floating over its own shadow.
   case empty
   /// The content could not be reached — a severed link, cut by a slash.
@@ -77,6 +83,7 @@ extension LottieCatalogue {
     switch self {
     case .empty: "empty"
     case .unreachable: "unreachable"
+    case .signature: "signature"
     case .downloaded: "downloaded"
     }
   }
@@ -85,11 +92,11 @@ extension LottieCatalogue {
   ///
   /// The rule is what the animation *is*, not where it is shown: a **state**
   /// loops, an **event** plays once and settles on its final frame. Both empty
-  /// and unreachable are states the screen stays in; a finished download is a
-  /// thing that happened.
+  /// and unreachable are states the screen stays in; a signature being drawn and
+  /// a finished download are things that happened.
   var repeats: Bool {
     switch self {
-    case .downloaded: false
+    case .signature, .downloaded: false
     case .empty, .unreachable: true
     }
   }
@@ -113,6 +120,8 @@ extension LottieCatalogue {
   /// palette fails the suite instead of quietly shipping an off-brand animation.
   var tints: [(keypath: String, palette: Tokens.Palette)] {
     switch self {
+    case .signature:
+      [("stroke.**.Color", Tokens.Color.accent)]
     case .empty:
       [("sheet.**.Color", Tokens.Color.ink3), ("ground.**.Color", Tokens.Color.line2)]
     case .unreachable:
@@ -148,6 +157,9 @@ extension LottieCatalogue {
   /// hand-written file stay in step.
   var frameCount: Double {
     switch self {
+    case .signature:
+      // Predates the duration tokens: 72 frames, written before that rule.
+      72
     case .empty, .unreachable:
       2 * Self.frames(Tokens.Duration.counter)
     case .downloaded:

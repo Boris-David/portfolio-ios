@@ -48,6 +48,7 @@
     "toggle": 0.28,
     "pop": 0.5,
     "counter": 1.1,
+    "welcome": 1.4,
     "shimmer": 0.9
   },
   "layout": {
@@ -55,6 +56,8 @@
     "readingWidthInBodies": 40,
     "appIconSide": 44,
     "appIconRadius": 10,
+    "signatureHeight": 44,
+    "signatureWidth": 280,
     "productIconSide": 76,
     "shelfCellWidth": 150,
     "pressedScale": 0.97,
