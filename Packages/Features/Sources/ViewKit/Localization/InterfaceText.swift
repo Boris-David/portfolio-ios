@@ -53,7 +53,6 @@ package enum InterfaceText {
   package static let readStudy: TextKey = "interface.readStudy"
   package static let resumeAction: TextKey = "interface.resumeAction"
   package static let resumeLoading: TextKey = "interface.resumeLoading"
-  package static let resumeReady: TextKey = "interface.resumeReady"
   package static let resumeTitle: TextKey = "interface.resumeTitle"
   package static let retry: TextKey = "interface.retry"
   package static let revalidated: TextKey = "interface.revalidated"

@@ -937,22 +937,6 @@
         }
       }
     },
-    "interface.resumeReady": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Résumé ready"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CV prêt"
-          }
-        }
-      }
-    },
     "interface.resumeTitle": {
       "localizations": {
         "en": {

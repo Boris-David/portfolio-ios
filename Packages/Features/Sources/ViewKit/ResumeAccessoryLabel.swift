@@ -9,9 +9,13 @@ import SwiftUI
 /// root owns *where* the control sits and *what it opens*; what it says is
 /// decided one layer down.
 ///
-/// The arrow points **up** because that is where the document comes from — a
-/// cover rises from the bottom edge. A chevron that pointed right would promise
-/// a push, and the reader would expect a back button that does not exist.
+/// ## Why there is no chevron
+///
+/// There was one, pointing up, on the reasoning that a cover rises from the
+/// bottom edge. A chevron is a promise of *more* — another level, a list that
+/// unfolds — and this opens one document. The author's verdict was short: it
+/// serves no purpose. The whole capsule is the target; nothing needs to point
+/// at anything.
 public struct ResumeAccessoryLabel: View {
   @Localized(.interface) private var text
 
@@ -29,10 +33,6 @@ public struct ResumeAccessoryLabel: View {
         .lineLimit(1)
 
       Spacer(minLength: Tokens.Space.s2)
-
-      Image(systemName: "chevron.up")
-        .font(.footnote.weight(.semibold))
-        .foregroundStyle(Color.ink3)
     }
     .padding(.horizontal, Tokens.Space.s4)
     .frame(maxWidth: .infinity)

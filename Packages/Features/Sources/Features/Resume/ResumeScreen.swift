@@ -15,7 +15,6 @@ import ViewKit
 public struct ResumeScreen: View {
   @Environment(ResumeStore.self) private var store
   @Environment(\.dismiss) private var dismiss
-  @Environment(ToastCenter.self) private var toasts
   @Localized(.interface) private var text
 
   @State private var isShowingProvenance = false
@@ -92,11 +91,11 @@ public struct ResumeScreen: View {
     .feedback(on: store.phase.isLoaded) { was, now in
       now && !was ? .succeeded : nil
     }
-    .onChange(of: store.phase.isLoaded) { was, now in
-      guard now, !was else { return }
-      toasts.show(text(InterfaceText.resumeReady), kind: .succeeded, icon: .succeeded)
-    }
-    .decisionOverlay()
+    // ⚠️ No "resume ready" toast. There was one, and it was drawn by the toast
+    // layer of the scene — which is **under** this cover. It announced the
+    // arrival of a document the reader was already looking at, behind the
+    // document itself. The haptic above is the confirmation; the document
+    // appearing is the rest of it.
     // Same reason as the settings sheet: a cover is its own presentation
     // context, and the scene's anchor cannot reach over it.
     .decisionSheet()
