@@ -354,9 +354,11 @@ Sources/
   Domain/  Networking/  Persistence/  Data/
   DesignSystem/  Decisions/
   Features/
-    Kit/  Profile/  Work/  Journey/  Resume/  Decisions/  Settings/
-  AppComposition/
+    Kit/  Profile/  Work/  Journey/  Resume/  Engineering/  Settings/
 ```
+
+> Périmé sur un point : la racine de composition n'est plus un module de
+> `Sources/`, c'est la **cible d'application** elle-même (§24).
 
 ---
 
@@ -518,7 +520,7 @@ plus fort qu'une cible :
 | `Data` | DTO, correspondances, dépôts, sources | Domain + les deux techniques |
 | `Presentation` | phases, store, chrome, formatage, routes | Domain |
 | `Features` | `ViewKit` → `Decisions` → `FeatureKit` → les écrans | Domain, Presentation, DesignSystem, Textual |
-| `Composition` | le câblage | tout — et c'est le seul |
+| `App/Sources` | le câblage | tout — la cible `.app` **est** la racine, depuis le 2026-09-19 |
 
 ⚠️ **Pas de préfixe `Amissan`** : *« on sait qu'on est dans Amissan, donc pas
 besoin de re-préfixer partout »*. Le nom du package est celui du module.

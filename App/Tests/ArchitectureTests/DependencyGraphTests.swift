@@ -24,9 +24,9 @@ struct DependencyGraphTests {
 
   private static let packagesDirectory: URL = {
     var url = URL(fileURLWithPath: #filePath)
-    // …/Packages/Composition/Tests/ArchitectureTests/DependencyGraphTests.swift
+    // …/App/Tests/ArchitectureTests/DependencyGraphTests.swift
     for _ in 0..<4 { url.deleteLastPathComponent() }
-    return url
+    return url.appendingPathComponent("Packages")
   }()
 
   private static let manifests: [String: String] = {
@@ -57,7 +57,7 @@ struct DependencyGraphTests {
 
   private static let layers = [
     "Domain", "Networking", "Core", "Localization", "Data",
-    "Presentation", "DesignSystem", "CoreUI", "Features", "Composition",
+    "Presentation", "DesignSystem", "CoreUI", "Features",
   ]
 
   @Test("every layer is a package of its own")
@@ -167,20 +167,42 @@ struct DependencyGraphTests {
   @Test("the data layer is the only one that sees both sides")
   func dataIsTheOnlyMeetingPoint() {
     #expect(packages(of: "Data") == ["Domain", "Networking", "Core"])
-    for layer in Self.layers where layer != "Data" && layer != "Composition" {
+    for layer in Self.layers where layer != "Data" {
       let both = packages(of: layer).intersection(["Networking", "Core"])
       #expect(both.isEmpty, "\(layer) also reaches the plumbing")
     }
   }
 
-  /// Someone has to wire ports to implementations. The discipline is that there
-  /// is **exactly one** such package.
-  @Test("only the composition root sees everything")
-  func compositionIsTheOnlyRoot() {
-    let composition = packages(of: "Composition")
-    #expect(composition.contains("Data"))
-    #expect(composition.contains("Features"))
-    #expect(composition.contains("Presentation"))
+  /// Someone has to wire ports to implementations, and there is **exactly one**
+  /// place that may: the application target.
+  ///
+  /// It used to be a package called `Composition`, which made the composition
+  /// root a library — a root that something imports is not a root. The rule is
+  /// now the stronger one: **no package** sees both the data layer and the
+  /// screens. Only the `.app` does, and nothing can import an app.
+  @Test("no package wires the data layer to the screens")
+  func onlyTheAppIsTheRoot() {
+    for layer in Self.layers {
+      let seen = packages(of: layer)
+      #expect(
+        !(seen.contains("Data") && seen.contains("Features")),
+        "\(layer) sees both sides — it has become a second composition root"
+      )
+    }
+  }
+
+  /// And the app target really does declare them, which is what makes the
+  /// sentence above a division of labour rather than an omission.
+  @Test("the application target declares the whole graph", arguments: [
+    "Domain", "Networking", "Core", "Localization", "Data",
+    "Presentation", "DesignSystem", "CoreUI", "Features",
+  ])
+  func theAppDeclaresEveryLayer(_ layer: String) {
+    var url = URL(fileURLWithPath: #filePath)
+    for _ in 0..<4 { url.deleteLastPathComponent() }
+    let project = (try? String(contentsOf: url.appendingPathComponent("project.yml"), encoding: .utf8)) ?? ""
+    #expect(!project.isEmpty, "project.yml was not read — this test would pass on nothing")
+    #expect(project.contains("- package: \(layer)"), "the app target does not declare \(layer)")
   }
 
   // ───────────────────────────────────────────────────────────────────────

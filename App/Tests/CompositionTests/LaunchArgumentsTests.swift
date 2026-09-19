@@ -1,6 +1,6 @@
 import Presentation
 import Testing
-@testable import Composition
+@testable import Amissan
 
 /// Launch flags drive the **automated screenshots**, so a flag that silently
 /// stops working costs a whole set of captures — and nothing would say so: the

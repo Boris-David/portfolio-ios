@@ -50,7 +50,9 @@ Data          Domain + Networking + Core        le seul qui voie les deux côté
 Presentation  Domain                            ni SwiftUI ni catalogue : des valeurs
                                                 et des clés, jamais des phrases
 Features      Domain + Presentation + DesignSystem + CoreUI + Localization
-Composition   tout                              le seul, et il n'a aucune logique
+
+App/          tout          la cible .app EST la racine de composition —
+                            l'anneau que personne n'importe
 ```
 
 ## Démarrer
@@ -65,7 +67,7 @@ versions, efface le graphe de packages que Xcode garde en cache, et résout.
 
 `--clean` efface en plus le graphe de packages que Xcode garde en cache. C'est
 le drapeau qui répare l'état où trois packages s'affichent en **dossiers bleus**
-et où `import Composition` répond « no such module » — pendant que la ligne de
+et où un `import` ne résout pas — pendant que la ligne de
 commande compile le même projet sans broncher. Le script ferme Xcode lui-même et
 le rouvre : il tient le graphe, et sans ça il continuerait à servir l'ancien.
 
@@ -74,7 +76,7 @@ Prérequis : Xcode 26 (SDK iOS 26), XcodeGen, Node 22, Python 3 avec Pillow.
 ## Vérifier
 
 ```bash
-./Scripts/test.sh              # 13 suites, 157 tests, sur simulateur
+./Scripts/test.sh              # 11 suites, 156 tests, sur simulateur
 ./Scripts/tokens.mjs --check   # le design descend bien des tokens
 ./Scripts/seed.sh --check      # la graine décrit encore ce que sert l'API
 ./Scripts/assets.py --check    # chaque actif attendu est présent

@@ -45,9 +45,10 @@ packages:
   # so `import Networking` in a screen is not a review comment, it is
   # "no such module".
   #
-  # Only `Composition` is referenced by the app target. It is the composition
-  # root, and it pulls the rest transitively — the app itself has no way to
-  # import `Networking` either.
+  # The application target declares all of these, because it **is** the
+  # composition root — the ring nothing imports. That is not a widening of what
+  # a screen can reach: `Features/Package.swift` still does not name
+  # `Networking`, `Core` or `Data`.
   #
   # ⚠️ Every package is listed here even though the app names one. A package
   # left out still builds — it is reached transitively — but Xcode never
@@ -72,8 +73,6 @@ packages:
     path: Packages/CoreUI
   Features:
     path: Packages/Features
-  Composition:
-    path: Packages/Composition
 
 targets:
   Amissan:
@@ -83,9 +82,38 @@ targets:
       - path: App/Sources
       - path: App/Resources
         buildPhase: resources
+    # ─────────────────────────────────────────────────────────────────────
+    # The composition root IS this target.
+    #
+    # It therefore names every layer, because assembling them is the one thing
+    # it does. That is not a widening of what a *screen* can reach: a screen
+    # lives in `Features`, whose manifest still does not declare `Networking`,
+    # `Core` or `Data`.
+    #
+    # What this target gave up is that it could not previously write
+    # `import Networking` at all. `Scripts/check-layers.sh` replaces that with
+    # the rule it was standing in for: **no screen here** — no catalogue, no
+    # text key, no content. This target wires; it does not draw.
+    # ─────────────────────────────────────────────────────────────────────
     dependencies:
-      - package: Composition
-        product: Composition
+      - package: Domain
+        product: Domain
+      - package: Networking
+        product: Networking
+      - package: Core
+        product: Core
+      - package: Localization
+        product: Localization
+      - package: Data
+        product: Data
+      - package: Presentation
+        product: Presentation
+      - package: DesignSystem
+        product: DesignSystem
+      - package: CoreUI
+        product: CoreUI
+      - package: Features
+        product: Features
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.amissan.portfolio
@@ -150,6 +178,16 @@ targets:
         GENERATE_INFOPLIST_FILE: true
 
 schemes:
+  # ⚠️ The package suites are **not** listed here, and cannot be.
+  #
+  # XcodeGen validates a scheme's test targets against the project's own, and a
+  # SwiftPM test target is not one — Xcode generates an implicit scheme for each
+  # instead, which is what `Scripts/test.sh` drives. Adding them here fails
+  # generation outright, which is at least honest about it.
+  #
+  # So ⌘U runs the app's suites; `./Scripts/test.sh` runs all thirteen, and
+  # prints a total per suite — which is what makes a suite that stopped running
+  # visible at all. See `check-suites.sh`.
   Amissan:
     build:
       targets:

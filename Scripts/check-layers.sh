@@ -122,6 +122,30 @@ for file in $(grep -rln "DesignDecision(" Packages/Features/Sources --include="*
   status=1
 done
 
+
+# -- The application target wires; it does not draw ---------------------------
+#
+# The composition root used to be a package, so the app target could only see
+# `Composition` and could not write `import Networking` at all. Moving the root
+# into the target -- which is what it is, in clean architecture: the one ring
+# nobody imports -- gave that up, because assembling the graph is now this
+# target's job and it names every layer.
+#
+# This is what replaces it. The risk was never `import Networking` in a file
+# that builds a URLSession; it was somebody writing a *screen* here, where none
+# of the Features rules apply. A screen is recognisable: it resolves text.
+for file in $(find App/Sources -name "*.swift" 2>/dev/null); do
+  if grep -qE 'InterfaceText\.|SettingsText\.|TextKey|@Localized|TextCatalogue' "$file"; then
+    echo "X $file resolves text -- the app target assembles, it does not draw" >&2
+    echo "  a screen belongs in Packages/Features; this target names one and wires it" >&2
+    status=1
+  fi
+  if grep -qE '(Text|Label|Button)\("[^"\\%]{4,}"' "$file"; then
+    echo "X $file writes a sentence -- see Packages/Features and its catalogues" >&2
+    status=1
+  fi
+done
+
 if [ "$status" -ne 0 ]; then
   echo "" >&2
   echo "A layer reached for something it must not see. See Scripts/check-layers.sh." >&2

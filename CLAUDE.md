@@ -44,9 +44,10 @@ DesignSystem  rien            ← le langage visuel. Des valeurs, rien qui dessi
 Localization  rien            ← lire un catalogue dans une langue NOMMÉE
 CoreUI        DesignSystem + Lottie + Textual   ← les composants, et SEUL à les connaître
 Data          Domain + Networking + Core        ← le seul qui voie les deux côtés
-Presentation  Domain                            ← et SURTOUT pas SwiftUI
+Presentation  Domain                            ← ni SwiftUI, ni catalogue
 Features      Domain + Presentation + DesignSystem + CoreUI + Localization
-Composition   tout                              ← le seul, et il n'a aucune logique
+
+App/          tout                              ← la cible .app EST la racine
 ```
 
 
@@ -69,6 +70,21 @@ les deux sous un seul nom : l'erreur a déjà été faite et corrigée le 2026-0
 
 ⚠️ **Pas de préfixe `Amissan` sur les packages.** Le nom du package est celui du
 module.
+
+### 1 bis. La racine de composition est la cible d'application
+
+Elle l'était dans un package, `Composition`, et l'argument était que ses tests
+tournaient **sans simulateur**. Vérifié le 2026-09-18 : faux. Chaque package
+déclare `.iOS(.v18)` seulement, donc `swift test` ne compile pas, et
+`Scripts/test.sh` a toujours tout lancé sur simulateur. Le bénéfice n'était pas
+encaissé, et la forme était fausse : en clean archi le *Main* est l'anneau que
+**personne n'importe**, or `AmissanApp` écrivait `import Composition`.
+
+`App/Sources/` déclare donc tout le graphe, parce qu'assembler est son travail.
+Ce que ça a coûté : la cible ne pouvait pas écrire `import Networking`.
+`check-layers.sh` le remplace par la règle que ça tenait vraiment — **aucun
+écran ici** : pas de catalogue, pas de clé, pas de phrase. La frontière qui
+compte, un écran qui ne voit pas le réseau, reste dans `Features/Package.swift`.
 
 ### 2. Aucune valeur de design écrite à la main
 
@@ -122,7 +138,7 @@ Il se génère depuis `project.yml` (`xcodegen generate`). Ne jamais committer
 
 ```bash
 xcodegen generate
-./Scripts/test.sh              # les 13 suites, sur simulateur
+./Scripts/test.sh              # les 11 suites, sur simulateur
 ./Scripts/tokens.mjs --check   # le design descend bien des tokens
 ./Scripts/seed.sh --check      # la graine décrit encore ce que sert l'API
 ./Scripts/assets.py --check    # chaque actif attendu est présent
@@ -174,7 +190,7 @@ censées montrer l'application au repos.
 | Annotations de décision de conception | `Packages/Features/Sources/Decisions/` |
 | Coquille d'écran, résolution de routes | `Packages/Features/Sources/Features/Kit/` |
 | Un écran | `Packages/Features/Sources/Features/<Nom>/` |
-| Le câblage | `Packages/Composition/` |
+| Le câblage, et la racine de composition | `App/Sources/` |
 | Configuration du projet | `project.yml` |
 | Générateurs et gardes | `Scripts/` |
 

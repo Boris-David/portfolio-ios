@@ -17,8 +17,8 @@ struct MultitaskingTests {
   /// SPM refuses a resource outside its own target anyway.
   private static let project: String = {
     var url = URL(fileURLWithPath: #filePath)
-    // …/Packages/Composition/Tests/ArchitectureTests/MultitaskingTests.swift
-    for _ in 0..<5 { url.deleteLastPathComponent() }
+    // …/App/Tests/ArchitectureTests/MultitaskingTests.swift
+    for _ in 0..<4 { url.deleteLastPathComponent() }
     url.appendPathComponent("project.yml")
     return (try? String(contentsOf: url, encoding: .utf8)) ?? ""
   }()

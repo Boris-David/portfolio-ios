@@ -33,8 +33,6 @@ SUITES=(
   CoreUITests
   ViewKitTests
   DecisionsTests
-  CompositionTests
-  ArchitectureTests
   Amissan
 )
 
