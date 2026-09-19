@@ -56,14 +56,18 @@ public struct DeepDiveScreen: View {
 
   // -- The parts ----------------------------------------------------------
 
+  /// ⚠️ No title in the page. The bar already carries it, in full — these
+  /// titles are short enough to fit an inline bar — so printing it again forty
+  /// points below spends the first screenful on a word the reader has just
+  /// read.
+  ///
+  /// That is the opposite call from the case study, and the difference is the
+  /// length: a title the bar has to truncate stays in the content, which can
+  /// wrap. See `.claude/rules/interface.md`.
   private var header: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s2) {
       Text(text(InterfaceText.depthEyebrow)).eyebrowStyle()
-      Text(topic.title)
-        .font(Typography.title)
-        .foregroundStyle(Color.ink)
-        .fixedSize(horizontal: false, vertical: true)
-      RichTextView(topic.body, font: Typography.secondary)
+      RichTextView(topic.body, font: Typography.body)
         .fixedSize(horizontal: false, vertical: true)
     }
     .padding(.top, Tokens.Space.s4)

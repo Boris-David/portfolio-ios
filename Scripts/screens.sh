@@ -114,6 +114,11 @@ SCREENS=(
   # It was not on the matrix, so neither the disclosure rows nor the gallery
   # were ever photographed.
   "work|-route caseStudy:mobile-ticketing"
+  # The two readings the profile pushes. Neither was on the matrix, and one of
+  # them — the deep dive — rendered **nothing at all** for weeks behind a card
+  # a reader reaches by touching it.
+  "profile|-route about"
+  "profile|-route expertise:concurrency"
 )
 
 # ⚠️ `xcrun simctl ui … content_size` exits **0** on a value it rejects.
@@ -172,13 +177,22 @@ capture() {
   printf '  %s\n' "$name"
 }
 
-selected() { [ -z "$ONLY" ] || printf '%s' "$1" | grep -q "$ONLY"; }
+# ⚠️ `grep -E`, and a count checked at the end.
+#
+# With plain `grep`, `--only "about|expertise"` matched **neither**: macOS ships
+# BSD grep, whose basic expressions have no alternation, so the pattern was
+# taken literally. The run printed one capture, exited 0, and said nothing about
+# the half it had skipped — which is the same failure mode as `content_size`
+# accepting a value it ignores, one layer up.
+selected() { [ -z "$ONLY" ] || printf '%s' "$1" | grep -Eq "$ONLY"; }
+matched=0
 
 echo "── the default matrix, on $DEVICE_NAME"
 for entry in "${SCREENS[@]}"; do
   tab="${entry%%|*}"; flags="${entry#*|}"
   label="$tab${flags:+${flags// /}}"
   selected "$label" || continue
+  matched=$((matched + 1))
   [ "$SIZES" = "light" ] || capture "$tab" "$flags" dark large "${label}-dark"
   capture "$tab" "$flags" light large "${label}-light"
 done
@@ -191,6 +205,11 @@ if [ "$SIZES" != "light" ]; then
     selected "$label" || continue
     capture "$tab" "$flags" dark accessibility-extra-extra-extra-large "${label}-ax5"
   done
+fi
+
+if [ -n "$ONLY" ] && [ "$matched" -eq 0 ]; then
+  echo "✖ --only '$ONLY' matched no screen. Labels look like 'profile-routeabout'." >&2
+  exit 1
 fi
 
 # Leave the simulator as it was found: a device left at accessibility5 makes the

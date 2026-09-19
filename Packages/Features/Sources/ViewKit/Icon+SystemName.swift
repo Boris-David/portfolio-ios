@@ -24,6 +24,8 @@ extension Icon {
     case .informed: "info.circle"
 
     case .remote: "house"
+    case .availability: "briefcase"
+    case .location: "mappin.and.ellipse"
 
     case .settings: "gearshape"
     case .language: "globe"

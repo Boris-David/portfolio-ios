@@ -57,10 +57,22 @@ public struct AboutScreen: View {
     .navigationBarTitleDisplayMode(.inline)
   }
 
+  /// ⚠️ Two of these were drawing **somebody else's glyph**: an envelope for
+  /// "open to opportunities" and a person for "Alpes-Maritimes", because the
+  /// icon set had no meaning for either and the nearest case was taken.
+  ///
+  /// That is exactly what `Icon` exists to prevent — it names a meaning, so a
+  /// missing meaning shows up as a borrowed one rather than as a compile error.
+  /// The set gained the two it was short of, and `IconTests` checks every
+  /// symbol resolves.
+  ///
+  /// `remote` joins them here too: it is the reader's first filter, and this
+  /// screen is where somebody goes for the longer answer.
   private var facts: [(icon: Icon, text: String)] {
     [
-      (.contact, profile.availability),
-      (.profile, profile.location),
+      (.availability, profile.availability),
+      (.remote, profile.remote),
+      (.location, profile.location),
       (.language, profile.languages),
     ]
   }

@@ -39,6 +39,10 @@ public enum Icon: Sendable, Hashable, CaseIterable {
 
   /// Where he will work from — the reader's first filter.
   case remote
+  /// Open to opportunities.
+  case availability
+  /// A place on a map.
+  case location
 
   // Actions and settings
   case settings
