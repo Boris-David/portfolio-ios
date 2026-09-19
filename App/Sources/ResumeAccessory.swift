@@ -1,3 +1,4 @@
+import CoreUI
 import FeatureKit
 import Presentation
 import SwiftUI
@@ -18,13 +19,19 @@ import ViewKit
 /// screen. It was never only here.
 extension View {
   @ViewBuilder
-  func resumeAccessory(present: PresentAction) -> some View {
+  func resumeAccessory(present: PresentAction, isOpen: Bool) -> some View {
     if #available(iOS 26.0, *) {
       tabViewBottomAccessory {
         Button { present(.resume) } label: {
           ResumeAccessoryLabel()
         }
-        .buttonStyle(.plain)
+        // ⚠️ `.plain` gave the most-used control in the app **no press state
+        // at all**: the finger went down, nothing moved, and the only sign
+        // anything had happened was the cover arriving a moment later. The same
+        // style every card in the app uses, and the haptic that says the tap
+        // registered before the screen does.
+        .buttonStyle(.pressableCard)
+        .feedback(.selectionChanged, on: isOpen)
       }
     } else {
       // iOS 18 has no bar accessory, so the résumé keeps the toolbar item it

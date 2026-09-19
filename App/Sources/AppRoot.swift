@@ -36,7 +36,10 @@ public struct AppRoot: View {
   @State private var settings: SettingsStore
   @State private var toasts = ToastCenter()
   @State private var decision = DecisionController()
+  @ReducedMotion private var reducedMotion
   @State private var reselection = SectionReselection()
+  /// Whether the welcome screen has handed over. See `WelcomeScreen`.
+  @State private var hasOpened = false
   @State private var selection: AppSection
   @State private var modal: Modal?
 
@@ -86,8 +89,40 @@ public struct AppRoot: View {
   }
 
   public var body: some View {
+    ZStack {
+      tabs
+      if !hasOpened {
+        WelcomeScreen(profile: store.portfolio?.profile)
+          .transition(.opacity)
+          .zIndex(1)
+      }
+    }
+    .animation(reducedMotion ? nil : Motion.entrance, value: hasOpened)
+    .task { await openWhenReady() }
+  }
+
+  /// Hands over to the app once the content is there — and never before the
+  /// floor, so the welcome cannot flash and be gone.
+  ///
+  /// It waits for **either** outcome of the first load, not for success: an
+  /// offline launch shows the failure screen, which is content of a kind, and
+  /// sitting on a greeting for ever would be worse than saying what happened.
+  private func openWhenReady() async {
+    let floor = Task {
+      try? await Task.sleep(for: .seconds(Tokens.Duration.welcome))
+    }
+    while store.phase.isPending {
+      await Task.yield()
+      try? await Task.sleep(for: .milliseconds(50))
+    }
+    await floor.value
+    hasOpened = true
+  }
+
+  /// The application itself, under the welcome screen.
+  private var tabs: some View {
     AppTabs(selection: tabSelection)
-      .resumeAccessory(present: presentAction)
+      .resumeAccessory(present: presentAction, isOpen: modal == .resume)
       .toasts(toasts)
       // ⚠️ **Inside** `sceneEnvironment`, and the order is the whole of it.
       //
@@ -122,7 +157,19 @@ public struct AppRoot: View {
       // expects for that case — not a third scheme.
       .preferredColorScheme(settings.appearance.isDarkForced.map { $0 ? .dark : .light })
       .task {
+        // ⚠️ The fetch starts **before** the stored preferences are read.
+        //
+        // It used to wait for them, and the wait was on the critical path of
+        // every cold start for a value that almost never changes anything: the
+        // store is built with the language the device resolves to, and the
+        // stored preference agrees with it unless the reader chose otherwise.
+        //
+        // `setLanguage` below is a no-op when they agree, and a re-fetch when
+        // they do not — which is the rare case paying for itself instead of
+        // every launch paying for it.
+        store.load()
         await settings.load()
+        store.setLanguage(settings.resolvedLanguage)
         // Configured once, at launch, before any tip can be evaluated.
         DecisionsTipState.configure()
         // The launch flag wins over the stored preference **for this launch
@@ -130,8 +177,8 @@ public struct AppRoot: View {
         // reader stored is a bug, and it was one.
         if launch.showsDecisions { settings.forceDecisions() }
         if let initialModal = launch.initialModal { modal = initialModal }
-        store.load()
       }
+      .task { await prefetchResume() }
       .task { await followLanguageChanges() }
       .refreshingOnReturn(
         store: store,
@@ -205,6 +252,27 @@ public struct AppRoot: View {
         }
       }
     )
+  }
+
+  /// Fetches the résumé once the portfolio is on screen.
+  ///
+  /// ## Why the app spends a request nobody asked for
+  ///
+  /// Because the résumé is what this application exists to deliver, and the
+  /// reader reaches it from a control that follows them through every screen.
+  /// Fetched on demand, the cover opened on a spinner; fetched in the quiet
+  /// after the first screen has drawn, it opens on the document.
+  ///
+  /// It waits for the portfolio deliberately: two requests racing on a cold
+  /// start would make the screen the reader is actually looking at slower, to
+  /// speed up one they may never open.
+  private func prefetchResume() async {
+    while store.phase.isPending {
+      await Task.yield()
+      try? await Task.sleep(for: .milliseconds(50))
+    }
+    guard !resume.phase.isLoaded else { return }
+    await resume.load()
   }
 
   /// Re-fetches the content when the language actually served changes.
