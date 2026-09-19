@@ -101,6 +101,10 @@ package struct SectionShell<Content: View>: View {
         // the title is a landmark, not an opening. And one root is `.inline`
         // too — see `Opening.content`.
         .navigationBarTitleDisplayMode(opening == .sectionTitle ? .large : .inline)
+        // A root always wants the bar. Said out loud, because the only screens
+        // that used to say anything were the ones that hid it — and coming back
+        // from those, the bar sometimes never returned. See `tabBar(_:)`.
+        .tabBar(.visible)
         .toolbar { toolbar }
         .navigationDestination(for: Route.self) { route in
           // The tab bar is **hidden** in depth, and the four roots keep it.
@@ -124,7 +128,7 @@ package struct SectionShell<Content: View>: View {
           // so it goes too. One back tap away, and the toolbar still carries it
           // on iOS 18 where there is no accessory.
           routes(route)
-            .toolbar(.hidden, for: .tabBar)
+            .tabBar(.hidden)
         }
     }
     .environment(router)
@@ -142,7 +146,6 @@ package struct SectionShell<Content: View>: View {
       guard let initialRoute, router.path.isEmpty else { return }
       router.push(initialRoute)
     }
-    .decisionOverlay()
   }
 
   /// Back to the beginning of the section, the way iOS does it: the first tap
