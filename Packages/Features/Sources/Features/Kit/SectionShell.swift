@@ -103,17 +103,28 @@ package struct SectionShell<Content: View>: View {
         .navigationBarTitleDisplayMode(opening == .sectionTitle ? .large : .inline)
         .toolbar { toolbar }
         .navigationDestination(for: Route.self) { route in
-          // ⚠️ The tab bar **stays**, and it used to be hidden here.
+          // The tab bar is **hidden** in depth, and the four roots keep it.
           //
-          // The argument for hiding it was that a pushed screen is a reading.
-          // The argument against is what a reader actually does with this app:
-          // they arrive from a link, read one case study, and want the other
-          // three sections — and a bar that vanishes turns "look at the rest"
-          // into "find the back button first".
+          // ⚠️ This reverses an earlier decision recorded right here, so the
+          // reasoning of both is worth keeping. The bar used to stay, on the
+          // argument that a reader arrives from a link, reads one case study,
+          // and wants the other three sections — a bar that vanishes turns
+          // "look at the rest" into "find the back button first".
           //
-          // Stated by the author, and it wins over the general rule: this is a
-          // portfolio somebody browses, not a flow they descend into.
+          // The author overruled it after using the app, and his argument is
+          // better: the reader is already inside one world, so offering to
+          // change world right then is not great. A pushed screen is a reading
+          // you came into deliberately and leave deliberately, and
+          // offering four ways out of it while you are two paragraphs in is
+          // offering to interrupt. It also makes the app consistent with
+          // itself: a presented screen already hides the bar, and nobody found
+          // that surprising.
+          //
+          // What it costs: on iOS 26 the résumé accessory rides on the tab bar,
+          // so it goes too. One back tap away, and the toolbar still carries it
+          // on iOS 18 where there is no accessory.
           routes(route)
+            .toolbar(.hidden, for: .tabBar)
         }
     }
     .environment(router)
