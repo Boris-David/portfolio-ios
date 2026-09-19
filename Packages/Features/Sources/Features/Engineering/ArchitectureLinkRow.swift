@@ -37,7 +37,7 @@ struct ArchitectureLinkRow: View {
     }
     // `.plain`, or the whole card takes the accent colour and the summary stops
     // being readable as body text.
-    .buttonStyle(.plain)
+    .buttonStyle(.pressableCard)
     .padding(.horizontal, Tokens.Space.s5)
   }
 }

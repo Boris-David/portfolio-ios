@@ -1,4 +1,5 @@
 import Decisions
+import CoreUI
 import DesignSystem
 import Domain
 import Foundation
@@ -64,7 +65,7 @@ package struct FreshnessBanner: View {
         .background(Color.paper2)
         .contentShape(Rectangle())
       }
-      .buttonStyle(.plain)
+      .buttonStyle(.pressableCard)
       .accessibilityElement(children: .combine)
       .accessibilityLabel(message)
       .accessibilityHint(text(InterfaceText.provenanceHint))

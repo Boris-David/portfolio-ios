@@ -131,7 +131,7 @@ struct ChapterDisclosureView: View {
       .padding(Tokens.Space.s4)
       .contentShape(Rectangle())
     }
-    .buttonStyle(.plain)
+    .buttonStyle(.pressableCard)
     .accessibilityAddTraits(.isButton)
     .accessibilityLabel(chapter.title ?? "")
     .accessibilityValue(isOpen ? text(InterfaceText.expanded) : text(InterfaceText.collapsed))

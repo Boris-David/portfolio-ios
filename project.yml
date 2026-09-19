@@ -117,6 +117,19 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.amissan.portfolio
+        # ⚠️ Xcode's automatic string extraction is OFF, and it has to be.
+        #
+        # With it on, **a build edits committed files**: Xcode scans the source
+        # for string literals and writes them into every `.xcstrings` it finds,
+        # in state `new`. A compile produced `%lld`, `%@ · %@` and an empty key
+        # across ten catalogues — entries nothing reads, that `check-strings.sh`
+        # then refuses, from a step nobody ran on purpose.
+        #
+        # It is noise here by construction: this app never resolves a key
+        # through SwiftUI's automatic lookup. It goes through `TextCatalogue`,
+        # in the language the **content** was served in, which the extractor
+        # knows nothing about. See CLAUDE.md, invariant 4.
+        SWIFT_EMIT_LOC_STRINGS: NO
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
         # The icon is referenced by its asset-catalogue set name.

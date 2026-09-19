@@ -120,7 +120,7 @@ struct CaseStudyCard: View {
         }
       }
     }
-    .buttonStyle(.plain)
+    .buttonStyle(.pressableCard)
     .reveal()
   }
 }
@@ -199,7 +199,7 @@ struct AppCell: View {
           .strokeBorder(Color.line, lineWidth: Tokens.Stroke.regular)
       )
     }
-    .buttonStyle(.plain)
+    .buttonStyle(.pressableCard)
     // Secondary actions, out of the way until asked for.
     //
     // A long press on a card is the iOS idiom for "what else can I do with

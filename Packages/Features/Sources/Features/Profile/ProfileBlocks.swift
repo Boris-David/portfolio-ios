@@ -261,33 +261,11 @@ struct ExpertiseBlock: View {
             }
           }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressableCard)
       }
     }
     .padding(.horizontal, Tokens.Space.s5)
     .reveal()
-  }
-}
-
-/// A subject's detail.
-struct ExpertiseDetailView: View {
-  let topic: ExpertiseTopic
-
-  var body: some View {
-    ScrollView {
-      VStack(alignment: .leading, spacing: Tokens.Space.s4) {
-        Text(topic.title)
-          .font(Typography.title)
-          .foregroundStyle(Color.ink)
-          .fixedSize(horizontal: false, vertical: true)
-        RichTextView(topic.body)
-      }
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .padding(Tokens.Space.s5)
-    }
-    .background(Color.paper)
-    .navigationTitle(topic.title)
-    .navigationBarTitleDisplayMode(.inline)
   }
 }
 

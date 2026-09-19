@@ -157,7 +157,7 @@ struct ExperienceCard: View {
       .padding(Tokens.Space.s4)
       .contentShape(Rectangle())
     }
-    .buttonStyle(.plain)
+    .buttonStyle(.pressableCard)
     .accessibilityAddTraits(.isButton)
     .accessibilityLabel("\(job.role), \(job.organisation)")
     .accessibilityValue(open ? text(InterfaceText.expanded) : text(InterfaceText.collapsed))
@@ -238,7 +238,7 @@ struct TimelineBlock: View {
                   Label(link.label, systemImage: "checkmark.seal")
                     .font(Typography.caption)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressableCard)
                 .foregroundStyle(Color.accent)
                 .padding(.top, Tokens.Space.s1)
               }

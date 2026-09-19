@@ -155,7 +155,7 @@ struct ChallengesBlock: View {
                 .padding(Tokens.Space.s4)
                 .contentShape(Rectangle())
               }
-              .buttonStyle(.plain)
+              .buttonStyle(.pressableCard)
               .accessibilityAddTraits(.isButton)
               .accessibilityValue(opened.contains(challenge.id) ? text(InterfaceText.expanded) : text(InterfaceText.collapsed))
 

@@ -16,19 +16,23 @@ public enum Motion {
   /// A measured bounce, for what should catch the eye once.
   public static let pop = animation(Tokens.Ease.back, duration: Tokens.Duration.pop)
 
+  /// A finger's answer: a press, a selection, a card taking the touch.
+  ///
+  /// ## Why this one is not a token curve
+  ///
+  /// The four above are shared with the website's CSS, and that is the point:
+  /// a card unfolds with the same momentum in a browser and on the phone.
+  ///
+  /// This one answers a **finger**, and a finger is not a thing the web has.
+  /// `.snappy` is a spring, so it carries velocity: interrupt it mid-way — lift
+  /// off early, press again — and it resolves from where it actually is rather
+  /// than restarting. A timing curve cannot do that, and the difference is felt
+  /// rather than seen, which is exactly what separates a native control from a
+  /// web one.
+  public static let interactive = Animation.snappy(duration: Tokens.Duration.toggle)
+
   public static func animation(_ curve: Tokens.Curve, duration: Double) -> Animation {
     .timingCurve(curve.x1, curve.y1, curve.x2, curve.y2, duration: duration)
-  }
-}
-
-public extension View {
-  /// Animates, **unless** the person asked for less motion.
-  ///
-  /// `prefers-reduced-motion` is not a dial, it is a switch: halving an
-  /// animation that causes nausea still causes nausea. The state change stays
-  /// instantaneous, and nothing disappears.
-  func motion(_ animation: Animation, value: some Equatable, reduced: Bool) -> some View {
-    self.animation(reduced ? nil : animation, value: value)
   }
 }
 

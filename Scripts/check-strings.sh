@@ -222,6 +222,24 @@ while read -r found; do
 done <<< "$(grep -rn 'case \.french\|case \.english\|== \.french\|== \.english' \
              Packages/*/Sources --include="*.swift" 2>/dev/null || true)"
 
+
+# -- A build must not edit a committed catalogue -----------------------------
+#
+# With `SWIFT_EMIT_LOC_STRINGS` on (Xcode's default), every compile scans the
+# source for string literals and writes them into each `.xcstrings` it can find,
+# in state `new`. One build produced `%lld`, `%@ - %@` and an empty key across
+# ten catalogues -- entries nothing reads, which this very script then refuses,
+# from a step nobody ran on purpose.
+#
+# It is noise by construction here: nothing resolves a key through SwiftUI's
+# automatic lookup. It goes through `TextCatalogue`, in the language the content
+# was served in, which the extractor knows nothing about.
+if ! grep -q "SWIFT_EMIT_LOC_STRINGS: NO" project.yml; then
+  echo "X project.yml no longer turns off SWIFT_EMIT_LOC_STRINGS" >&2
+  echo "  a build will start writing extracted literals into the catalogues" >&2
+  status=1
+fi
+
 if [ "$status" -ne 0 ]; then
   echo "" >&2
   echo "Text lives in a catalogue. A view names a key." >&2

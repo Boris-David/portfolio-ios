@@ -19,10 +19,6 @@ public struct FullScreenResolver: Sendable {
   }
 }
 
-public extension EnvironmentValues {
-  @Entry var fullScreenResolver = FullScreenResolver { _ in AnyView(EmptyView()) }
-}
-
 /// Opens the résumé, from wherever the reader is.
 ///
 /// ## Why an action rather than a route

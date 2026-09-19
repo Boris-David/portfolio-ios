@@ -118,6 +118,6 @@ public struct DeepDiveScreen: View {
         }
       }
     }
-    .buttonStyle(.plain)
+    .buttonStyle(.pressableCard)
   }
 }

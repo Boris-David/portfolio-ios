@@ -47,7 +47,14 @@ public enum Typography {
   public static let code = Font.system(.callout, design: .monospaced)
   /// A figure brought forward. `.rounded` because a large number in a serif
   /// turns decorative, and this one is meant to be read.
-  public static let metric = Font.system(size: Tokens.TypeScale.large, weight: .semibold, design: .rounded)
+  ///
+  /// ⚠️ Built from a **text style**, not from `Tokens.TypeScale.large`. It was
+  /// the fixed size for a while, and it was the one style in this file that did
+  /// not answer Dynamic Type: a reader at the accessibility sizes got a headline
+  /// figure smaller than the caption under it. The token still describes the
+  /// scale — `.largeTitle` lands on 34 pt at the default size — but the system
+  /// now owns the growth.
+  public static let metric = Font.system(.largeTitle, design: .rounded).weight(.semibold)
 }
 
 public extension View {
