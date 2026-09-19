@@ -2,7 +2,7 @@
 
 > Ce fichier se charge à **chaque** session ouverte dans ce dépôt. Il ne contient
 > que ce qui régit le dépôt **entier**. Ce qui ne concerne qu'une sous-surface —
-> architecture, design system, coulisses, CI — vit dans `.claude/rules/` avec un
+> architecture, design system, annotations, CI — vit dans `.claude/rules/` avec un
 > `paths:`, et ne se charge que quand on touche aux fichiers concernés.
 >
 > Le workspace `portfolio` ajoute par-dessus ses règles racines (posture,
@@ -148,21 +148,31 @@ xcodegen generate
 ./Scripts/check-naming.sh      # le nom dit le rôle
 ./Scripts/check-suites.sh      # aucune suite ne s'est évaporée
 ./Scripts/check-strings.sh     # chaque clé a sa traduction, chaque traduction sa clé
-./Scripts/screens.sh           # 21 captures : 2 thèmes, la plus grande taille
-                               # d'accessibilité, et les écrans poussés
+./Scripts/screens.sh           # 36 captures : 2 thèmes, la plus grande taille
+                               # d'accessibilité, les écrans poussés, les modaux
+./Scripts/screens.sh --only work --sizes light   # itérer sur un seul écran
 ```
 
 **Et on regarde l'écran.** Une application qui compile n'est pas une application
-qui marche : trois défauts de cette base — le mode de compatibilité sans
-`UILaunchScreen`, l'annotation qui effaçait ses voisines, le bouton principal
-illisible sur iOS 18 — ne se voyaient qu'en capture d'écran.
+qui marche : une quinzaine de défauts de cette base ne se voyaient qu'en capture
+— le mode de compatibilité sans `UILaunchScreen`, l'annotation qui effaçait ses
+voisines, le bouton principal illisible sur iOS 18, un nombre coupé sur trois
+lignes, une ligne de 1 300 points sur iPad.
+
+⚠️ **Ne pas écrire sa propre boucle de capture** pour itérer plus vite.
+`simctl terminate` rend la main avant la fin du processus : `launch` remet au
+premier plan l'instance vivante, ignore les drapeaux, et la capture montre
+l'écran précédent sans que rien ne le dise. `--only` et `--sizes` existent pour
+ça.
 
 ```bash
-xcrun simctl launch <appareil> dev.amissan.portfolio -decision
+xcrun simctl launch <appareil> dev.amissan.portfolio -decisions
 xcrun simctl launch <appareil> dev.amissan.portfolio -tab journey
-xcrun simctl launch <appareil> dev.amissan.portfolio -settings
-xcrun simctl launch <appareil> dev.amissan.portfolio -resume
-xcrun simctl launch <appareil> dev.amissan.portfolio -route architectures
+xcrun simctl launch <appareil> dev.amissan.portfolio -modal settings
+xcrun simctl launch <appareil> dev.amissan.portfolio -modal resume
+xcrun simctl launch <appareil> dev.amissan.portfolio -modal contact
+xcrun simctl launch <appareil> dev.amissan.portfolio -route engineering
+xcrun simctl launch <appareil> dev.amissan.portfolio -route caseStudy:kcalories
 xcrun simctl io <appareil> screenshot capture.png
 ```
 

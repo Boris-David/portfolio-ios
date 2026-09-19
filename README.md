@@ -37,6 +37,14 @@ réellement** l'application sur un runtime iOS 18.
 sont **générés** depuis le même `design/tokens.json` que le CSS. Pas « à peu près
 la même palette » : la même valeur hexadécimale.
 
+**Et une app qui se lit comme une app.** Le grand titre système à la place du
+bloc héros fait main, une `List` là où la donnée est en lignes, un rayon
+d'applications à l'App Store, la transition zoom entre une carte et son écran, et
+le geste que toutes les apps iOS tiennent — retoucher l'onglet actif dépile, puis
+remonte en haut. Le partage est écrit : **`List` quand la donnée est homogène et
+en lignes, composition libre quand le contenu est éditorial.** Détail et défauts
+mesurés : `docs/refonte.md` §24.
+
 ## Le graphe
 
 ```
@@ -76,7 +84,7 @@ Prérequis : Xcode 26 (SDK iOS 26), XcodeGen, Node 22, Python 3 avec Pillow.
 ## Vérifier
 
 ```bash
-./Scripts/test.sh              # 11 suites, 156 tests, sur simulateur
+./Scripts/test.sh              # 11 suites, sur simulateur
 ./Scripts/tokens.mjs --check   # le design descend bien des tokens
 ./Scripts/seed.sh --check      # la graine décrit encore ce que sert l'API
 ./Scripts/assets.py --check    # chaque actif attendu est présent
@@ -86,14 +94,23 @@ Prérequis : Xcode 26 (SDK iOS 26), XcodeGen, Node 22, Python 3 avec Pillow.
 ./Scripts/check-naming.sh      # le nom dit le rôle
 ./Scripts/check-suites.sh      # aucune suite ne s'est évaporée
 ./Scripts/check-strings.sh     # chaque clé a sa traduction, chaque traduction sa clé
-./Scripts/screens.sh           # 21 captures : 2 thèmes, la plus grande taille
-                               # d'accessibilité, et les écrans poussés
+./Scripts/screens.sh           # 36 captures : 2 thèmes, la plus grande taille
+                               # d'accessibilité, les écrans poussés et les
+                               # trois modaux
+./Scripts/screens.sh --only work --sizes light    # itérer sur un écran
+./Scripts/screens.sh --device "iPad Pro 13-inch (M4)"
 ```
 
-**Et on regarde l'écran.** Huit défauts de cette base ne se voyaient qu'en
-capture, dont un titre tronqué qu'aucune exécution précédente n'avait montré
-parce que la matrice capturait au mauvais calibre — et le disait quand même en
-vert.
+**Et on regarde l'écran.** Une quinzaine de défauts de cette base ne se voyaient
+qu'en capture : un titre tronqué, un nombre coupé en trois lignes, une ligne de
+1 300 points sur iPad, une bande de vide qu'iPhone cachait par hasard. Aucun n'a
+produit d'avertissement.
+
+⚠️ Et **ne pas écrire sa propre boucle de capture** pour aller plus vite.
+`simctl terminate` rend la main avant la fin du processus, donc `launch` remet au
+premier plan l'instance vivante et ignore les drapeaux : la capture montre
+l'écran précédent, le fichier est écrit, et rien ne le dit. C'est pour ça que
+`--only` et `--sizes` existent.
 
 ## Ce qui n'est écrit nulle part ici
 

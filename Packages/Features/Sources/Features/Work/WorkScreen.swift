@@ -56,7 +56,7 @@ public struct WorkScreen: View {
         ReadingLinkRow(
           route: .engineering,
           title: text(InterfaceText.engineeringTitle),
-          summary: text(InterfaceText.engineeringEyebrow)
+          summary: text(InterfaceText.engineeringIntro)
         )
       }
       .padding(.top, Tokens.Space.s5)

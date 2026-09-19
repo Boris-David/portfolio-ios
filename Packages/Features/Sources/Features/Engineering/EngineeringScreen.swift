@@ -45,15 +45,25 @@ public struct EngineeringScreen: View {
       .padding(.top, Tokens.Space.s4)
     }
     .background(Color.paper)
-    .navigationTitle(text(InterfaceText.engineeringTitle))
+    // ⚠️ The **short** form in the bar, and the long one in the content.
+    //
+    // It was the long one, and it came out truncated mid-word in the one place
+    // the title appeared at all, because the content had given up its copy. An
+    // inline navigation title takes about thirty characters; anything longer
+    // stays in the content, which can wrap.
+    .navigationTitle(text(InterfaceText.engineeringEyebrow))
     .navigationBarTitleDisplayMode(.inline)
   }
 
   private var intro: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
-      // No title here: the navigation bar already carries it, and repeating it
-      // costs the first screenful for a word the reader has just read.
-      Text(text(InterfaceText.engineeringEyebrow)).eyebrowStyle()
+      // No eyebrow: the navigation bar carries the short form, which is
+      // exactly what an eyebrow is, and printing it twice thirty points apart
+      // says nothing the second time.
+      Text(text(InterfaceText.engineeringTitle))
+        .font(Typography.title)
+        .foregroundStyle(Color.ink)
+        .fixedSize(horizontal: false, vertical: true)
       Text(text(InterfaceText.engineeringIntro))
         .font(Typography.body)
         .foregroundStyle(Color.ink2)

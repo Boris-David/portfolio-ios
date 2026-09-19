@@ -1014,3 +1014,133 @@ d'un **ADR**, donc une `DesignDecision`.
 été renommé en `overline` et la suite l'a refusé : c'est un champ servi par
 l'API. Rendu tel quel — la décision, si elle se prend, se prend sur les trois
 dépôts à la fois.
+
+## 24. La refonte UI/UX — l'app cesse d'être un gabarit web
+
+> Verdict de l'auteur, 2026-09-19 : *« l'app je la trouve nulle à chier ! j'ai
+> des dark screens sans contenu ! l'app est vraiment une app web dégueu ! ce truc
+> fait tout sauf me mettre en valeur. »*
+
+L'audit lui a donné raison, et l'a chiffré. Neuf écrans sur dix étaient **le même
+objet** : `ScrollView` → `VStack(spacing: 48)` → [surtitre, titre serif 34 pt,
+chapô] puis N cartes identiques.
+
+| Idiome mesuré dans `Packages/Features/Sources` | Avant | Après |
+|---|---|---|
+| `List` | **0** | 1 — l'écran dont la donnée est en lignes |
+| `.eyebrowStyle()` | 21 | 12 |
+| gouttière `.padding(.horizontal, s5)` recollée à la main | 21 | **1** |
+| `matchedTransitionSource` | **0** | 1, et la transition zoom marche |
+| captures d'application près de l'accueil | **0** | 2 écrans |
+
+### Le partage qui rend l'app native sans rendre tout identique
+
+**`List` quand la donnée est homogène et en lignes** — le parcours, un
+formulaire de réglages. **Composition libre quand le contenu est éditorial** —
+une étude de cas, un essai, le profil.
+
+C'est le changement le plus lourd et le plus payant : le parcours était un
+`ScrollView` de `VStack` de cartes, c'est-à-dire `<div class="card">` traduit en
+Swift. Une `List` donne gratuitement les séparateurs système et leurs encarts,
+les en-têtes de section, des métriques de ligne qui tiennent aux tailles
+d'accessibilité, et le recyclage.
+
+### Ce qui était servi et que **rien ne dessinait**
+
+C'est la catégorie de défaut la plus coûteuse de cette base, parce qu'elle ne
+produit ni erreur ni avertissement — juste une absence :
+
+| Contenu | Où il était |
+|---|---|
+| `profile.remote` — « télétravail complet et fréquent » | décodé, modélisé, transporté sur trois couches, **affiché nulle part** |
+| `profile.showcase` — la capture de KCalories | image dans le bundle, modèle décodé, **rendu par personne** |
+| `AppCatalogue.items` rôles `end-to-end` et `features` | `items` n'était atteint que par `.ticketing` |
+| `kcalories.png` | actif mort du catalogue |
+| les trois annotations de l'écran Réglages | émises, **rien ne les dessinait** — une feuille est son propre arbre de vues |
+| la langue du document CV | `ResumeStore` la connaissait ; l'UI ne la disait jamais |
+
+### Les invariants structurels posés au passage
+
+- **une seule ancre de présentation.** `Sheet` et `FullScreenCover` fusionnent en
+  `Modal`, et le style devient une propriété du modal. Deux enums, c'était deux
+  résolveurs, deux actions d'environnement et **deux ancres** — dont une qui ne
+  réappliquait pas l'environnement de scène. Le crash *No Observable object of
+  type SettingsStore found* avait déjà été payé une fois ; il dormait sur le
+  chemin contact ;
+- **la gouttière appartient à la page.** `SectionScrollView` la pose une fois,
+  avec la colonne de lecture et l'encart du bas ;
+- **le namespace du zoom appartient à la pile.** Il était déclaré dans un écran
+  (qui n'atteignait que la source) et dans la scène (qui n'atteignait que la
+  destination). Un zoom à une moitié n'est pas une erreur : il redevient un
+  slide, en silence ;
+- **retoucher l'onglet actif** dépile, puis remonte en haut. `TabView` ne
+  rapporte pas ce geste — seule l'écriture qui ne change rien le trahit, et
+  seule la scène la voit ;
+- **`-modal <nom>`** remplace `-settings` et `-resume`. Un drapeau par cas est
+  une liste qui a toujours un cas de retard : la feuille contact était le seul
+  écran que la matrice ne pouvait pas atteindre.
+
+### Les quatre onglets
+
+`Profil · Travail · Parcours · **Produit**`. « Ingénierie » n'était pas une
+destination : personne ne revient sur une liste de décisions d'architecture. Elle
+est poussée depuis Travail, à un toucher de ce qui pose la question, et la place
+va à la seule chose que l'app ne montrait pas — une application qu'on peut
+installer.
+
+### Ce qui ne se voyait qu'en capture
+
+Aucun de ces défauts n'a produit d'avertissement :
+
+| Défaut | Vu où |
+|---|---|
+| `> 99,8` coupé sur **trois lignes** — « > », « 99, », « 8 » | iPhone, thème clair |
+| deux grands titres en New York 34 pt, quarante points d'écart | iPhone, l'œil prend le second pour un sous-titre |
+| un `Spacer` clouant un lien au bas d'une carte, ouvrant une bande de vide | **iPad seulement** — sur iPhone le texte remplissait la colonne par hasard |
+| une ligne de texte de **1 300 pt** dans une `List` | iPad Pro 13" |
+| un titre de barre tronqué mid-mot, seul endroit où il apparaissait | iPhone |
+| un chevron de `DisclosureGroup` centré au milieu de quatre puces | iPhone |
+| une colonne de titre de **trois mots de large** à côté d'une icône de 76 pt | AX5 |
+
+### Deux hypothèses mesurées puis abandonnées
+
+Elles comptent autant que ce qui est resté, parce que les deux paraissaient
+justes :
+
+1. **Un grand titre sur l'écran de détail d'étude de cas.** Il dit le titre une
+   fois au lieu de deux — et il le **tronque à une ligne**, parce qu'un grand
+   titre UIKit ne passe pas à la ligne. Le titre complet n'apparaissait alors
+   nulle part.
+2. **Un observateur de `UIContentSizeCategory`** pour réinstaller la police du
+   grand titre. Mesuré sans lui : **129 pt, exactement pareil**. UIKit re-résout
+   déjà l'attribut au changement de trait. C'était de la cérémonie qui
+   ressemblait à de la rigueur.
+
+### Ce que les gardes ont gagné
+
+- `check-strings.sh` refuse une **clé déclarée, traduite et rendue par personne**.
+  L'ancienne version appariait les constantes et le catalogue, donc les deux
+  restaient parfaitement cohérents pendant qu'un mot mort était traduit et relu.
+  Six clés mortes trouvées dès l'ajout. ⚠️ La première version comptait des
+  *fichiers* et se laissait avoir par un commentaire de doc — elle compte des
+  **usages**, hors commentaires, et c'est mutation testé dans les deux sens ;
+- `check-naming.sh` accueille `Section` et `Behaviour`, chacun avec son argument
+  écrit — la barre que le garde se fixe à lui-même ;
+- `screens.sh` gagne `--only` et `--sizes`, la feuille contact, l'écran
+  d'ingénierie et l'étude de cas. Les deux options existent parce que j'ai écrit
+  ma propre boucle de capture pour itérer plus vite et qu'elle a **photographié
+  deux fois l'écran précédent** : `simctl terminate` rend la main avant la fin du
+  processus. Le script le sait ; un raccourci qui le contourne, non.
+
+### Le seul changement de contenu
+
+`contact.body` disait « développeur iOS — **confirmé**, senior ou lead ». Sur un
+CV qui vise 65–70 k€, c'est la première étiquette retenue, et elle contredit
+« Ingénieur iOS senior » affiché deux touchers plus loin. Corrigé dans l'API,
+donc sur le site aussi.
+
+Le plan en prévoyait un second — réécrire les résumés de chapitres pour qu'ils
+annoncent le résultat. L'audit dit que ce n'était pas nécessaire : les
+sous-titres l'annonçaient déjà, rendus en 13 pt `ink3`, le traitement d'une note
+de bas de page. Ce n'était pas le contenu, c'était la hiérarchie — et le contrat
+partagé avec le site n'a pas bougé.

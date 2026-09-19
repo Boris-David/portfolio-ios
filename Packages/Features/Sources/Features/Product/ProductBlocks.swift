@@ -14,38 +14,26 @@ struct ProductHeaderBlock: View {
   let metric: Metric?
 
   @Environment(\.openURL) private var openURL
+  @Environment(\.dynamicTypeSize) private var typeSize
   @Localized(.interface) private var text
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s5) {
-      HStack(alignment: .top, spacing: Tokens.Space.s4) {
-        ContentImage(product.slug, kind: .appIcon)
-          .frame(width: Tokens.Layout.productIconSide, height: Tokens.Layout.productIconSide)
-          .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.lg, style: .continuous))
-          .overlay(
-            RoundedRectangle(cornerRadius: Tokens.Radius.lg, style: .continuous)
-              .strokeBorder(Color.line, lineWidth: Tokens.Stroke.hairline)
-          )
-          .accessibilityHidden(true)
-
-        VStack(alignment: .leading, spacing: Tokens.Space.s1) {
-          // The study's title and not the app's name: the name is on the icon
-          // beside it, and the title is the pitch — it names the product and
-          // then says what it took. That sentence was rendered nowhere except
-          // as the heading of a card two tabs away.
-          Text(study?.title ?? product.name)
-            .font(Typography.title)
-            .foregroundStyle(Color.ink)
-            .fixedSize(horizontal: false, vertical: true)
-          if let study {
-            Text(study.subtitle)
-              .font(Typography.secondary)
-              .foregroundStyle(Color.ink2)
-              .fixedSize(horizontal: false, vertical: true)
-          }
-        }
+      // ⚠️ The icon keeps its size and the layout stacks, rather than the icon
+      // scaling with the text.
+      //
+      // An app icon is a fixed object — it is the same square the reader has on
+      // their home screen — so growing it with the type scale would be growing
+      // a picture because a sentence got longer. What has to give is the
+      // arrangement: beside a 76 pt icon at AX5, the title had a column three
+      // words wide and ran to five lines.
+      if typeSize.isAccessibilitySize {
+        VStack(alignment: .leading, spacing: Tokens.Space.s4) { identity }
+          .accessibilityElement(children: .combine)
+      } else {
+        HStack(alignment: .top, spacing: Tokens.Space.s4) { identity }
+          .accessibilityElement(children: .combine)
       }
-      .accessibilityElement(children: .combine)
 
       if let study, let intro = study.intro {
         Text(intro.plain)
@@ -76,6 +64,37 @@ struct ProductHeaderBlock: View {
             countTo: metric.countTo
           )
         }
+      }
+    }
+  }
+
+  /// The icon and the words that name the product — written once, so the two
+  /// arrangements above cannot drift apart.
+  @ViewBuilder
+  private var identity: some View {
+    ContentImage(product.slug, kind: .appIcon)
+      .frame(width: Tokens.Layout.productIconSide, height: Tokens.Layout.productIconSide)
+      .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.lg, style: .continuous))
+      .overlay(
+        RoundedRectangle(cornerRadius: Tokens.Radius.lg, style: .continuous)
+          .strokeBorder(Color.line, lineWidth: Tokens.Stroke.hairline)
+      )
+      .accessibilityHidden(true)
+
+    VStack(alignment: .leading, spacing: Tokens.Space.s1) {
+      // The study's title and not the app's name: the name is on the icon
+      // beside it, and the title is the pitch — it names the product and then
+      // says what it took. That sentence was rendered nowhere except as the
+      // heading of a card two tabs away.
+      Text(study?.title ?? product.name)
+        .font(Typography.title)
+        .foregroundStyle(Color.ink)
+        .fixedSize(horizontal: false, vertical: true)
+      if let study {
+        Text(study.subtitle)
+          .font(Typography.secondary)
+          .foregroundStyle(Color.ink2)
+          .fixedSize(horizontal: false, vertical: true)
       }
     }
   }
