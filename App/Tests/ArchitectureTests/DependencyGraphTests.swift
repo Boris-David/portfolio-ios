@@ -244,3 +244,52 @@ struct DependencyGraphTests {
     }
   }
 }
+
+/// The scene serves **one** language.
+///
+/// ## Why this is checked by reading the source
+///
+/// Because the defect was not in a type — every type behaved — it was in the
+/// composition root forgetting one of two calls. A reader whose device is
+/// English and whose stored choice is French got a French app and an English
+/// CV, and nothing anywhere disagreed: both stores were doing exactly what they
+/// were told.
+///
+/// The fix was to leave one function that sets the language, so that forgetting
+/// a store means forgetting it in the place where the other one is. This is
+/// what keeps it that way — and it is a grep, which it says out loud, for the
+/// same reason `check-layers.sh` says it.
+struct SceneLanguageTests {
+  private static let root: String = {
+    let file = URL(fileURLWithPath: #filePath)
+    let ios = file.deletingLastPathComponent().deletingLastPathComponent()
+      .deletingLastPathComponent().deletingLastPathComponent()
+    return (try? String(contentsOf: ios.appending(path: "App/Sources/AppRoot.swift"), encoding: .utf8)) ?? ""
+  }()
+
+  /// The read itself has to be real. An empty string would make every
+  /// assertion below vacuously true — which has happened once already in this
+  /// suite, on `project.yml`.
+  @Test("the scene's source is actually read")
+  func sourceIsRead() {
+    #expect(Self.root.contains("struct AppRoot"))
+  }
+
+  @Test("each store is told the language in exactly one place")
+  func oneCallSiteEach() {
+    #expect(Self.root.components(separatedBy: "store.setLanguage(").count - 1 == 1)
+    #expect(Self.root.components(separatedBy: "resume.setLanguage(").count - 1 == 1)
+  }
+
+  /// And that place is the same one, so the two cannot drift apart again.
+  @Test("and that place is the same function")
+  func sameFunction() {
+    guard let body = Self.root.range(of: "private func serve(_ language: Language) async {") else {
+      Issue.record("`serve(_:)` is gone — the two calls have nowhere to be together")
+      return
+    }
+    let after = String(Self.root[body.upperBound...].prefix(400))
+    #expect(after.contains("store.setLanguage("))
+    #expect(after.contains("resume.setLanguage("))
+  }
+}

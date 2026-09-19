@@ -169,7 +169,7 @@ public struct AppRoot: View {
         // every launch paying for it.
         store.load()
         await settings.load()
-        store.setLanguage(settings.resolvedLanguage)
+        await serve(settings.resolvedLanguage)
         // Configured once, at launch, before any tip can be evaluated.
         DecisionsTipState.configure()
         // The launch flag wins over the stored preference **for this launch
@@ -292,8 +292,31 @@ public struct AppRoot: View {
   private func followLanguageChanges() async {
     for await event in await environment.events.events {
       guard case .languageChanged(let language) = event else { continue }
-      store.setLanguage(language)
-      await resume.setLanguage(language)
+      await serve(language)
     }
+  }
+
+  /// Puts one language in front of the reader — in **every** store that has
+  /// one.
+  ///
+  /// ## The bug this exists to make unwriteable
+  ///
+  /// There were two call sites and they had drifted. The one that runs at
+  /// launch set the language on the portfolio and not on the résumé, so a
+  /// reader whose device is English and whose stored choice is French got a
+  /// French app and an **English CV** — the one document the app exists to
+  /// deliver, in the wrong language, with nothing on screen to explain it.
+  ///
+  /// Both stores are built in `init` with whatever the device resolves to,
+  /// because the stored preference has not been read yet. Correcting one of
+  /// them afterwards and not the other is a line anybody can forget, and
+  /// somebody did.
+  ///
+  /// One function, called from the two places a language can change: the first
+  /// read of the preferences, and the event the settings screen publishes.
+  /// Adding a third store means adding it here, where the other two are.
+  private func serve(_ language: Language) async {
+    store.setLanguage(language)
+    await resume.setLanguage(language)
   }
 }
