@@ -75,7 +75,15 @@ check "Packages/Networking/Sources/Networking"    "Request|Response|Client|Error
 # `Label` joined on 2026-09-18 for `SectionLabel`, and the reasoning is the bar
 # for joining: it names a kind of view exactly as `Card` and `Banner` do — a
 # word and a glyph, together — and `SectionLabelView` would say "view" twice.
-VIEW_ROLES="Screen|View|Block|Card|Cell|Row|Sheet|Overlay|Banner|Shell|Style|Group|Image|Label"
+# `Section` joined on 2026-09-19, with the app's first `List`. It names a kind of
+# view exactly as `Row` and `Cell` do — the group they sit in, with its header —
+# and it only became sayable once a list existed to put one in.
+# `Behaviour` joined the same day, for a `ViewModifier` that changes what a view
+# **does** rather than how it looks: `.returningToTop()` adds a response to a
+# gesture and draws nothing. The alternative was `ReturnToTopModifier`, which
+# names the Swift kind — the one thing this whole convention exists to refuse —
+# on a type that already conforms to `ViewModifier`.
+VIEW_ROLES="Screen|View|Block|Card|Cell|Row|Sheet|Section|Overlay|Banner|Shell|Style|Group|Image|Label|Behaviour"
 for name in $(grep -rhoE "^(public |package |private )?struct [A-Za-z0-9_]+(<[^>]*>)?: (View|ViewModifier)" \
                 Packages/Features/Sources --include="*.swift" \
                 | sed -E 's/.*struct ([A-Za-z0-9_]+).*/\1/' | sort -u); do

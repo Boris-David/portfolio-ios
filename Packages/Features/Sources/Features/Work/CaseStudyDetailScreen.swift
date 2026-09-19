@@ -61,10 +61,9 @@ public struct CaseStudyDetailScreen: View {
     // like a duplication and it was tried the other way round.
     //
     // `.large` with the content title removed said it once — and **truncated
-    // it to one line**: *"La billettique mobile…"*. A UIKit large title does
-    // not wrap, so a title of any length simply stops, and the full one then
-    // appeared nowhere in the app. Measured on screen; nothing in the build
-    // says a word about it.
+    // it to one line**, stopping the longest study's title after four words. A
+    // UIKit large title does not wrap, so the full one then appeared nowhere in
+    // the app. Measured on screen; nothing in the build says a word about it.
     //
     // So the bar carries the short form for the back button and VoiceOver, the
     // content carries the whole thing, and that is what every Apple app with a
@@ -137,13 +136,13 @@ struct ChapterDisclosureView: View {
             .foregroundStyle(Color.ink)
             .multilineTextAlignment(.leading)
             .fixedSize(horizontal: false, vertical: true)
-          // ⚠️ The subtitle is where the **result** is written — *"un code
-          // hérité que personne ne voulait toucher, refondu avec des
-          // acteurs"*, *"une initiative devenue une fonctionnalité vendue"* —
-          // and it was set 13 pt in `ink3`, the treatment for a footnote.
+          // ⚠️ The subtitle is where the **result** is written — "legacy code
+          // nobody wanted to touch, rebuilt on actors", "an innovation-sprint
+          // initiative that became a feature clients pay for" — and it was set
+          // 13 pt in `ink3`, the treatment for a footnote.
           //
-          // So five rows read as a list of bugs: "the authentication that
-          // logged people out", "the QR code fraud". The content was never the
+          // So five rows read as a list of bugs: the authentication that
+          // logged people out, the QR code fraud. The content was never the
           // problem; the hierarchy was. Raised, the same five rows are five
           // results, and a reader who opens none of them has still had them.
           if let subtitle = chapter.subtitle {

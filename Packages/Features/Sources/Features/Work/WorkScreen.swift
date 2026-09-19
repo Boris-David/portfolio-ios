@@ -139,11 +139,12 @@ struct AppsBlock: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
-      // The eyebrow, not the full header. The title — *"33 applications, 3
-      // territoires, un même socle"* — opens the profile tab, and the
-      // editorial rule on that figure is explicit: it carries once, where it
-      // installs the scale. Said twice it becomes a tic, and takes the place
-      // of a fact that has not been said yet. Thirty-three cells say it here.
+      // The eyebrow, not the full header. The section's title — the one that
+      // spells out the count of apps and territories — opens the profile tab,
+      // and the editorial rule on that figure is explicit: it carries once,
+      // where it installs the scale. Said twice it becomes a tic, and takes
+      // the place of a fact that has not been said yet. Thirty-three cells say
+      // it here.
       if let section {
         Text(section.eyebrow).eyebrowStyle()
       }
