@@ -28,6 +28,11 @@ extension ModalResolver {
         AnyView(SettingsScreen())
       case .resume:
         AnyView(ResumeScreen())
+      case .reading(let route):
+        // The same screen the stack would have pushed, resolved by the same
+        // resolver — in a stack of its own so it keeps a title, and with one
+        // way out instead of a trail of back buttons.
+        AnyView(PresentedReadingScreen(route: route))
       }
     }
   }

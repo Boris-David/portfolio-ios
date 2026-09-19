@@ -21,6 +21,13 @@ import Observation
 @Observable
 @MainActor
 public final class Router {
+  /// How deep a section's stack goes before a reading is presented instead.
+  ///
+  /// Two, and the number is the reader's patience rather than a technical
+  /// limit: a detour and a detour from the detour can both be walked back
+  /// without losing where you started. The third cannot.
+  public static let readableDepth = 2
+
   public var path: [Route] = []
 
   public init() {}

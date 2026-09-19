@@ -70,12 +70,12 @@ public struct WorkScreen: View {
 struct CaseStudyCard: View {
   let study: CaseStudy
 
-  @Environment(Router.self) private var router
+  @Environment(\.openRoute) private var openRoute
   @Localized(.interface) private var text
 
   var body: some View {
     Button {
-      router.push(.caseStudy(slug: study.slug))
+      openRoute(.caseStudy(slug: study.slug))
     } label: {
       Surface {
         VStack(alignment: .leading, spacing: Tokens.Space.s3) {

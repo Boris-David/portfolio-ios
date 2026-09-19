@@ -7,14 +7,20 @@ import ViewKit
 /// The way into a long reading — the engineering record, the pattern
 /// comparison.
 ///
-/// `NavigationLink(value:)` and not `NavigationLink(destination:)`: this row
-/// declares **where it goes**, and the tab's root decides what that means. The
-/// screen it opens lives in a sibling module this one cannot import — and that
-/// is the point, not an obstacle worked around.
+/// It declares **where it goes**, and the section's shell decides what that
+/// means — a push, or a presentation when the stack is already deep. The screen
+/// it opens lives in a sibling module this one cannot import, and that is the
+/// point rather than an obstacle worked around.
+///
+/// ⚠️ A `Button` and not a `NavigationLink(value:)`. A link appends to the path
+/// and that is the whole of its behaviour: it cannot be told "push unless it
+/// would be the third". See `OpenRouteAction`.
 ///
 /// It takes its words rather than resolving them, because two features use it
 /// now and each names its own destination.
 package struct ReadingLinkRow: View {
+  @Environment(\.openRoute) private var openRoute
+
   private let route: Route
   private let title: String
   private let summary: String
@@ -26,7 +32,7 @@ package struct ReadingLinkRow: View {
   }
 
   package var body: some View {
-    NavigationLink(value: route) {
+    Button { openRoute(route) } label: {
       Surface {
         HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s3) {
           VStack(alignment: .leading, spacing: Tokens.Space.s1) {

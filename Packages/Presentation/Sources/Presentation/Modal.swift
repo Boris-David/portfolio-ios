@@ -22,15 +22,45 @@
 /// The invariant also became testable without a renderer, which "it does not
 /// compile" never was: `#expect(Modal.resume.style == .fullScreen)` says *why*
 /// the résumé is full-screen, where two types only said *that* it was.
-public enum Modal: String, CaseIterable, Identifiable, Hashable, Sendable {
+public enum Modal: Identifiable, Hashable, Sendable {
   /// One address and a short list of links.
   case contact
   /// Appearance, language, annotations.
   case settings
   /// The document itself.
   case resume
+  /// A reading that would otherwise have been a third push.
+  ///
+  /// ## Why depth turns into a presentation
+  ///
+  /// A portfolio is browsed, not descended into. Two pushes is a detour you
+  /// can still see your way out of; the third is a corridor — the author's
+  /// word for it was *labyrinthe*, reached by opening a deep dive and then the
+  /// case study it cites, and needing two back taps to find the screen he
+  /// started on.
+  ///
+  /// Presented, the same reading has one way out and says so. Nothing is lost:
+  /// it is the same screen, resolved by the same resolver.
+  case reading(Route)
 
-  public var id: String { rawValue }
+  /// The three that a launch flag can name, and the whole of what `-modal`
+  /// accepts. A reading carries a route, so it is reached by opening one.
+  public static let allCases: [Modal] = [.contact, .settings, .resume]
+
+  public var id: String {
+    switch self {
+    case .contact: "contact"
+    case .settings: "settings"
+    case .resume: "resume"
+    case .reading(let route): "reading:\(route)"
+    }
+  }
+
+  /// The name a launch flag uses, when there is one.
+  public init?(rawValue: String) {
+    guard let match = Self.allCases.first(where: { $0.id == rawValue }) else { return nil }
+    self = match
+  }
 
   /// How the scene presents it — a property of **what it is**, never of who
   /// asked for it.
@@ -42,7 +72,7 @@ public enum Modal: String, CaseIterable, Identifiable, Hashable, Sendable {
   /// should be a decision rather than a stray downward swipe.
   public var style: Style {
     switch self {
-    case .contact, .settings: .sheet
+    case .contact, .settings, .reading: .sheet
     case .resume: .fullScreen
     }
   }

@@ -52,7 +52,7 @@ public struct ContactScreen: View {
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .confirmationAction) {
-          Button(text(InterfaceText.close)) { dismiss() }
+          Button { dismiss() } label: { CloseLabel() }
         }
       }
     }

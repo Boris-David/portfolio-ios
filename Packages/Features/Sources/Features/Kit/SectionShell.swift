@@ -101,10 +101,6 @@ package struct SectionShell<Content: View>: View {
         // the title is a landmark, not an opening. And one root is `.inline`
         // too — see `Opening.content`.
         .navigationBarTitleDisplayMode(opening == .sectionTitle ? .large : .inline)
-        // A root always wants the bar. Said out loud, because the only screens
-        // that used to say anything were the ones that hid it — and coming back
-        // from those, the bar sometimes never returned. See `tabBar(_:)`.
-        .tabBar(.visible)
         .toolbar { toolbar }
         .navigationDestination(for: Route.self) { route in
           // The tab bar is **hidden** in depth, and the four roots keep it.
@@ -128,10 +124,21 @@ package struct SectionShell<Content: View>: View {
           // so it goes too. One back tap away, and the toolbar still carries it
           // on iOS 18 where there is no accessory.
           routes(route)
-            .tabBar(.hidden)
         }
     }
+    // ⚠️ The tab bar is a function of **depth**, declared once, on the stack.
+    //
+    // It was two declarations — hidden on the destination, visible on the root
+    // — and they fought: the root's won, so nothing was ever hidden. Before
+    // that it was one, on the destination only, and the bar could stay gone
+    // after a pop because nobody ever said to bring it back.
+    //
+    // One expression, evaluated from the one thing that actually decides it,
+    // cannot disagree with itself and has nothing to restore. At the root the
+    // reader gets the four sections; in a reading they get the reading.
+    .tabBar(router.path.isEmpty ? .visible : .hidden)
     .environment(router)
+    .environment(\.openRoute, openRoute)
     .environment(\.zoomNamespace, zoom)
     .environment(\.scrollToTopRequests, scrollToTopRequests)
     // Tapping the active tab: the one navigation gesture every iOS app answers
@@ -145,6 +152,18 @@ package struct SectionShell<Content: View>: View {
     .task {
       guard let initialRoute, router.path.isEmpty else { return }
       router.push(initialRoute)
+    }
+  }
+
+  /// Push, until the stack is deep enough that pushing again would make a
+  /// corridor — then present. See `OpenRouteAction`.
+  private var openRoute: OpenRouteAction {
+    OpenRouteAction { route in
+      if router.path.count < Router.readableDepth {
+        router.push(route)
+      } else {
+        present(.reading(route))
+      }
     }
   }
 

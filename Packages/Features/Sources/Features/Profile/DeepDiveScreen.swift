@@ -23,6 +23,7 @@ public struct DeepDiveScreen: View {
   private let topic: ExpertiseTopic
   private let dive: DeepDive?
 
+  @Environment(\.openRoute) private var openRoute
   @Localized(.interface) private var text
 
   public init(topic: ExpertiseTopic, dive: DeepDive?) {
@@ -100,7 +101,7 @@ public struct DeepDiveScreen: View {
   /// A link and not a copy: the case study already carries that chapter once,
   /// and a second version of it here would be a second version to keep true.
   private func evidence(_ evidence: DeepDive.Evidence) -> some View {
-    NavigationLink(value: Route.caseStudy(slug: evidence.caseStudy)) {
+    Button { openRoute(.caseStudy(slug: evidence.caseStudy)) } label: {
       Surface {
         HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s3) {
           Image(.work)

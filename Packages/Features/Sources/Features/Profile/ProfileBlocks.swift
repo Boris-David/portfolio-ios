@@ -33,6 +33,7 @@ import ViewKit
 /// fact the app did not say.
 struct IdentityBlock: View {
   let profile: Profile
+  @Environment(\.openRoute) private var openRoute
   @Localized(.interface) private var text
 
   var body: some View {
@@ -91,7 +92,7 @@ struct IdentityBlock: View {
   }
 
   private var aboutLink: some View {
-    NavigationLink(value: Route.about) {
+    Button { openRoute(.about) } label: {
       HStack(spacing: Tokens.Space.s2) {
         Text(text(InterfaceText.aboutLink))
         Image(systemName: "arrow.right")
@@ -167,11 +168,12 @@ struct MetricsBlock: View {
 /// and it was the one thing missing.
 struct ShowcaseBlock: View {
   let showcase: Profile.Showcase
+  @Environment(\.openRoute) private var openRoute
   @Localized(.interface) private var text
 
   var body: some View {
     if let slug = showcase.caseStudySlug {
-      NavigationLink(value: Route.caseStudy(slug: slug)) { card }
+      Button { openRoute(.caseStudy(slug: slug)) } label: { card }
         .buttonStyle(.pressableCard)
         .zoomSource(slug)
     } else {
@@ -233,7 +235,7 @@ struct ShowcaseBlock: View {
 struct ExpertiseBlock: View {
   let section: Portfolio.Section?
   let topics: [ExpertiseTopic]
-  @Environment(Router.self) private var router
+  @Environment(\.openRoute) private var openRoute
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
@@ -246,7 +248,7 @@ struct ExpertiseBlock: View {
       }
       ForEach(topics) { topic in
         Button {
-          router.push(.expertise(id: topic.id))
+          openRoute(.expertise(id: topic.id))
         } label: {
           Surface {
             VStack(alignment: .leading, spacing: Tokens.Space.s2) {

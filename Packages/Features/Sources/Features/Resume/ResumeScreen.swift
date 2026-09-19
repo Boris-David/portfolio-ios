@@ -61,7 +61,7 @@ public struct ResumeScreen: View {
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
-          Button(text(InterfaceText.close)) { dismiss() }
+          Button { dismiss() } label: { CloseLabel() }
         }
         ToolbarItem(placement: .primaryAction) {
           if case .loaded(let document) = store.phase {
