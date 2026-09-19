@@ -7,11 +7,19 @@ import Presentation
 import SwiftUI
 import ViewKit
 
-/// The decision of the app itself.
+/// The decisions of the app itself.
 ///
-/// A portfolio that shows screens shows a result. This tab shows the
+/// A portfolio that shows screens shows a result. This screen shows the
 /// **decisions** — and a decision is judged by what it ruled out as much as by
 /// what it kept.
+///
+/// ## Why it stopped being a tab
+///
+/// A tab is a destination somebody returns to. Nobody returns to a list of
+/// architecture decisions: they read it once, if at all, and they read it
+/// because a project made them curious. Pushed from the work tab, it is one tap
+/// from what raises the question — and the slot it gave up went to the one
+/// thing the app was not showing, a product you can install.
 public struct EngineeringScreen: View {
   @Environment(SettingsStore.self) private var settings
   @Localized(.interface) private var text
@@ -19,29 +27,37 @@ public struct EngineeringScreen: View {
   public init() {}
 
   public var body: some View {
-    SectionShell(.decision) {
-      SectionScrollView {
-        VStack(alignment: .leading, spacing: Tokens.Space.s7) {
-          intro
-          LayersBlock()
-          // Straight after the layers of *this* app: the same question, asked of
-          // the codebases behind the career.
-          ArchitectureLinkRow()
-          ChallengesBlock()
-          WalkthroughsBlock()
-          DependenciesBlock()
-        }
+    SectionScrollView {
+      VStack(alignment: .leading, spacing: Tokens.Space.s7) {
+        intro
+        LayersBlock()
+        // Straight after the layers of *this* app: the same question, asked of
+        // the codebases behind the career.
+        ReadingLinkRow(
+          route: .architectures,
+          title: text(InterfaceText.architecturePatterns),
+          summary: text(InterfaceText.architecturePatternsSummary)
+        )
+        ChallengesBlock()
+        WalkthroughsBlock()
+        DependenciesBlock()
       }
+      .padding(.top, Tokens.Space.s4)
     }
+    .background(Color.paper)
+    .navigationTitle(text(InterfaceText.engineeringTitle))
+    .navigationBarTitleDisplayMode(.inline)
   }
 
   private var intro: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
-      SectionHeader(
-        eyebrow: text(InterfaceText.engineeringEyebrow),
-        title: text(InterfaceText.engineeringTitle),
-        intro: text(InterfaceText.engineeringIntro)
-      )
+      // No title here: the navigation bar already carries it, and repeating it
+      // costs the first screenful for a word the reader has just read.
+      Text(text(InterfaceText.engineeringEyebrow)).eyebrowStyle()
+      Text(text(InterfaceText.engineeringIntro))
+        .font(Typography.body)
+        .foregroundStyle(Color.ink2)
+        .fixedSize(horizontal: false, vertical: true)
 
       Toggle(isOn: Binding(
         get: { settings.showsDecisions },
@@ -65,7 +81,6 @@ public struct EngineeringScreen: View {
       }
       .foregroundStyle(Color.ink3)
     }
-    .padding(.top, Tokens.Space.s4)
   }
 }
 

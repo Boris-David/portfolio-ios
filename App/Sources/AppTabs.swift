@@ -1,7 +1,7 @@
 import CoreUI
 import DesignSystem
-import FeatureEngineering
 import FeatureJourney
+import FeatureProduct
 import FeatureProfile
 import FeatureWork
 import Presentation
@@ -45,10 +45,10 @@ struct AppTabs: View {
         SectionLabel(.journey)
       }
 
-      Tab(value: AppSection.decision) {
-        EngineeringScreen()
+      Tab(value: AppSection.product) {
+        ProductScreen()
       } label: {
-        SectionLabel(.decision)
+        SectionLabel(.product)
       }
     }
     // The bar shrinks as you read down: the content is what you came for, the

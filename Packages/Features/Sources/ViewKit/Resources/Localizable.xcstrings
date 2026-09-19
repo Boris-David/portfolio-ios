@@ -1113,22 +1113,6 @@
         }
       }
     },
-    "interface.tabEngineering": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Decisions"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ingénierie"
-          }
-        }
-      }
-    },
     "interface.tabJourney": {
       "localizations": {
         "en": {
@@ -1141,6 +1125,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Parcours"
+          }
+        }
+      }
+    },
+    "interface.tabProduct": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Product"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Produit"
           }
         }
       }
@@ -1333,6 +1334,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vérifier le certificat"
+          }
+        }
+      }
+    },
+    "interface.viewOnAppStore": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View on the App Store"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voir sur l'App Store"
           }
         }
       }

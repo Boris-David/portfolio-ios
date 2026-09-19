@@ -1,5 +1,6 @@
 import CoreUI
 import FeatureArchitecture
+import FeatureEngineering
 import FeatureKit
 import FeatureProfile
 import FeatureWork
@@ -48,6 +49,9 @@ struct RouteScreen: View {
       } else {
         missing
       }
+
+    case .engineering:
+      EngineeringScreen()
 
     case .architectures:
       if let study = store.portfolio?.architectures {

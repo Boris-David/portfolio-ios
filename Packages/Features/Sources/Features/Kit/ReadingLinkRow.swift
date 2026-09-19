@@ -4,25 +4,37 @@ import Presentation
 import SwiftUI
 import ViewKit
 
-/// The way into the architecture comparison.
+/// The way into a long reading — the engineering record, the pattern
+/// comparison.
 ///
 /// `NavigationLink(value:)` and not `NavigationLink(destination:)`: this row
 /// declares **where it goes**, and the tab's root decides what that means. The
 /// screen it opens lives in a sibling module this one cannot import — and that
 /// is the point, not an obstacle worked around.
-struct ArchitectureLinkRow: View {
-  @Localized(.interface) private var text
+///
+/// It takes its words rather than resolving them, because two features use it
+/// now and each names its own destination.
+package struct ReadingLinkRow: View {
+  private let route: Route
+  private let title: String
+  private let summary: String
 
-  var body: some View {
-    NavigationLink(value: Route.architectures) {
+  package init(route: Route, title: String, summary: String) {
+    self.route = route
+    self.title = title
+    self.summary = summary
+  }
+
+  package var body: some View {
+    NavigationLink(value: route) {
       Surface {
         HStack(alignment: .firstTextBaseline, spacing: Tokens.Space.s3) {
           VStack(alignment: .leading, spacing: Tokens.Space.s1) {
-            Text(text(InterfaceText.architecturePatterns))
+            Text(title)
               .font(Typography.heading)
               .foregroundStyle(Color.ink)
               .multilineTextAlignment(.leading)
-            Text(text(InterfaceText.architecturePatternsSummary))
+            Text(summary)
               .font(Typography.secondary)
               .foregroundStyle(Color.ink2)
               .multilineTextAlignment(.leading)
@@ -35,8 +47,8 @@ struct ArchitectureLinkRow: View {
         }
       }
     }
-    // `.plain`, or the whole card takes the accent colour and the summary stops
-    // being readable as body text.
+    // A card style, not `.plain`: plain would give the whole card the accent
+    // colour and the summary would stop reading as body text.
     .buttonStyle(.pressableCard)
   }
 }

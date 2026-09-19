@@ -2,7 +2,7 @@ import Decisions
 import Foundation
 import Localization
 
-/// The design decisions annotated on the Architecture screens.
+/// The design decisions annotated on the Product screen.
 ///
 /// ## What a declaration says, and what it does not
 ///
@@ -13,13 +13,18 @@ import Localization
 ///
 /// So changing a piece of text never reopens a Swift file, let alone a `body`.
 /// Adding a language adds a column to the catalogue and not one line of code.
-enum ArchitectureDecisions {
-  /// Still called `comparison` in the catalogue, and no longer a grid.
-  static let comparison = DesignDecision(
-    id: "architecture.comparison",
-    component: "ScrollView(.horizontal) · contentTransition",
-    documentation: URL(string: "https://developer.apple.com/documentation/swiftui/view/contenttransition(_:)"),
-    in: .architecture
+enum ProductDecisions {
+  static let store = DesignDecision(
+    id: "product.store",
+    component: "Button · adaptiveGlassProminent",
+    documentation: URL(string: "https://developer.apple.com/design/human-interface-guidelines/buttons"),
+    in: .product
+  )
+  static let gallery = DesignDecision(
+    id: "product.gallery",
+    component: "ScrollView(.horizontal) · scrollTargetBehavior",
+    documentation: URL(string: "https://developer.apple.com/documentation/swiftui/view/scrolltargetbehavior(_:)"),
+    in: .product
   )
 }
 
@@ -29,5 +34,5 @@ extension TextCatalogue {
   /// One per screen module rather than one shared file: the text sits beside the
   /// code it belongs to, and a feature cannot silently depend on a sentence
   /// another feature owns.
-  static let architecture = TextCatalogue(bundle: .module, table: "Localizable")
+  static let product = TextCatalogue(bundle: .module, table: "Localizable")
 }

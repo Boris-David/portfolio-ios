@@ -50,15 +50,15 @@
     "readingWidthInBodies": 40,
     "appIconSide": 44,
     "appIconRadius": 10,
+    "productIconSide": 76,
     "shelfCellWidth": 150,
     "pressedScale": 0.97,
     "galleryHeight": 380,
+    "screenshotAspect": 0.461,
     "showcaseHeight": 240,
     "timelineDot": 5,
     "stepBadge": 20,
     "decisionBadge": 26,
-    "comparisonLabelWidth": 112,
-    "comparisonColumnWidth": 248,
     "popoverWidth": 300
   }
 }

@@ -29,7 +29,8 @@ public enum Icon: Sendable, Hashable, CaseIterable {
   case profile
   case work
   case journey
-  case decision
+  /// The application he took end to end.
+  case product
 
   // Outcomes
   case succeeded

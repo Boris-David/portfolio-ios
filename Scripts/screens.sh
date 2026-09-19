@@ -90,7 +90,8 @@ SCREENS=(
   "profile|"
   "work|"
   "journey|"
-  "decision|-decisions"
+  "product|"
+  "work|-decisions"
   "profile|-settings"
   # Settings **with** the annotations on.
   #
@@ -104,7 +105,8 @@ SCREENS=(
   # A pushed screen needs the route flag: a tab flag cannot reach it, and
   # without this the comparison table — the one screen a `Grid` exists for —
   # is the only one the matrix never sees.
-  "decision|-route architectures"
+  "work|-route engineering"
+  "work|-route architectures"
   # The destination of the zoom transition, and the longest reading in the app.
   # It was not on the matrix, so neither the disclosure rows nor the gallery
   # were ever photographed.

@@ -250,15 +250,15 @@ extension Tokens {
     public static let readingWidthInBodies: CGFloat = 40
     public static let appIconSide: CGFloat = 44
     public static let appIconRadius: CGFloat = 10
+    public static let productIconSide: CGFloat = 76
     public static let shelfCellWidth: CGFloat = 150
     public static let pressedScale: CGFloat = 0.97
     public static let galleryHeight: CGFloat = 380
+    public static let screenshotAspect: CGFloat = 0.461
     public static let showcaseHeight: CGFloat = 240
     public static let timelineDot: CGFloat = 5
     public static let stepBadge: CGFloat = 20
     public static let decisionBadge: CGFloat = 26
-    public static let comparisonLabelWidth: CGFloat = 112
-    public static let comparisonColumnWidth: CGFloat = 248
     public static let popoverWidth: CGFloat = 300
   }
 }

@@ -45,6 +45,7 @@ package enum InterfaceText {
   package static let noDependency: TextKey = "interface.noDependency"
   package static let nothingAvailableMessage: TextKey = "interface.nothingAvailableMessage"
   package static let openInAppStore: TextKey = "interface.openInAppStore"
+  package static let viewOnAppStore: TextKey = "interface.viewOnAppStore"
   package static let openProjects: TextKey = "interface.openProjects"
   package static let provenanceHint: TextKey = "interface.provenanceHint"
   package static let provenanceTitle: TextKey = "interface.provenanceTitle"
@@ -63,7 +64,7 @@ package enum InterfaceText {
   package static let share: TextKey = "interface.share"
   package static let skills: TextKey = "interface.skills"
   package static let sourceCode: TextKey = "interface.sourceCode"
-  package static let tabEngineering: TextKey = "interface.tabEngineering"
+  package static let tabProduct: TextKey = "interface.tabProduct"
   package static let tabJourney: TextKey = "interface.tabJourney"
   package static let tabProfile: TextKey = "interface.tabProfile"
   package static let tabWork: TextKey = "interface.tabWork"
@@ -154,7 +155,7 @@ extension AppSection {
     case .profile: InterfaceText.tabProfile
     case .work: InterfaceText.tabWork
     case .journey: InterfaceText.tabJourney
-    case .decision: InterfaceText.tabEngineering
+    case .product: InterfaceText.tabProduct
     }
   }
 }

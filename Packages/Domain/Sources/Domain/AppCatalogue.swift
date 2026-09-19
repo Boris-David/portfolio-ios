@@ -14,4 +14,14 @@ public struct AppCatalogue: Sendable, Hashable {
   public var ticketing: [ProductionApp] {
     items.filter { $0.role == .ticketing }
   }
+
+  /// The ones he carried from the first line to the store listing.
+  ///
+  /// ⚠️ `items` was only ever reached through `ticketing`, so two of the three
+  /// roles this catalogue models — `endToEnd` and `features` — were served by
+  /// the API, decoded, and displayed on **no screen at all**. The product tab
+  /// is what reaches this one.
+  public var ownedEndToEnd: [ProductionApp] {
+    items.filter { $0.role == .endToEnd }
+  }
 }

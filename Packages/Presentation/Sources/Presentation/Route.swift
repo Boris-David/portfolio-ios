@@ -16,7 +16,15 @@ public enum Route: Hashable, Sendable {
   /// The long-form introduction, which the first screen deliberately does not
   /// carry: an opening gives the scale, not the story.
   case about
+  /// How **this** application is built: its layers, the problems it ran into,
+  /// the dependencies it took and refused.
+  ///
+  /// It was a tab. A tab is somewhere you return to, and nobody returns to a
+  /// list of architecture decisions — they read it once, because a project made
+  /// them curious. So it is pushed from the work tab, where the curiosity comes
+  /// from, and the bar got its fourth *destination* back.
+  case engineering
   /// The comparison of architecture patterns, and the codebases read against
-  /// them. A reading, not a destination — hence a push from the decision tab.
+  /// them. A reading, pushed from the engineering one.
   case architectures
 }

@@ -35,8 +35,17 @@ public struct ArchitectureScreen: View {
     SectionScrollView {
       VStack(alignment: .leading, spacing: Tokens.Space.s7) {
         header
-        PatternComparisonBlock(patterns: study.patterns)
+        // ⚠️ The measured codebases come **first**, and the comparison second.
+        //
+        // `UseCase 677 · Repository 417 · Protocol 558`, counted in the real
+        // repositories on a stated date, is the hardest technical evidence in
+        // the whole application — and it sat under a four-column table, at the
+        // end of the longest reading, four interactions from the first screen.
+        //
+        // The order now matches what each part is: the counts are the finding,
+        // the patterns are the frame the finding is read in.
         codebases
+        PatternComparisonBlock(patterns: study.patterns)
       }
       .padding(.top, Tokens.Space.s4)
     }

@@ -102,6 +102,7 @@ struct LaunchArguments: Sendable {
 
     return switch kind {
     case "about": .about
+    case "engineering": .engineering
     case "architectures": .architectures
     case "caseStudy": value.map { Route.caseStudy(slug: $0) }
     case "expertise": value.map { Route.expertise(id: $0) }

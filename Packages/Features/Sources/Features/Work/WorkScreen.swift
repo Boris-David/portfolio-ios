@@ -49,6 +49,15 @@ public struct WorkScreen: View {
           section: portfolio.section("apps"),
           catalogue: portfolio.apps
         )
+
+        // The way into how **this** app is built. It was a tab; it is a reading,
+        // and it belongs one tap from the projects that raise the question
+        // rather than in the bar beside them.
+        ReadingLinkRow(
+          route: .engineering,
+          title: text(InterfaceText.engineeringTitle),
+          summary: text(InterfaceText.engineeringEyebrow)
+        )
       }
       .padding(.top, Tokens.Space.s5)
     }
