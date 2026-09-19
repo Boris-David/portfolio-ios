@@ -56,15 +56,6 @@ public struct SettingsScreen: View {
       .feedback(.selectionChanged, on: settings.language)
       .feedback(.selectionChanged, on: settings.showsDecisions)
       .decision(SettingsDecisions.form)
-      // ⚠️ This screen emitted three annotations that **nothing drew**.
-      //
-      // `.decisionOverlay()` is applied once per screen, at the top of its
-      // tree, where the geometry of the whole page is known — and a sheet is
-      // its own tree. `SectionShell` applies it to every tab root, so every
-      // pushed screen inherits one; a sheet inherits nothing, and this one had
-      // never been given its own. The mode was on, the pins were emitted, and
-      // the settings screen simply looked like a screen with no decisions.
-      .decisionOverlay()
     }
     // Its own anchor, because a sheet cannot be presented from a view that is
     // itself covered by one. The scene stands down while this is up.

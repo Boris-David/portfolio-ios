@@ -49,10 +49,22 @@ public struct JourneyScreen: View {
     return List {
       Section {
         ForEach(Array(portfolio.experience.enumerated()), id: \.element.id) { index, job in
-          ExperienceRow(job: job, dates: dates, startsOpen: index == 0)
+          ExperienceRow(
+            job: job,
+            dates: dates,
+            startsOpen: index == 0,
+            // ⚠️ The note is about **date formatting**, so it is attached to a
+            // formatted date and not to the section — which is where it used
+            // to be, back when an annotation was an anchor the screen
+            // collected. Attached, a modifier on a `Section` is applied to
+            // every row of it, so one note became three identical pins.
+            //
+            // And on the first row only: the mode is a demonstration, and the
+            // same pin repeated down a list adds noise without adding a fact.
+            annotatesDates: index == 0
+          )
         }
       }
-      .decision(JourneyDecisions.timeline)
 
       RecordSection(
         title: text(InterfaceText.education),
@@ -135,6 +147,9 @@ struct ExperienceRow: View {
   let job: Experience
   let dates: DateStyle
   let startsOpen: Bool
+  /// Whether this row carries the annotation about how its date is written.
+  /// One row does; see the call site.
+  var annotatesDates = false
 
   @State private var isOpen: Bool?
   @ReducedMotion private var reducedMotion
@@ -184,7 +199,9 @@ struct ExperienceRow: View {
 
   private var summary: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s1) {
-      Text(dates.range(from: job.start, to: job.end)).eyebrowStyle()
+      Text(dates.range(from: job.start, to: job.end))
+        .eyebrowStyle()
+        .decision(annotatesDates ? JourneyDecisions.timeline : nil)
       Text(job.role)
         .font(Typography.heading)
         .foregroundStyle(Color.ink)

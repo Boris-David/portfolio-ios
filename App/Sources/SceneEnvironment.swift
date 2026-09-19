@@ -38,7 +38,7 @@ import SwiftUI
 /// `.modifier(sceneEnvironment)` says *that* a modifier is applied and never
 /// *which*: the reader has to go and look. `.sceneEnvironment(scene)` says it
 /// at the call site, the way every other modifier in this codebase does —
-/// `.decisionOverlay()`, `.returningToTop()`, `.navigationDetail(_:)`.
+/// `.decisionSheet()`, `.returningToTop()`, `.navigationDetail(_:)`.
 ///
 /// `check-layers.sh` refuses a bare `.modifier(` in a view from now on.
 struct SceneEnvironment: ViewModifier {

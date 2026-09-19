@@ -97,6 +97,9 @@ SCREENS=(
   # itself as lazy rows recycled, and the sheet was presented by whichever of
   # five anchors SwiftUI happened to pick.
   "journey|-decisions"
+  # The profile carries a note on the scroll view itself — the case that used to
+  # draw a dashed rectangle around the whole screen.
+  "profile|-decisions"
   "work|-decisions -route caseStudy:mobile-ticketing"
   "profile|-modal settings"
   # Settings **with** the annotations on.

@@ -20,7 +20,11 @@ enum DecisionLabels {
   static let learnMoreHint: TextKey = "decision.action.learnMore.hint"
   static let badgeHint: TextKey = "decision.badge.hint"
 
-  /// "Decision 3: NavigationStack" — the badge's accessibility label.
+  /// "Decision: NavigationStack" — the pin's accessibility label.
+  ///
+  /// It carried an ordinal, and the ordinal is gone: it said where a pin sat
+  /// in a reading order the reader can already see, and it was the only thing
+  /// that required knowing where every other annotation on the screen was.
   ///
   /// The order of the two values belongs to the catalogue, not to this file: a
   /// language that needs the component first says `%2$@ %1$lld` and no Swift

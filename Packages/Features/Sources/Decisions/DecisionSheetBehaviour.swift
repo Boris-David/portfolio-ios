@@ -57,7 +57,7 @@ public extension View {
   /// the scene presents. `isEnabled` is how the scene stands down while one of
   /// them is up.
   ///
-  /// `public` and not `package`, unlike `decisionOverlay()`: the scene is the
+  /// `public` and not `package`, unlike `decision(_:)`: the scene is the
   /// application target, which is another package. The modifier it builds stays
   /// `package` — `some View` hides it, so the type is not part of the surface.
   func decisionSheet(isEnabled: Bool = true) -> some View {
