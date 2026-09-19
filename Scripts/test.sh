@@ -39,10 +39,22 @@ SUITES=(
 status=0
 for suite in "${SUITES[@]}"; do
   printf '── %-20s ' "$suite"
+  # ⚠️ `SWIFT_EMIT_LOC_STRINGS=NO` sur la ligne de commande, en plus du réglage
+  # de `project.yml`.
+  #
+  # Le réglage au niveau projet suffit pour `xcodebuild build`, et **pas** pour
+  # `xcodebuild test` : l'action de test réactive l'extraction automatique des
+  # chaînes, qui réécrit alors chaque `.xcstrings` versionné — `%lld`,
+  # `%@ · %@`, des entrées marquées `new`. Lancer la suite salissait donc le
+  # dépôt, et c'est arrivé jusque dans un commit.
+  #
+  # Une surcharge en ligne de commande gagne sur tout le reste. Vérifié en
+  # relançant la suite et en regardant `git status`.
   sortie="$(xcodebuild test \
     -project Amissan.xcodeproj \
     -scheme "$suite" \
     -destination "platform=iOS Simulator,name=$DEVICE" \
+    SWIFT_EMIT_LOC_STRINGS=NO \
     2>&1)"
   code=$?
 

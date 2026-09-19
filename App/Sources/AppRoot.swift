@@ -178,6 +178,14 @@ public struct AppRoot: View {
         if launch.showsDecisions { settings.forceDecisions() }
         if let initialModal = launch.initialModal { modal = initialModal }
       }
+      // A link from the website. The one place the app changes tab without the
+      // reader touching the bar — and it is the reader who touched the link,
+      // which is the exception the rule is written for.
+      .onOpenURL { url in
+        guard let link = DeepLink(url) else { return }
+        selection = link.section
+        if let requested = link.modal { modal = requested }
+      }
       .task { await prefetchResume() }
       .task { await followLanguageChanges() }
       .refreshingOnReturn(
