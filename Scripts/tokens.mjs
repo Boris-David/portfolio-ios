@@ -126,6 +126,24 @@ const typeCases = Object.entries(tokens.type)
   .filter(([name]) => !name.startsWith("$"))
   .map(([name, value]) => `    public static let ${swiftName(name)}: CGFloat = ${value}`);
 
+/**
+ * The alignment of each text role, as a Swift case.
+ *
+ * ⚠️ The generator refuses a value outside the vocabulary rather than emitting
+ * it. A word this platform cannot map is a word that does nothing here, in
+ * silence, while the website and the résumé honour it — which is the one thing
+ * a shared token exists to prevent.
+ */
+const ALIGNMENTS = new Set(["start", "center", "end", "justify"]);
+const alignCases = Object.entries(tokens.text.align).map(([role, value]) => {
+  if (!ALIGNMENTS.has(value)) {
+    throw new Error(
+      `tokens.json : text.align.${role} vaut « ${value} » — attendu : ${[...ALIGNMENTS].join(", ")}`,
+    );
+  }
+  return `    public static let ${swiftName(role)}: Alignment = .${value}`;
+});
+
 const iconCases = Object.entries(tokens.icon)
   .filter(([name]) => !name.startsWith("$"))
   .map(([name, value]) => `    public static let ${swiftName(name)}: CGFloat = ${value}`);
@@ -237,6 +255,21 @@ ${easeCases.join("\n")}
 extension Tokens {
   public enum TypeScale {
 ${typeCases.join("\n")}
+  }
+
+  /// How a block of text is set — shared with the website and the résumé.
+  ///
+  /// ${tokens.text.$comment}
+  public enum TextAlign {
+    /// The four the shared vocabulary allows. Named after what they mean and
+    /// not after any one platform: SwiftUI has no justified case, so
+    /// \`justify\` is the one that costs something here — SwiftUI has no such
+    /// case, and the app reaches TextKit for it.
+    public enum Alignment: String, Sendable {
+      case start, center, end, justify
+    }
+
+${alignCases.join("\n")}
   }
 
   public enum Accessibility {

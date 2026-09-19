@@ -179,6 +179,21 @@ extension Tokens {
     public static let large: CGFloat = 34
   }
 
+  /// How a block of text is set — shared with the website and the résumé.
+  ///
+  /// How a block of text is SET, as opposed to how big it is. Shared so the three surfaces — the site, the application and the résumé — cannot drift apart on it. The vocabulary is deliberately platform-neutral: `start`, `center`, `end`, `justify`. Each surface maps it to its own mechanism — CSS `text-align`, SwiftUI's `TextAlignment` (which has no justified case and reaches TextKit for it), the résumé's print stylesheet — and that mapping is the only part allowed to differ. Only `prose` is stated: a heading or a caption set justified is a heading with holes in it, so everything else keeps the platform default.
+  public enum TextAlign {
+    /// The four the shared vocabulary allows. Named after what they mean and
+    /// not after any one platform: SwiftUI has no justified case, so
+    /// `justify` is the one that costs something here — SwiftUI has no such
+    /// case, and the app reaches TextKit for it.
+    public enum Alignment: String, Sendable {
+      case start, center, end, justify
+    }
+
+    public static let prose: Alignment = .justify
+  }
+
   public enum Accessibility {
     /// The smallest acceptable touch target, in points.
     public static let minimumTouchTarget: CGFloat = 44
