@@ -17,10 +17,15 @@
   },
   "elevation": {
     "$comment": "Shadows, by role rather than by value. A shadow is described by three numbers that only mean anything together: splitting them invites changing one alone.",
-    "raised": {
-      "radius": 18,
-      "y": 8,
+    "resting": {
+      "radius": 16,
+      "y": 5,
       "opacity": 0.1
+    },
+    "raised": {
+      "radius": 26,
+      "y": 10,
+      "opacity": 0.16
     },
     "floating": {
       "radius": 12,

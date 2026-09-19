@@ -242,7 +242,8 @@ extension Tokens {
   }
 
   public enum Elevation {
-    public static let raised = Shadow(radius: 18, y: 8, opacity: 0.1)
+    public static let resting = Shadow(radius: 16, y: 5, opacity: 0.1)
+    public static let raised = Shadow(radius: 26, y: 10, opacity: 0.16)
     public static let floating = Shadow(radius: 12, y: 4, opacity: 0.08)
   }
 
