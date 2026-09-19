@@ -28,7 +28,16 @@ public struct CaseStudyDetailScreen: View {
         if study.hasNamedChapters {
           VStack(spacing: Tokens.Space.s3) {
             ForEach(Array(study.chapters.enumerated()), id: \.element.id) { index, chapter in
-              ChapterDisclosureView(number: index + 1, chapter: chapter)
+              // The first one is **open**. A page of five closed rows is a page
+              // where nothing has been said yet: the reader has to guess which
+              // one is worth a tap before anything has earned one. Opening the
+              // first shows what a chapter contains, and the rest stay closed
+              // so the page is still scannable.
+              ChapterDisclosureView(
+                number: index + 1,
+                chapter: chapter,
+                startsOpen: index == 0
+              )
             }
           }
           .decision(WorkDecisions.disclosure)
@@ -48,6 +57,18 @@ public struct CaseStudyDetailScreen: View {
     }
     .background(Color.paper)
     .navigationTitle(study.title)
+    // ⚠️ `.inline`, and the content keeps its own copy of the title. That looks
+    // like a duplication and it was tried the other way round.
+    //
+    // `.large` with the content title removed said it once — and **truncated
+    // it to one line**: *"La billettique mobile…"*. A UIKit large title does
+    // not wrap, so a title of any length simply stops, and the full one then
+    // appeared nowhere in the app. Measured on screen; nothing in the build
+    // says a word about it.
+    //
+    // So the bar carries the short form for the back button and VoiceOver, the
+    // content carries the whole thing, and that is what every Apple app with a
+    // long title does.
     .navigationBarTitleDisplayMode(.inline)
   }
 
@@ -81,9 +102,15 @@ struct ChapterDisclosureView: View {
   let number: Int
   let chapter: CaseStudy.Chapter
 
-  @State private var isOpen = false
+  @State private var isOpen: Bool
   @ReducedMotion private var reducedMotion
   @Localized(.interface) private var text
+
+  init(number: Int, chapter: CaseStudy.Chapter, startsOpen: Bool = false) {
+    self.number = number
+    self.chapter = chapter
+    _isOpen = State(initialValue: startsOpen)
+  }
 
   var body: some View {
     Surface(padding: 0) {
@@ -104,16 +131,25 @@ struct ChapterDisclosureView: View {
           .foregroundStyle(Color.accent)
           .monospacedDigit()
 
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: Tokens.Space.s1) {
           Text(chapter.title ?? "")
             .font(Typography.bodyStrong)
             .foregroundStyle(Color.ink)
             .multilineTextAlignment(.leading)
             .fixedSize(horizontal: false, vertical: true)
+          // ⚠️ The subtitle is where the **result** is written — *"un code
+          // hérité que personne ne voulait toucher, refondu avec des
+          // acteurs"*, *"une initiative devenue une fonctionnalité vendue"* —
+          // and it was set 13 pt in `ink3`, the treatment for a footnote.
+          //
+          // So five rows read as a list of bugs: "the authentication that
+          // logged people out", "the QR code fraud". The content was never the
+          // problem; the hierarchy was. Raised, the same five rows are five
+          // results, and a reader who opens none of them has still had them.
           if let subtitle = chapter.subtitle {
             Text(subtitle)
-              .font(Typography.caption)
-              .foregroundStyle(Color.ink3)
+              .font(Typography.secondary)
+              .foregroundStyle(Color.ink2)
               .multilineTextAlignment(.leading)
               .fixedSize(horizontal: false, vertical: true)
           }

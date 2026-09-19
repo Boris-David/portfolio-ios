@@ -4,6 +4,14 @@
 #
 #   ./Scripts/screens.sh                    the default matrix
 #   ./Scripts/screens.sh --device "iPad Pro 13-inch (M4)"
+#   ./Scripts/screens.sh --only work        just the entries whose label matches
+#   ./Scripts/screens.sh --only work --sizes light
+#
+# `--only` and `--sizes` exist so that nobody writes their own capture loop
+# while iterating on one screen. Somebody did, during the UI rebuild, and it
+# silently re-photographed the previous screen twice: `simctl terminate` returns
+# before the process exits, and the hand-rolled wait was subtly wrong. The
+# script already knows that; a shortcut through it does not.
 #
 # ## Why a script and not a checklist
 #
@@ -33,11 +41,15 @@ cd "$ROOT"
 DEVICE_NAME="iPhone 17 Pro"
 OUT="$ROOT/.screens"
 BUNDLE="dev.amissan.portfolio"
+ONLY=""
+SIZES="all"
 
 while [ $# -gt 0 ]; do
   case "$1" in
     --device) DEVICE_NAME="$2"; shift 2 ;;
     --out) OUT="$2"; shift 2 ;;
+    --only) ONLY="$2"; shift 2 ;;
+    --sizes) SIZES="$2"; shift 2 ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
   esac
 done
@@ -69,7 +81,9 @@ xcrun simctl uninstall "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
 xcrun simctl install "$UDID" "$APP"
 
 mkdir -p "$OUT"
-rm -f "$OUT"/*.png
+# A narrowed run keeps what it is not re-taking: the point of `--only` is to
+# compare one screen against the rest of the matrix.
+[ -n "$ONLY" ] || rm -f "$OUT"/*.png
 
 # tab | extra launch flags
 SCREENS=(
@@ -91,6 +105,10 @@ SCREENS=(
   # without this the comparison table — the one screen a `Grid` exists for —
   # is the only one the matrix never sees.
   "decision|-route architectures"
+  # The destination of the zoom transition, and the longest reading in the app.
+  # It was not on the matrix, so neither the disclosure rows nor the gallery
+  # were ever photographed.
+  "work|-route caseStudy:mobile-ticketing"
 )
 
 # ⚠️ `xcrun simctl ui … content_size` exits **0** on a value it rejects.
@@ -149,20 +167,26 @@ capture() {
   printf '  %s\n' "$name"
 }
 
+selected() { [ -z "$ONLY" ] || printf '%s' "$1" | grep -q "$ONLY"; }
+
 echo "── the default matrix, on $DEVICE_NAME"
 for entry in "${SCREENS[@]}"; do
   tab="${entry%%|*}"; flags="${entry#*|}"
   label="$tab${flags:+${flags// /}}"
-  capture "$tab" "$flags" dark large  "${label}-dark"
+  selected "$label" || continue
+  [ "$SIZES" = "light" ] || capture "$tab" "$flags" dark large "${label}-dark"
   capture "$tab" "$flags" light large "${label}-light"
 done
 
-echo "── at the largest accessibility size, where a layout falls apart"
-for entry in "${SCREENS[@]}"; do
-  tab="${entry%%|*}"; flags="${entry#*|}"
-  label="$tab${flags:+${flags// /}}"
-  capture "$tab" "$flags" dark accessibility-extra-extra-extra-large "${label}-ax5"
-done
+if [ "$SIZES" != "light" ]; then
+  echo "── at the largest accessibility size, where a layout falls apart"
+  for entry in "${SCREENS[@]}"; do
+    tab="${entry%%|*}"; flags="${entry#*|}"
+    label="$tab${flags:+${flags// /}}"
+    selected "$label" || continue
+    capture "$tab" "$flags" dark accessibility-extra-extra-extra-large "${label}-ax5"
+  done
+fi
 
 # Leave the simulator as it was found: a device left at accessibility5 makes the
 # next person's screenshots look broken for a reason they will not guess.

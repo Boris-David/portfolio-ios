@@ -29,15 +29,16 @@ public struct WorkScreen: View {
 
   private func content(_ portfolio: Portfolio) -> some View {
     SectionScrollView {
+      // ⚠️ No section header above the cards.
+      //
+      // There was one: an eyebrow, a serif title and a three-line standfirst
+      // explaining how to read the page — *"the problem, the decisions I took,
+      // and what they produced"* — set directly under the navigation bar's own
+      // large title. Three titles stacked, of which two say the same thing and
+      // the third is meta-commentary about the page rather than content on it.
+      //
+      // Two cards that each name a project need no instructions.
       VStack(alignment: .leading, spacing: Tokens.Space.s7) {
-        if let section = portfolio.section("case-studies") {
-          SectionHeader(
-            eyebrow: section.eyebrow,
-            title: section.title,
-            intro: section.intro?.plain
-          )
-        }
-
         VStack(spacing: Tokens.Space.s4) {
           ForEach(portfolio.caseStudies) { study in
             CaseStudyCard(study: study)
@@ -49,7 +50,7 @@ public struct WorkScreen: View {
           catalogue: portfolio.apps
         )
       }
-      .padding(.top, Tokens.Space.s4)
+      .padding(.top, Tokens.Space.s5)
     }
     .refreshable { await store.refresh() }
   }
@@ -84,15 +85,17 @@ struct CaseStudyCard: View {
               .multilineTextAlignment(.leading)
           }
 
-          WrappingRow {
-            ForEach(study.tags.prefix(6), id: \.self) { tag in
-              Chip(tag)
-            }
-            if study.tags.count > 6 {
-              Chip("+\(study.tags.count - 6)", emphasis: .accented)
-            }
-          }
-
+          // ⚠️ The way in comes **before** the technologies, and this is the
+          // whole point of the swap.
+          //
+          // Six chips took a third of the card's height and pushed the only
+          // actionable line under the fold of the card itself — so the card
+          // that opens a case study looked like a card that lists frameworks.
+          // `Chip.swift` says it in its own doc: a list of technologies is not
+          // an argument.
+          //
+          // Three chips, not six: the rest are in the study, where they are
+          // attached to the thing they were used for.
           HStack(spacing: Tokens.Space.s2) {
             Text(study.hasNamedChapters
               ? text(InterfaceText.chapterCount, count: study.chapters.count)
@@ -104,6 +107,15 @@ struct CaseStudyCard: View {
               .foregroundStyle(Color.accent)
           }
           .padding(.top, Tokens.Space.s1)
+
+          WrappingRow {
+            ForEach(study.tags.prefix(3), id: \.self) { tag in
+              Chip(tag)
+            }
+            if study.tags.count > 3 {
+              Chip("+\(study.tags.count - 3)", emphasis: .accented)
+            }
+          }
         }
       }
     }
@@ -127,12 +139,13 @@ struct AppsBlock: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
+      // The eyebrow, not the full header. The title — *"33 applications, 3
+      // territoires, un même socle"* — opens the profile tab, and the
+      // editorial rule on that figure is explicit: it carries once, where it
+      // installs the scale. Said twice it becomes a tic, and takes the place
+      // of a fact that has not been said yet. Thirty-three cells say it here.
       if let section {
-        SectionHeader(
-          eyebrow: section.eyebrow,
-          title: section.title,
-          intro: section.intro?.plain
-        )
+        Text(section.eyebrow).eyebrowStyle()
       }
 
       LazyVGrid(columns: columns, spacing: Tokens.Space.s3) {
@@ -140,6 +153,7 @@ struct AppsBlock: View {
           AppCell(app: app)
         }
       }
+      .decision(WorkDecisions.grid)
       .decision(WorkDecisions.grid)
 
       if let note = section?.note {
