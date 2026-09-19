@@ -1,13 +1,12 @@
 name: CI
 
-# Une règle tient tout ce fichier : **ce qui est annoncé comme une exigence doit
-# casser la construction quand il n'est pas tenu.**
+# One rule holds this whole file: **whatever is announced as a requirement must
+# break the build when it is not met.**
 #
-# Un projet iOS a une façon particulière de mentir : il compile, il se lance, et
-# il est faux. D'où des gardes qui ne portent pas sur le code mais sur ce que le
-# code **prétend** — que les artefacts de design descendent bien des tokens, que
-# la graine embarquée décrit encore ce que sert l'API, que le graphe de modules
-# n'a pas gagné d'arête interdite.
+# An iOS project has a particular way of lying: it compiles, it launches, and it
+# is wrong. Hence guards that check not the code but what the code *claims* —
+# that the design artefacts really descend from the tokens, that the bundled seed
+# still describes what the API serves, that no layer has gained a forbidden edge.
 
 on:
   push:
@@ -19,24 +18,24 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# Aucun secret n'est nécessaire : rien ne se signe et rien ne se publie ici.
-# Une CI qui n'a besoin de rien ne peut rien fuiter. La signature vit dans
-# `release.yml`, qui est déclenché à la main.
+# No secret is needed: nothing is signed and nothing is published here. A CI that
+# needs nothing can leak nothing. Signing lives in `release.yml`, triggered by
+# hand.
 permissions:
   contents: read
 
 env:
-  # La version minimale qui apporte le SDK d'iOS 26, donc Liquid Glass.
+  # The minimum version that ships the iOS 26 SDK, therefore Liquid Glass.
   XCODE_MINIMUM: "26.0"
   SIMULATOR: iPhone 17 Pro
 
 jobs:
   # ───────────────────────────────────────────────────────────────────────
-  # Les gardes qui ne compilent rien — elles tournent en quelques secondes et
-  # attrapent les divergences que la compilation ne verrait jamais.
+  # The guards that compile nothing — they run in seconds and catch the
+  # divergences a compiler would never see.
   # ───────────────────────────────────────────────────────────────────────
-  gardes:
-    name: Les artefacts dérivent bien de leur source
+  guards:
+    name: Artefacts still descend from their source
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -45,142 +44,170 @@ jobs:
         with:
           node-version: "22"
 
-      # `Tokens.swift` est généré depuis `design/tokens.json`. Le modifier à la
-      # main donnerait un design qui diverge de celui du site **sans que rien ne
-      # le dise** — et seulement sur le thème qu'on n'avait pas ouvert.
-      - name: Le design system descend des tokens
+      # `Tokens.swift` is generated from the shared tokens plus the iOS-only
+      # ones. Editing it by hand gives a design that drifts from the website
+      # **with nothing to say so** — and only on the theme nobody opened.
+      - name: The design system descends from the tokens
         run: ./Scripts/tokens.mjs --check
 
-      # La graine embarquée est une capture de l'API. Une capture qu'on ne
-      # confronte jamais redevient une seconde source de vérité.
-      - name: La graine embarquée décrit encore ce que sert l'API
+      # The bundled seed is a snapshot of the API. A snapshot never confronted
+      # with its source becomes a second source of truth.
+      - name: The bundled seed still describes what the API serves
         run: ./Scripts/seed.sh --check
 
-      # Les icônes et captures sont nommées par slug public. Un slug rendu sans
-      # fichier ne produit pas d'erreur : il produit une image cassée.
-      - name: Chaque actif attendu est présent
+      # Icons and screenshots are named by public slug. A slug rendered without
+      # its file produces no error: it produces a broken image.
+      - name: Every expected asset is present
         run: |
           python3 -m pip install --quiet --disable-pip-version-check Pillow
           ./Scripts/assets.py --check
 
-      # Le dépôt est public. Un marqueur d'employeur ou une clé indexée est
-      # irréversible.
-      - name: Aucun secret ni marqueur d'employeur
+      # The repository is public. An employer marker or an indexed key is
+      # irreversible.
+      - name: No secret, no employer marker
         run: ./Scripts/check-secrets.sh
 
+      # Readership, not style: this repository is opened by people who may not
+      # read French, and reasoning they cannot read is reasoning wasted.
+      - name: The Swift source is English only
+        run: ./Scripts/check-language.sh
+
+      # The package graph holds most of the layering by itself. These two
+      # invariants it cannot hold, because SwiftUI ships with the SDK: the
+      # domain must not know an interface exists, and the presentation layer
+      # must not render.
+      - name: No layer sees what it must not
+        run: ./Scripts/check-layers.sh
+
+      # The name says the role. A convention nothing executes lasts three weeks.
+      - name: Every type wears the suffix of its role
+        run: ./Scripts/check-naming.sh
+
+      # A suite that stops running does not fail — it vanishes, and the total at
+      # the bottom of the log drops by a number nobody was counting.
+      - name: Every test target actually runs
+        run: ./Scripts/check-suites.sh
+
+      # Text moved out of Swift and into string catalogues, which bought plurals
+      # that follow the language and cost the compile error a missing
+      # translation used to be. This is the repayment: a key with no entry now
+      # fails here instead of rendering itself on screen.
+      - name: Every string is translated, and every key reaches one
+        run: ./Scripts/check-strings.sh
+
   # ───────────────────────────────────────────────────────────────────────
-  # La construction et les tests
+  # Build and test
   # ───────────────────────────────────────────────────────────────────────
   tests:
-    name: Construction et suites de tests
+    name: Build and every test suite
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
 
-      # ⚠️ Le SDK d'iOS 26 n'est pas garanti sur une image de runner.
+      # ⚠️ The iOS 26 SDK is not guaranteed on a runner image.
       #
-      # Sans cette étape, une image trop ancienne produirait une erreur de
-      # compilation sur `glassEffect` — un message qui envoie chercher le
-      # problème dans le code alors qu'il est dans l'environnement. On le dit
-      # ici, une fois, clairement.
-      - name: Choisir le Xcode le plus récent, et exiger le SDK d'iOS 26
+      # Without this step, an older image produces a compile error on
+      # `glassEffect` — a message that sends you looking in the code when the
+      # problem is in the environment. Say it here, once, plainly.
+      - name: Pick the newest Xcode, and require the iOS 26 SDK
         run: |
           set -euo pipefail
-          disponibles="$(ls /Applications | grep -E '^Xcode.*\.app$' || true)"
-          echo "Xcode installés : ${disponibles:-aucun}"
+          available="$(ls /Applications | grep -E '^Xcode.*\.app$' || true)"
+          echo "Installed Xcodes: ${available:-none}"
 
-          meilleur=""
-          for app in $disponibles; do
+          best=""
+          for app in $available; do
             version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' \
               "/Applications/$app/Contents/Info.plist" 2>/dev/null || echo 0)"
             if [ "$(printf '%s\n%s\n' "$XCODE_MINIMUM" "$version" | sort -V | head -1)" = "$XCODE_MINIMUM" ]; then
-              meilleur="/Applications/$app"
+              best="/Applications/$app"
             fi
           done
 
-          if [ -z "$meilleur" ]; then
-            echo "::error::Aucun Xcode ≥ $XCODE_MINIMUM sur ce runner."
-            echo "L'application se compile avec le SDK d'iOS 26 (Liquid Glass) tout en"
-            echo "ciblant iOS 18. Sans ce SDK, la compilation échouerait sur"
-            echo "`glassEffect` — une erreur qui ferait chercher au mauvais endroit."
+          if [ -z "$best" ]; then
+            echo "::error::No Xcode >= $XCODE_MINIMUM on this runner."
+            # ⚠️ Single quotes on purpose. Backticks inside double quotes are
+            # command substitution, so this line used to *run* `glassEffect`
+            # before printing the message meant to help.
+            echo 'The app builds against the iOS 26 SDK (Liquid Glass) while targeting'
+            echo 'iOS 18. Without that SDK the build fails on `glassEffect` — an error'
+            echo 'that sends you looking in the wrong place.'
             exit 1
           fi
 
-          sudo xcode-select -s "$meilleur"
+          sudo xcode-select -s "$best"
           xcodebuild -version
 
-      - name: Installer XcodeGen
+      - name: Install XcodeGen
         run: brew install xcodegen
 
-      # Le projet n'est pas versionné : il se régénère. Si `project.yml` et le
-      # dépôt divergeaient, c'est ici qu'on l'apprendrait.
-      - name: Générer le projet
+      # The project is not committed: it regenerates. If `project.yml` and the
+      # repository had drifted, this is where we would find out.
+      - name: Generate the project
         run: xcodegen generate
 
-      - name: Choisir un simulateur
-        id: simulateur
+      - name: Pick a simulator
+        id: simulator
         run: |
           set -euo pipefail
-          nom="$(xcrun simctl list devices available | grep -oE '^ +iPhone [0-9]+ Pro' | head -1 | xargs || true)"
-          [ -z "$nom" ] && nom="$(xcrun simctl list devices available | grep -oE '^ +iPhone [^(]+' | head -1 | xargs)"
-          echo "Simulateur retenu : $nom"
-          echo "nom=$nom" >> "$GITHUB_OUTPUT"
+          name="$(xcrun simctl list devices available | grep -oE '^ +iPhone [0-9]+ Pro' | head -1 | xargs || true)"
+          [ -z "$name" ] && name="$(xcrun simctl list devices available | grep -oE '^ +iPhone [^(]+' | head -1 | xargs)"
+          echo "Chosen simulator: $name"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
 
-      - name: Toutes les suites
-        run: ./Scripts/test.sh "${{ steps.simulateur.outputs.nom }}"
+      - name: Every suite
+        run: ./Scripts/test.sh "${{ steps.simulator.outputs.name }}"
 
-      # La compilation en Release n'est pas la même que celle en Debug :
-      # optimisations, élimination de code mort, et surtout **les avertissements
-      # traités en erreurs** qui n'apparaissent qu'à ce niveau.
-      - name: Construire en Release
+      # A Release build is not a Debug build: optimisation, dead-code stripping,
+      # and above all **warnings treated as errors** that only surface there.
+      - name: Build for Release
         run: |
           xcodebuild build \
             -project Amissan.xcodeproj \
             -scheme Amissan \
             -configuration Release \
-            -destination "platform=iOS Simulator,name=${{ steps.simulateur.outputs.nom }}" \
+            -destination "platform=iOS Simulator,name=${{ steps.simulator.outputs.name }}" \
             -quiet
 
   # ───────────────────────────────────────────────────────────────────────
-  # La rétrocompatibilité, vérifiée plutôt qu'affirmée
+  # Backward compatibility, verified rather than asserted
   # ───────────────────────────────────────────────────────────────────────
-  retrocompatibilite:
-    name: L'application se lance aussi sur iOS 18
+  backward-compatibility:
+    name: The app launches on iOS 18 too
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
 
-      - name: Choisir le Xcode le plus récent
+      - name: Pick the newest Xcode
         run: |
           set -euo pipefail
-          meilleur=""
+          best=""
           for app in $(ls /Applications | grep -E '^Xcode.*\.app$' || true); do
             version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' \
               "/Applications/$app/Contents/Info.plist" 2>/dev/null || echo 0)"
             [ "$(printf '%s\n%s\n' "$XCODE_MINIMUM" "$version" | sort -V | head -1)" = "$XCODE_MINIMUM" ] \
-              && meilleur="/Applications/$app"
+              && best="/Applications/$app"
           done
-          [ -n "$meilleur" ] || { echo "::error::Aucun Xcode ≥ $XCODE_MINIMUM."; exit 1; }
-          sudo xcode-select -s "$meilleur"
+          [ -n "$best" ] || { echo "::error::No Xcode >= $XCODE_MINIMUM."; exit 1; }
+          sudo xcode-select -s "$best"
 
       - run: brew install xcodegen
       - run: xcodegen generate
 
-      # « L'application supporte iOS 18 » est une affirmation. Ceci la vérifie :
-      # on l'installe et on la lance réellement sur un runtime iOS 18, et on
-      # échoue si elle ne démarre pas. Le repli Liquid Glass est exercé, pas
-      # supposé.
-      - name: Installer un runtime iOS 18 et lancer l'application dessus
+      # "The app supports iOS 18" is a claim. This verifies it: the app is
+      # installed and actually launched on an iOS 18 runtime, and the job fails
+      # if it does not start. The Liquid Glass fallback is exercised, not
+      # assumed.
+      - name: Install an iOS 18 runtime and launch the app on it
         run: |
           set -euo pipefail
           runtime="$(xcrun simctl list runtimes available | grep -oE 'iOS 18\.[0-9]+' | head -1 || true)"
           if [ -z "$runtime" ]; then
-            echo "::warning::Aucun runtime iOS 18 sur ce runner — la rétrocompatibilité n'a pas pu être exercée."
+            echo "::warning::No iOS 18 runtime on this runner — backward compatibility was not exercised."
             exit 0
           fi
-          echo "Runtime trouvé : $runtime"
+          echo "Runtime found: $runtime"
 
-          appareil="$(xcrun simctl list devices available | grep -A20 "$runtime" | grep -oE 'iPhone [^(]+' | head -1 | xargs)"
           udid="$(xcrun simctl list devices available --json | python3 -c "
           import json,sys
           for rt, devs in json.load(sys.stdin)['devices'].items():
@@ -195,11 +222,11 @@ jobs:
           xcrun simctl install "$udid" "$bundle"
           xcrun simctl launch "$udid" dev.amissan.portfolio
 
-          # Un lancement qui se termine tout de suite est un plantage. On vérifie
-          # que le processus est encore là après quelques secondes.
+          # A launch that ends immediately is a crash. Check the process is
+          # still there a few seconds later.
           sleep 6
           if ! xcrun simctl spawn "$udid" launchctl list 2>/dev/null | grep -q "dev.amissan.portfolio"; then
-            echo "::error::L'application ne tourne plus après son lancement sur $runtime."
+            echo "::error::The app stopped running after launching on $runtime."
             exit 1
           fi
-          echo "L'application tourne sur $runtime."
+          echo "The app is running on $runtime."

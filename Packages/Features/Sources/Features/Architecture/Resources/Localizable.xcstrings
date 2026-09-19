@@ -1,0 +1,142 @@
+{
+  "sourceLanguage": "fr",
+  "strings": {
+    "architecture.comparison.pitfall": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The card has to be **one object whose content changes**, not four cards replacing each other. Otherwise SwiftUI tears down and rebuilds the tree on every selection: the criteria jump, the scroll position is lost, and there is nothing for the transition to cross-fade."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La fiche doit être **un objet qui change de contenu**, pas quatre fiches qui se remplacent. Sinon SwiftUI détruit et reconstruit l'arbre à chaque sélection : les critères sautent, la position de défilement se perd, et la transition ne peut rien fondre."
+          }
+        }
+      }
+    },
+    "architecture.comparison.rationale": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It was a `Grid` that scrolled sideways, and the comment defending it was honest: the alignment **is** the argument, four columns of prose need about a thousand points, wrapping them would destroy the comparison.\n\nAll true, and it did not survive a phone. The arithmetic was written in that same comment: a margin, the label column, a gap and one pattern column come to 408 points on a 402-point screen. The first column was therefore **cut by construction** — and the fix at the time was to leave the scroll indicator visible so the cut would read as an affordance rather than a bug. That is a note admitting the layout does not fit.\n\nA comparison works when the slots stay still and the content changes. Here the four questions hold their place and the pattern is what moves: one tap instead of a thousand points of sideways scrolling, the answers land in the same place every time, and the difference is therefore the only thing that moves on screen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C'était un `Grid` qui défilait latéralement, et le commentaire qui le défendait était honnête : l'alignement **est** l'argument, quatre colonnes de prose demandent environ mille points, les faire passer à la ligne détruirait la comparaison.\n\nTout est vrai, et ça n'a pas survécu à un téléphone. L'arithmétique était écrite dans ce même commentaire : une marge, la colonne d'étiquettes, un espacement et une colonne de motif font 408 points sur un écran de 402. La première colonne était donc **coupée par construction** — et le correctif de l'époque avait été de laisser l'indicateur de défilement visible pour que la coupe se lise comme une affordance plutôt que comme un bug. C'est une note qui admet que la mise en page ne rentre pas.\n\nUne comparaison fonctionne quand les emplacements restent fixes et que le contenu change. Ici les quatre questions gardent leur place et c'est le motif qui bouge : un toucher au lieu de mille points de défilement latéral, les réponses atterrissent au même endroit, et la différence est donc la seule chose qui bouge à l'écran."
+          }
+        }
+      }
+    },
+    "architecture.comparison.rejected.1.because": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Its first column is cut by the screen's own arithmetic, and no setting recovers six missing points."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sa première colonne est coupée par l'arithmétique de l'écran, et aucun réglage ne rattrape six points manquants."
+          }
+        }
+      }
+    },
+    "architecture.comparison.rejected.1.name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The sideways-scrolling table"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le tableau qui défile latéralement"
+          }
+        }
+      }
+    },
+    "architecture.comparison.rejected.2.because": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The names come from the content, and one of them is \"Clean Architecture\". Four segments on a 402-point screen give each about 95: the longest name would be truncated to a word and a half."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les noms viennent du contenu, et l'un d'eux est « Clean Architecture ». Quatre segments sur un écran de 402 points en donnent 95 chacun : le nom le plus long serait tronqué à un mot et demi."
+          }
+        }
+      }
+    },
+    "architecture.comparison.rejected.2.name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A segmented `Picker`"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un `Picker` segmenté"
+          }
+        }
+      }
+    },
+    "architecture.comparison.role": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comparing four architecture patterns on a phone."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comparer quatre motifs d'architecture sur un téléphone."
+          }
+        }
+      }
+    },
+    "architecture.comparison.whenToUse": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A selector plus one card when the things compared share a structure and the screen is narrow. A real table when the width exists — a web page, an iPad in landscape — and seeing two columns at once adds something."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un sélecteur plus une fiche quand les éléments comparés ont la même structure et que l'écran est étroit. Un vrai tableau quand la largeur existe — sur une page web, sur un iPad en paysage — et que voir deux colonnes ensemble apporte quelque chose."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

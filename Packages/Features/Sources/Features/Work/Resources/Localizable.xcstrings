@@ -1,0 +1,326 @@
+{
+  "sourceLanguage": "fr",
+  "strings": {
+    "work.disclosure.pitfall": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Without `.clipped()`, collapsed content **overflows** its container during the animation and paints over neighbouring cards. You only see it on a slow device, or by recording the screen in slow motion."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sans `.clipped()`, le contenu replié **déborde** de son conteneur pendant l'animation et passe par-dessus les cartes voisines. On ne le voit que sur un appareil lent, ou en enregistrant l'écran au ralenti."
+          }
+        }
+      }
+    },
+    "work.disclosure.rationale": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expansion animates a **height**, the trickiest case in SwiftUI: animating `frame(height:)` requires knowing the final height before showing it, which you cannot know for text of variable length.\n\nThe answer here is to let the content **exist** at all times and animate only what is measurable: opacity and a zero height, under a `.clipped()`. The real height is left to SwiftUI, which interpolates it as long as the change happens inside `withAnimation`.\n\nA happy consequence: the collapsed text is **in the view tree**. System search finds it, and VoiceOver can reach it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le dépliage anime une **hauteur**, et c'est le cas le plus piégeux de SwiftUI : animer `frame(height:)` demande de connaître la hauteur finale avant de l'afficher, ce qu'on ne sait pas d'un texte de longueur variable.\n\nLa solution ici est de laisser le contenu **exister** en permanence et de n'animer que ce qui est mesurable : opacité et hauteur nulle, sous un `.clipped()`. La hauteur réelle est laissée à SwiftUI, qui l'interpole dès lors que le changement est dans une `withAnimation`.\n\nConséquence heureuse : le texte replié est **dans l'arbre de vues**. La recherche système le trouve, et VoiceOver peut l'atteindre."
+          }
+        }
+      }
+    },
+    "work.disclosure.rejected.1.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "its chevron, insets and animation cannot be redefined enough to hold the design, and its label does not take a free-form layout"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "son chevron, ses marges et son animation ne se redéfinissent pas assez pour tenir le design, et son étiquette n'accepte pas de mise en page libre"
+          }
+        }
+      }
+    },
+    "work.disclosure.rejected.1.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The built-in `DisclosureGroup`"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`DisclosureGroup` natif"
+          }
+        }
+      }
+    },
+    "work.disclosure.rejected.2.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "collapsed content disappears from search and VoiceOver, and the transition starts from nothing — so it jumps"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "le contenu replié disparaît de la recherche et de VoiceOver, et la transition part de rien — donc elle saute"
+          }
+        }
+      }
+    },
+    "work.disclosure.rejected.2.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adding and removing the view from the tree"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter et retirer la vue de l'arbre"
+          }
+        }
+      }
+    },
+    "work.disclosure.rejected.3.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "one measurement per frame, a layout round trip each time, and a jump on first display before the measurement exists"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "une mesure par image, un aller-retour de mise en page à chaque fois, et un saut au premier affichage avant que la mesure n'existe"
+          }
+        }
+      }
+    },
+    "work.disclosure.rejected.3.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Animating `frame(height:)` measured by `GeometryReader`"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Animer `frame(height:)` mesuré par `GeometryReader`"
+          }
+        }
+      }
+    },
+    "work.disclosure.role": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expands a workstream without making the surrounding layout jump."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déplie un chantier sans faire sauter la mise en page autour de lui."
+          }
+        }
+      }
+    },
+    "work.disclosure.whenToUse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This pattern whenever a block of **unknown height** must open and close. If the height is known and fixed, animating `frame` directly is simpler and perfectly correct."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce motif dès qu'un bloc de **hauteur inconnue** doit s'ouvrir et se fermer. Si la hauteur est connue et fixe, animer `frame` directement est plus simple et parfaitement correct."
+          }
+        }
+      }
+    },
+    "work.grid.pitfall": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`minimum:` is the minimum width of a **column**, spacing excluded. Too low a value produces six unreadable columns on iPad without any constraint complaining."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`minimum:` est la largeur minimale d'une **colonne**, espacement non compris. Une valeur trop basse produit six colonnes illisibles sur iPad sans qu'aucune contrainte ne s'en plaigne."
+          }
+        }
+      }
+    },
+    "work.grid.rationale": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`.adaptive(minimum:)` lets **the system** pick the column count from the space available: two on a compact iPhone, three on a Pro Max, more on an iPad. One declaration covers every size — and above all every **text** size: at accessibility extra-large the grid falls back to one column on its own.\n\n`Lazy` matters here: cells are only built as they approach the screen. With thirty-three entries each carrying an image, building them all at once would show on the first scroll."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`.adaptive(minimum:)` laisse **le système** choisir le nombre de colonnes selon la place : deux sur un iPhone compact, trois sur un Pro Max, davantage sur un iPad. Une seule déclaration couvre toutes les tailles, et surtout toutes les tailles de **texte** — en accessibilité extra-large, la grille retombe à une colonne toute seule.\n\n`Lazy` compte ici : les cellules ne sont créées qu'en approchant de l'écran. Avec trente-trois entrées portant chacune une image, tout construire d'un coup se verrait au premier défilement."
+          }
+        }
+      }
+    },
+    "work.grid.rejected.1.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "it would need one value per size class, and all of them would be wrong at accessibility extra-large"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "il faudrait une valeur par classe de taille, et elles seraient toutes fausses en accessibilité extra-large"
+          }
+        }
+      }
+    },
+    "work.grid.rejected.1.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`.fixed()` or a hard-coded column count"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`.fixed()` ou un nombre de colonnes codé en dur"
+          }
+        }
+      }
+    },
+    "work.grid.rejected.2.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "thirty-three cells and their images built at once, for two on screen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "trente-trois cellules et leurs images construites d'un coup, pour deux visibles"
+          }
+        }
+      }
+    },
+    "work.grid.rejected.2.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A non-lazy `VGrid`"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`VGrid` non paresseux"
+          }
+        }
+      }
+    },
+    "work.grid.rejected.3.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "one row per app would take three screens of scrolling where the grid shows the scale at a glance — and the scale is the information"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "une ligne par application donnerait trois écrans de défilement là où la grille montre l'échelle d'un coup d'œil — et l'échelle est l'information"
+          }
+        }
+      }
+    },
+    "work.grid.rejected.3.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A `List`"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une `List`"
+          }
+        }
+      }
+    },
+    "work.grid.role": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lays the apps out in columns that adapt to the available width."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dispose les applications en colonnes qui s'adaptent à la largeur."
+          }
+        }
+      }
+    },
+    "work.grid.whenToUse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`.adaptive` whenever the column count is not an editorial decision but a consequence of available space. `.flexible` when the column count **is** the decision — a two-column comparison, for instance."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`.adaptive` dès que le nombre de colonnes n'est pas une décision éditoriale mais une conséquence de la place. `.flexible` quand le nombre de colonnes **est** la décision — une comparaison à deux colonnes, par exemple."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

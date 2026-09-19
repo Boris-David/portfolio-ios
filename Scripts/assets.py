@@ -30,7 +30,14 @@ from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parent.parent
 TOKENS = ROOT / "design" / "tokens.json"
-CATALOG = ROOT / "App" / "Resources" / "Assets.xcassets"
+# Two catalogues, and the split is deliberate.
+#
+# CONTENT — operator logos, product screenshots — lives with the layer that
+# draws it. The app target holds only what makes it an app.
+CATALOG = ROOT / "Packages" / "Features" / "Sources" / "ViewKit" / "Resources" / "Content.xcassets"
+# IDENTITY — the app icon — must stay in the application's own catalogue:
+# `ASSETCATALOG_COMPILER_APPICON_NAME` resolves against it and nowhere else.
+APP_CATALOG = ROOT / "App" / "Resources" / "Assets.xcassets"
 WEB = ROOT.parent / "web" / "public"
 
 CHECK = "--check" in sys.argv
@@ -83,7 +90,7 @@ def draw_app_icon(tokens: dict, size: int = 1024) -> Image.Image:
 
 
 def build_app_icon(tokens: dict) -> list[str]:
-    target = CATALOG / "AppIcon.appiconset"
+    target = APP_CATALOG / "AppIcon.appiconset"
     png = target / "icon-1024.png"
     problems: list[str] = []
 

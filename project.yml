@@ -1,18 +1,17 @@
 name: Amissan
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Le projet Xcode est GÉNÉRÉ depuis ce fichier, et n'est pas versionné.
+# The Xcode project is GENERATED from this file, and is not committed.
 #
-# Un `.xcodeproj` est un format binaire-ish où chaque fichier ajouté produit
-# trois lignes d'identifiants opaques. Deux branches qui ajoutent chacune un
-# écran produisent un conflit de fusion que personne ne sait lire, et qu'on
-# résout en écrasant le travail de l'autre.
+# An `.xcodeproj` is a near-binary format where every added file produces three
+# lines of opaque identifiers. Two branches each adding a screen produce a merge
+# conflict nobody can read, and that gets resolved by overwriting someone's work.
 #
-# Ici, ajouter un fichier n'exige rien : les sources sont déclarées par
-# répertoire. Et la configuration du projet — cibles, réglages, capacités — se
-# relit comme du texte, se compare dans une pull request, et se commente.
+# Here, adding a file requires nothing: sources are declared by directory. And
+# the project configuration — targets, settings, capabilities — reads as text,
+# diffs in a pull request, and can be commented.
 #
-#   xcodegen generate     régénère Amissan.xcodeproj
+#   xcodegen generate     regenerates Amissan.xcodeproj
 # ─────────────────────────────────────────────────────────────────────────────
 
 options:
@@ -21,16 +20,29 @@ options:
     iOS: "18.0"
   createIntermediateGroups: true
   generateEmptyDirectories: false
-  # Les schémas sont générés d'ici : versionner des `.xcscheme` revient à
-  # versionner un artefact, avec les mêmes conflits que le projet lui-même.
+  # Schemes are generated from here: committing `.xcscheme` files means
+  # committing an artefact, with the same conflicts as the project itself.
   xcodeVersion: "26.1"
 
 settings:
   base:
+    # ⚠️ At the **project** level, and that placement is the whole point.
+    #
+    # Xcode's automatic string extraction writes every string literal it finds
+    # into every `.xcstrings` it can see, in state `new` — so a build edits
+    # committed files. It was switched off on the application target, which
+    # left every SPM target still doing it: a compile put `%lld` back into the
+    # decisions catalogue days later, and `check-strings.sh` is what noticed.
+    #
+    # It is noise here by construction: this app never resolves a key through
+    # SwiftUI's automatic lookup. It goes through `TextCatalogue`, in the
+    # language the **content** was served in, which the extractor knows nothing
+    # about. See CLAUDE.md, invariant 4.
+    SWIFT_EMIT_LOC_STRINGS: NO
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
-    # Un avertissement qu'on tolère est un avertissement qu'on cesse de lire.
-    # Sur un dépôt que des recruteurs ouvrent, la barre est à zéro.
+    # A warning you tolerate is a warning you stop reading. On a repository
+    # recruiters open, the bar is zero.
     SWIFT_TREAT_WARNINGS_AS_ERRORS: true
     GCC_TREAT_WARNINGS_AS_ERRORS: true
     ENABLE_USER_SCRIPT_SANDBOXING: true
@@ -38,8 +50,42 @@ settings:
     ENABLE_MODULE_VERIFIER: true
 
 packages:
-  AmissanKit:
-    path: Packages/AmissanKit
+  # One package per layer, and the boundary is the manifest.
+  #
+  # A target can see a sibling's `public` types the moment somebody adds a line
+  # to the manifest — one line, and the layering is gone. A package cannot reach
+  # what it does not declare: `Features/Package.swift` never names `Networking`,
+  # so `import Networking` in a screen is not a review comment, it is
+  # "no such module".
+  #
+  # The application target declares all of these, because it **is** the
+  # composition root — the ring nothing imports. That is not a widening of what
+  # a screen can reach: `Features/Package.swift` still does not name
+  # `Networking`, `Core` or `Data`.
+  #
+  # ⚠️ Every package is listed here even though the app names one. A package
+  # left out still builds — it is reached transitively — but Xcode never
+  # surfaces its test target, so `xcodebuild test -scheme CoreUITests` answers
+  # "no such scheme" and the suite silently stops running. Found exactly that
+  # way, on a package added an hour earlier.
+  Domain:
+    path: Packages/Domain
+  Networking:
+    path: Packages/Networking
+  Core:
+    path: Packages/Core
+  Data:
+    path: Packages/Data
+  Presentation:
+    path: Packages/Presentation
+  DesignSystem:
+    path: Packages/DesignSystem
+  Localization:
+    path: Packages/Localization
+  CoreUI:
+    path: Packages/CoreUI
+  Features:
+    path: Packages/Features
 
 targets:
   Amissan:
@@ -49,18 +95,47 @@ targets:
       - path: App/Sources
       - path: App/Resources
         buildPhase: resources
+    # ─────────────────────────────────────────────────────────────────────
+    # The composition root IS this target.
+    #
+    # It therefore names every layer, because assembling them is the one thing
+    # it does. That is not a widening of what a *screen* can reach: a screen
+    # lives in `Features`, whose manifest still does not declare `Networking`,
+    # `Core` or `Data`.
+    #
+    # What this target gave up is that it could not previously write
+    # `import Networking` at all. `Scripts/check-layers.sh` replaces that with
+    # the rule it was standing in for: **no screen here** — no catalogue, no
+    # text key, no content. This target wires; it does not draw.
+    # ─────────────────────────────────────────────────────────────────────
     dependencies:
-      - package: AmissanKit
-        product: AppComposition
+      - package: Domain
+        product: Domain
+      - package: Networking
+        product: Networking
+      - package: Core
+        product: Core
+      - package: Localization
+        product: Localization
+      - package: Data
+        product: Data
+      - package: Presentation
+        product: Presentation
+      - package: DesignSystem
+        product: DesignSystem
+      - package: CoreUI
+        product: CoreUI
+      - package: Features
+        product: Features
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.amissan.portfolio
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
-        # L'icône est déclarée par son nom d'ensemble dans le catalogue.
+        # The icon is referenced by its asset-catalogue set name.
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        # Portrait seulement : l'application est une lecture, et une mise en
-        # page éditoriale en paysage sur iPhone n'apporte rien qu'on ait voulu.
+        # Portrait only on iPhone: this app is read, and an editorial layout in
+        # landscape on a phone adds nothing anyone asked for.
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: >-
           UIInterfaceOrientationPortrait
@@ -68,11 +143,11 @@ targets:
           UIInterfaceOrientationLandscapeLeft
           UIInterfaceOrientationLandscapeRight
         INFOPLIST_KEY_CFBundleDisplayName: Amissan
-        # Le français est la langue de la source ; l'anglais suit le contenu
-        # servi par l'API.
+        # French is the source's language; English follows the content the API
+        # serves.
         INFOPLIST_KEY_CFBundleDevelopmentRegion: fr
-        # Aucune capture, aucun micro, aucune localisation : l'application ne
-        # demande **aucune** permission, et le fichier le montre par son vide.
+        # No camera, no microphone, no location: this app requests **no**
+        # permission at all, and the file shows it by what it does not contain.
         SUPPORTS_MACCATALYST: false
         TARGETED_DEVICE_FAMILY: "1,2"
     info:
@@ -82,18 +157,16 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
-        # ⚠️ Déclaré explicitement, et pas laissé à la génération implicite.
+        # ⚠️ Declared explicitly, not left to implicit generation.
         #
-        # Sans `UILaunchScreen`, iOS exécute l'application en **mode de
-        # compatibilité** : le contenu est rendu à une taille logique réduite,
-        # avec des bandes noires en haut et en bas. Mesuré sur un iPhone 17 Pro :
-        # 603 points utilisés sur 874. Rien n'avertit — ni la construction, ni
-        # l'exécution, et à l'œil on croit à un défaut de mise en page qu'on
-        # cherche du mauvais côté.
+        # Without `UILaunchScreen`, iOS runs the app in **compatibility mode**:
+        # content renders at a reduced logical size, with black bars top and
+        # bottom. Measured on an iPhone 17 Pro: 603 points used out of 874.
+        # Nothing warns — not the build, not the runtime — and by eye it looks
+        # like a layout bug you then hunt in the wrong place.
         #
-        # Un dictionnaire vide suffit : il dit « écran de lancement vide »,
-        # ce qui est le bon choix pour une application qui affiche du contenu
-        # dès la première image.
+        # An empty dictionary is enough: it means "empty launch screen", which
+        # is the right choice for an app that shows content on the first frame.
         UILaunchScreen: {}
     entitlements:
       path: App/Amissan.entitlements
@@ -110,15 +183,24 @@ targets:
       - target: Amissan
     settings:
       base:
-        # Les tests ne traitent pas leurs avertissements en erreurs : un test
-        # qui exerce une API dépréciée à dessein doit pouvoir le faire.
+        # Tests do not treat warnings as errors: a test that deliberately
+        # exercises a deprecated API must be able to.
         SWIFT_TREAT_WARNINGS_AS_ERRORS: false
-        # Un bundle de tests doit être signé, donc porter un Info.plist. Le
-        # faire générer évite d'en versionner un qui ne contiendrait que des
-        # valeurs par défaut.
+        # A test bundle must be signed, so it needs an Info.plist. Generating
+        # it avoids committing one that would hold nothing but defaults.
         GENERATE_INFOPLIST_FILE: true
 
 schemes:
+  # ⚠️ The package suites are **not** listed here, and cannot be.
+  #
+  # XcodeGen validates a scheme's test targets against the project's own, and a
+  # SwiftPM test target is not one — Xcode generates an implicit scheme for each
+  # instead, which is what `Scripts/test.sh` drives. Adding them here fails
+  # generation outright, which is at least honest about it.
+  #
+  # So ⌘U runs the app's suites; `./Scripts/test.sh` runs all thirteen, and
+  # prints a total per suite — which is what makes a suite that stopped running
+  # visible at all. See `check-suites.sh`.
   Amissan:
     build:
       targets:

@@ -1,0 +1,72 @@
+{
+  "$comment": "iOS-SPECIFIC tokens. The shared design — colours, spacing, radii, curves, type scale — lives in the hub and reaches here through `design/tokens.json`. This file carries only what makes sense on iOS alone, and it is ASSEMBLED with the hub at generation time. A shared token landing here would be a divergence in the making: the website would never see it.",
+  "icon": {
+    "$comment": "SF Symbol and illustration sizes, in points. Not shared with the website: there an icon is an SVG sized by its container, here it is a font whose size is declared.",
+    "badge": 11,
+    "caption": 13,
+    "inline": 16,
+    "action": 22,
+    "feature": 32,
+    "hero": 44
+  },
+  "stroke": {
+    "$comment": "Stroke widths. `hairline` is half a point: on a 3× screen that is one and a half pixels — the thinnest line that still renders crisply.",
+    "hairline": 0.5,
+    "regular": 1,
+    "emphasis": 3
+  },
+  "elevation": {
+    "$comment": "Shadows, by role rather than by value. A shadow is described by three numbers that only mean anything together: splitting them invites changing one alone.",
+    "resting": {
+      "radius": 16,
+      "y": 5,
+      "opacity": 0.1
+    },
+    "raised": {
+      "radius": 26,
+      "y": 10,
+      "opacity": 0.16
+    },
+    "floating": {
+      "radius": 12,
+      "y": 4,
+      "opacity": 0.08
+    }
+  },
+  "opacity": {
+    "$comment": "Opacities named by what they mean. `tintOnMaterial` is the iOS 18 fallback's: a tint laid over a translucent material, enough to be seen, not enough to hide the blur.",
+    "disabled": 0.4,
+    "tintOnMaterial": 0.14,
+    "hairlineOnGlass": 0.6,
+    "annotation": 0.55,
+    "shimmer": 0.55
+  },
+  "duration": {
+    "$comment": "Animation durations, in seconds. The CURVES are shared with the website: the curve carries the feel, the duration tunes it to the medium. A touch screen has less patience than a web page.",
+    "entrance": 0.45,
+    "disclosure": 0.42,
+    "toggle": 0.28,
+    "pop": 0.5,
+    "counter": 1.1,
+    "welcome": 1.4,
+    "shimmer": 0.9
+  },
+  "layout": {
+    "$comment": "`readingWidth` bounds the text column: a line reads well at around 65 characters, and expressing it as a multiple of the body size makes it follow the type scale. `pressedScale` lives here and not under `opacity` — it is a scale factor, not a transparency, and filing it in the wrong place leads somebody to write `opacity(Tokens.Opacity.pressed)` one day.",
+    "readingWidthInBodies": 40,
+    "appIconSide": 44,
+    "appIconRadius": 10,
+    "signatureHeight": 44,
+    "signatureWidth": 280,
+    "productIconSide": 76,
+    "shelfCellWidth": 150,
+    "pressedScale": 0.97,
+    "galleryHeight": 380,
+    "screenshotAspect": 0.461,
+    "showcaseHeight": 240,
+    "timelineDot": 5,
+    "stepBadge": 20,
+    "decisionBadge": 26,
+    "popoverWidth": 300
+  }
+}

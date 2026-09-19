@@ -1,0 +1,262 @@
+{
+  "sourceLanguage": "fr",
+  "strings": {
+    "shared.contextmenu.pitfall": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The menu **replaces** the view's preview: a card with a transparent background shows up without it, and looks broken."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le menu **remplace** l'aperçu de la vue : une carte au fond transparent y apparaît sans son fond, et paraît cassée."
+          }
+        }
+      }
+    },
+    "shared.contextmenu.rationale": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A long press on a card is the iOS idiom for \"what else can I do with this\". Putting a share button on thirty-three cards would have doubled the grid's visual weight for something almost nobody wants — and the one person who does already knows where to look."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un appui long sur une carte est l'idiome iOS de « qu'est-ce que je peux faire d'autre avec ça ». Poser un bouton de partage sur trente-trois cartes aurait doublé le poids visuel de la grille pour ce que presque personne ne cherche — et celui qui le cherche sait déjà où regarder."
+          }
+        }
+      }
+    },
+    "shared.contextmenu.rejected.1.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thirty-three buttons for a secondary action: the grid stops being a grid."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trente-trois boutons pour une action secondaire : la grille cesse d'être une grille."
+          }
+        }
+      }
+    },
+    "shared.contextmenu.rejected.1.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A share button on every card"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un bouton de partage sur chaque carte"
+          }
+        }
+      }
+    },
+    "shared.contextmenu.rejected.2.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reserved for list rows. On a grid it does not exist, and nobody looks for it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réservé aux lignes de liste. Sur une grille, il n'existe pas et personne ne le cherche."
+          }
+        }
+      }
+    },
+    "shared.contextmenu.rejected.2.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A swipe action"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un balayage latéral"
+          }
+        }
+      }
+    },
+    "shared.contextmenu.role": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share or copy an app's App Store link, without cluttering the grid."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partager ou copier le lien App Store d'une application, sans encombrer la grille."
+          }
+        }
+      }
+    },
+    "shared.contextmenu.whenToUse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Secondary actions on an identifiable item. Never for the primary action: a context menu is not discoverable."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des actions secondaires sur un élément identifiable. Jamais pour l'action principale : un menu contextuel ne se découvre pas."
+          }
+        }
+      }
+    },
+    "shared.freshness.pitfall": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Without `presentationCompactAdaptation` it becomes a sheet on iPhone — and half the reason for using one disappears with no warning."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sans `presentationCompactAdaptation`, il devient une feuille sur iPhone — et la moitié de la raison de l'employer disparaît sans prévenir."
+          }
+        }
+      }
+    },
+    "shared.freshness.rationale": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The question — *where did this come from?* — is a **footnote** about what the reader is looking at. A popover **points at** the banner it belongs to; a sheet covers the screen and severs the connection between the question and what prompted it.\n\n`presentationCompactAdaptation(.popover)` keeps that on iPhone. Without it, SwiftUI turns every popover into a sheet in a compact size class — a reasonable default for a menu, the wrong one for a footnote."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La question — *d'où ça vient ?* — est une **note de bas de page** sur ce qu'on est en train de lire. Un popover **pointe** le bandeau auquel il se rapporte ; une feuille couvre l'écran et coupe le lien entre la question et ce qui l'a provoquée.\n\n`presentationCompactAdaptation(.popover)` le maintient sur iPhone. Sans ça, SwiftUI transforme tout popover en feuille en classe de taille compacte — un défaut raisonnable pour un menu, le mauvais pour une note."
+          }
+        }
+      }
+    },
+    "shared.freshness.rejected.1.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It covers the very content whose provenance is being asked about."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elle couvre le contenu dont on demande justement la provenance."
+          }
+        }
+      }
+    },
+    "shared.freshness.rejected.1.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A half-height `sheet`"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une `sheet` à mi-hauteur"
+          }
+        }
+      }
+    },
+    "shared.freshness.rejected.2.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A content fingerprint permanently on every screen is noise for everybody except one person a year."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une empreinte de contenu en permanence sur chaque écran est du bruit pour tout le monde sauf une personne par an."
+          }
+        }
+      }
+    },
+    "shared.freshness.rejected.2.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Showing everything in the banner"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout afficher dans le bandeau"
+          }
+        }
+      }
+    },
+    "shared.freshness.role": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Says where the content on screen came from, and how old it is."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dit d'où vient le contenu affiché, et depuis quand."
+          }
+        }
+      }
+    },
+    "shared.freshness.whenToUse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A short piece of information attached to a precise element. Never for a task: a popover dismisses on the first tap outside it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une information courte rattachée à un élément précis. Jamais pour une tâche : un popover se ferme au premier toucher à côté."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

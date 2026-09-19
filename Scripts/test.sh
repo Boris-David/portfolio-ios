@@ -5,9 +5,14 @@
 #   ./Scripts/test.sh                 sur le simulateur par défaut
 #   ./Scripts/test.sh "iPhone 16 Pro" sur un appareil nommé
 #
-# Un script plutôt qu'un schéma unique : les cibles de test d'un paquet SPM
-# référencé n'entrent pas dans l'action `test` d'un schéma d'application. Chaque
-# suite a son propre schéma, généré par Xcode, et c'est ici qu'on les rassemble.
+# A script rather than a single scheme: the test targets of a referenced SPM
+# package do not enter an app scheme's `test` action. Each suite has its own
+# scheme, and this is where they are gathered.
+#
+# None of these has a declared scheme: XcodeGen cannot declare one for a package
+# test target — it reads `A/B` as `project/target` and rejects the spec.
+# `xcodebuild` resolves package test targets as implicit schemes anyway, which is
+# why listing them here works.
 #
 # Le code de retour est celui du **premier échec**, pas celui de la dernière
 # commande : sans ça, une suite rouge suivie d'une verte rendrait zéro.
@@ -20,11 +25,14 @@ cd "$ROOT"
 SUITES=(
   DomainTests
   NetworkingTests
-  PersistenceTests
+  CoreTests
   DataTests
-  BackstageTests
+  PresentationTests
   DesignSystemTests
-  ArchitectureTests
+  LocalizationTests
+  CoreUITests
+  ViewKitTests
+  DecisionsTests
   Amissan
 )
 

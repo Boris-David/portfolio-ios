@@ -1,0 +1,8 @@
+# The identifiers, and nothing else.
+#
+# No credential lives here: the App Store Connect key is read from the
+# environment, which is the only place it exists — GitHub secrets in CI, the
+# author's keychain locally. See `fastlane/README.md`.
+
+app_identifier("dev.amissan.portfolio")
+team_id("R55L6Z8K6R")

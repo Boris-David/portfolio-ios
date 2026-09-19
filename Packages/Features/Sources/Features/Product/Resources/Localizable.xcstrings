@@ -1,0 +1,210 @@
+{
+  "sourceLanguage": "fr",
+  "strings": {
+    "product.gallery.pitfall": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A shelf that stops at the page's gutter reads as ending there. It runs the full width — margin cancelled, inset given back inside."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un rayon qui s'arrête à la gouttière de la page se lit comme s'il finissait là. Il court sur toute la largeur — marge annulée, encart rendu à l'intérieur."
+          }
+        }
+      }
+    },
+    "product.gallery.rationale": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Four phone screenshots stacked vertically is four screens of scrolling for four images. On a shelf they fit in one screen and are browsed with a thumb — which is the App Store's own vocabulary for exactly this.\n\nThey were rendered at the very bottom of a case study, two pushes from the first screen, behind five collapsed chapters. They **are** the product."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quatre captures d'un écran de téléphone empilées verticalement, c'est quatre écrans de défilement pour quatre images. Posées en rayon, elles tiennent dans un écran et se parcourent du pouce — c'est le vocabulaire de l'App Store pour exactement cette chose.\n\nElles étaient rendues tout en bas d'une étude de cas, à deux poussées de l'accueil, derrière cinq chapitres repliés. Ce sont **le produit**."
+          }
+        }
+      }
+    },
+    "product.gallery.rejected.1.because": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A phone screenshot shrunk to a thumbnail no longer shows any of what it is meant to show. Four legible images you scroll beat eight illegible ones that fit."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une capture de téléphone réduite à une vignette ne montre plus rien de ce qu'elle est censée montrer. Mieux vaut quatre images lisibles qu'on fait défiler que huit illisibles qui tiennent."
+          }
+        }
+      }
+    },
+    "product.gallery.rejected.1.name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A grid of thumbnails"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une grille de vignettes"
+          }
+        }
+      }
+    },
+    "product.gallery.role": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The product's screenshots, on a horizontal shelf."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les captures du produit, en rayon horizontal."
+          }
+        }
+      }
+    },
+    "product.gallery.whenToUse": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`scrollTargetBehavior(.viewAligned)` so a screenshot comes to rest under the finger. Half an image showing at rest says there are more; half an image at **every** rest is a layout that never settles."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`scrollTargetBehavior(.viewAligned)` pour qu'une capture s'arrête sous le doigt. Une demi-image au repos dit qu'il y en a d'autres ; une demi-image à **chaque** repos est une mise en page qui ne se pose jamais."
+          }
+        }
+      }
+    },
+    "product.store.pitfall": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The prominent rendering differs between the two worlds: tinted glass on iOS 26, a solid accent fill on iOS 18. The same tint at low opacity over a translucent material gives, in the light theme, white on pale — measured on screen, not inferred."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le rendu principal diffère entre les deux mondes : sur iOS 26 c'est du verre teinté, sur iOS 18 un aplat d'accent. La même teinte à faible opacité sur un matériau translucide donne, en thème clair, du blanc sur du pâle — mesuré à l'écran, pas déduit."
+          }
+        }
+      }
+    },
+    "product.store.rationale": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One primary button per screen, and this is it: it is the only action in the whole app that leads to something you can install and use. Everything else in the portfolio is read; this one is downloaded.\n\nThe reliability figure sits **under** the button rather than above it: that is where somebody about to install something looks, and not where somebody reading a page looks."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un seul bouton principal par écran, et c'est celui-là : c'est la seule action de toute l'application qui mène à un produit qu'on peut installer et utiliser. Tout le reste du portfolio se lit ; celui-ci se télécharge.\n\nLe chiffre de fiabilité est posé **sous** le bouton et non au-dessus : c'est là que regarde quelqu'un qui s'apprête à installer quelque chose, et pas là que regarde quelqu'un qui lit une page."
+          }
+        }
+      }
+    },
+    "product.store.rejected.1.because": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The most important action on the screen deserves a touch target, not an underlined line of text you have to aim at."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'action la plus importante de l'écran mérite une cible tactile, pas une ligne de texte soulignée qu'on vise."
+          }
+        }
+      }
+    },
+    "product.store.rejected.1.name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A text link"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un lien de texte"
+          }
+        }
+      }
+    },
+    "product.store.role": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The button that leads to the App Store."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bouton qui mène à l'App Store."
+          }
+        }
+      }
+    },
+    "product.store.whenToUse": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A full-width primary button when the screen has one action and only one. Two buttons of equal weight side by side ask for a choice before the reader has anything to choose with."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un bouton principal pleine largeur quand l'écran a une action et une seule. Deux boutons de même poids côte à côte demandent un choix avant que le lecteur ait de quoi choisir."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

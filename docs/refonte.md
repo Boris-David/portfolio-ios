@@ -28,6 +28,43 @@ couche de vernis à ajouter : c'est la conception à reprendre.
 
 ---
 
+## 0. La langue du code — non négociable
+
+**Portée élargie le 2026-09-18 :** *« Why en français ? T'as oublié qu'ils
+doivent être en anglais les comments et tout ? »* — la règle ne vise pas que le
+Swift. **Tout commentaire de code, quel que soit le fichier**, est en anglais :
+`project.yml`, les scripts shell, les `$comment` des JSON, les workflows.
+
+Et **partout** : `portfolio-web` et `portfolio-api` aussi. Décidé le 2026-09-18.
+
+Restent en français : `docs/`, les messages de commit, et le contenu de
+l'application.
+
+**Demandé, le 2026-09-18 :** *« Stop les commentaires de code et les noms de
+classes, struct etc. en français. Tout ça doit être in English. Et c'est non
+négociable. »*
+
+**Tout le source Swift est en anglais** : commentaires, noms de types, de
+fonctions, de variables locales. Sans exception.
+
+La raison n'est pas stylistique, elle est de lectorat : ce dépôt est ouvert par
+des recruteurs et des ingénieurs qui ne lisent pas forcément le français. Un
+raisonnement écrit dans une langue qu'une moitié de l'audience ne lit pas gâche
+exactement ce pour quoi il a été écrit.
+
+Ce qui reste en français : **`docs/`**, qui s'adresse à l'auteur, et le
+**contenu de l'application**, qui est bilingue par construction.
+
+Tenu par `Scripts/check-language.sh`, exécuté en CI. La détection est une liste
+de mots, pas une détection d'accents — « résumé » est un mot anglais valable et
+ne doit pas déclencher la garde.
+
+⚠️ **Portée à trancher** : `portfolio-web` et `portfolio-api` ont eux aussi leurs
+commentaires en français. La règle devrait logiquement s'y appliquer, mais c'est
+une passe mécanique sur du code qui n'est pas en cours de reprise. À décider.
+
+---
+
 ## 1. Écrans et vues — la séparation
 
 **Demandé :** *« Je veux que tu différencies les Screens de views ! Les vues
@@ -307,7 +344,7 @@ Ce qui sera fait :
 ## 12. La structure des dossiers
 
 **Demandé :** *« FeatureWork, FeatureJourney, etc. ? Faudrait peut-être un
-dossier Feature ? »*
+study Feature ? »*
 
 Oui. Les cibles gardent leur nom — c'est lui qui apparaît dans les imports — mais
 leurs sources passent sous `Sources/Features/<Nom>/` via le `path:` du manifeste.
@@ -315,11 +352,13 @@ leurs sources passent sous `Sources/Features/<Nom>/` via le `path:` du manifeste
 ```
 Sources/
   Domain/  Networking/  Persistence/  Data/
-  DesignSystem/  Backstage/
+  DesignSystem/  Decisions/
   Features/
-    Kit/  Profile/  Work/  Journey/  Resume/  Backstage/  Settings/
-  AppComposition/
+    Kit/  Profile/  Work/  Journey/  Resume/  Engineering/  Settings/
 ```
+
+> Périmé sur un point : la racine de composition n'est plus un module de
+> `Sources/`, c'est la **cible d'application** elle-même (§24).
 
 ---
 
@@ -339,13 +378,372 @@ Sources/
 
 ---
 
-## 14. Le rafraîchissement au retour
+## 14. La politique de fraîcheur — corrigée
 
-Trou relevé pendant la rédaction : l'application charge au lancement, mais **ne
-se rafraîchit pas** quand elle revient au premier plan après plusieurs jours.
+**Demandé, le 2026-09-18 :** *« Ce n'est même pas une histoire de quelques jours.
+L'app utilise ce qu'elle a en local lorsqu'on part en timeout ou que le user n'a
+pas de connexion internet. Au-delà de ça, il fait ses appels réseaux. Si on veut,
+on peut mettre un mécanisme de cache sur certains appels. »*
 
-À corriger : relecture sur `scenePhase == .active` si l'instantané dépasse un
-certain âge.
+Ça **corrige** ce que la première version fait. Elle sert le cache d'abord, puis
+le réseau — deux instantanés à chaque ouverture. La politique demandée est
+l'inverse, et elle est plus honnête : *ce qu'on affiche est ce que la source dit,
+maintenant.*
+
+```swift
+enum FreshnessPolicy {
+  /// Le réseau d'abord ; le local **seulement** s'il échoue. Le défaut.
+  case networkFirst
+  /// Le local d'abord s'il existe et n'a pas dépassé son âge, puis le réseau.
+  /// Réservé aux appels dont le contenu ne bouge quasiment jamais.
+  case cacheFirst(maxAge: Duration)
+}
+```
+
+- **`networkFirst` partout par défaut.** Un appel part, la phase est `loading`,
+  et l'écran montre un squelette. Sur délai dépassé ou absence de réseau, on
+  bascule sur le local **en le disant** ;
+- **`cacheFirst` à la demande**, appel par appel, quand le contenu ne bouge pas —
+  le catalogue d'applications, par exemple. C'est le « mécanisme de cache sur
+  certains appels » demandé, rendu explicite plutôt que subi ;
+- **le repli garde ses trois couches** : cache disque, puis graine embarquée. Il
+  ne sert plus à afficher vite, il sert à afficher **quand même**.
+
+Et le trou relevé en rédigeant disparaît avec : l'application rappelle la source
+à chaque retour au premier plan (`scenePhase == .active`), puisque le réseau est
+désormais le chemin normal et non l'exception.
+
+---
+
+## 16. Un fichier par type
+
+**Demandé :** *« Ici pareil, un fichier par DTO ! Au fait généralement, un fichier
+par classe, struct, objet, protocol etc. »*
+
+Un type public = un fichier portant son nom. `PortfolioDTO.swift` porte quinze
+types ; il en portera un.
+
+Les exceptions, et elles sont étroites :
+
+- un type **imbriqué** reste avec son parent (`CaseStudy.Chapter` vit dans
+  `CaseStudy.swift`) — le sortir couperait ce qui n'a pas de sens séparé ;
+- une **extension de conformité** courte (`extension X: Equatable`) reste avec le
+  type ;
+- les **aperçus** (`#Preview`) restent avec la vue qu'ils montrent.
+
+Bénéfice réel, au-delà du rangement : un fichier par type donne un historique git
+par type. « Qui a changé ce DTO et pourquoi » devient une question à laquelle
+`git log` répond.
+
+---
+
+## 17. La visibilité — `private` par défaut
+
+**Demandé :** *« Fais également très attention aux visibilités ! C'est private par
+défaut ! Pour être public faut vraiment qu'il y ait une raison ! Et quelque chose
+de public d'une couche ne doit pas être visible sur une autre couche qui n'y a
+pas accès. »*
+
+La règle, du plus fermé au plus ouvert, et on ne monte d'un cran qu'avec une
+raison nommée :
+
+| Niveau | Quand |
+|---|---|
+| `private` | le défaut. Tout commence ici |
+| `fileprivate` | un type auxiliaire partagé dans le même fichier |
+| `internal` (implicite) | employé ailleurs dans **le même module** |
+| `package` | employé par un autre module **du même package** — et par personne d'autre |
+| `public` | franchit une frontière de package. Se justifie |
+| `open` | jamais. Rien ici n'est conçu pour être sous-classé |
+
+⚠️ **`package` est le niveau qu'on oublie**, et c'est précisément celui qui
+manquait : un type utilisé par deux modules d'`AmissanKit` n'a aucune raison
+d'être visible depuis l'application. Le passer `public` l'expose à tout le monde
+pour satisfaire un voisin.
+
+**Garde — et pas celle qui était prévue.** L'idée initiale était *« un test qui
+compte les déclarations `public` par module et échoue au-delà d'un seuil »*.
+Un seuil ne mesure rien : il se relève le jour où il gêne, et il ne dit jamais
+*quelle* déclaration est de trop.
+
+La règle retenue est falsifiable : **`public` veut dire « franchit une frontière
+de package »**. Donc tout type `public` de `Features` doit être nommé quelque
+part en dehors de `Features`. Si personne dehors ne le nomme, il est `package`.
+`Scripts/check-layers.sh` le vérifie, et la mutation le confirme.
+
+⚠️ La garde est **limitée à `Features`**, volontairement. Ailleurs elle crierait
+au loup : `HTTPResponse` n'apparaît jamais par son nom dans `Data`, parce qu'il
+arrive par inférence depuis `HTTPClient.send`. Une garde à faux positifs est une
+garde qu'on apprend à sauter.
+
+**Résultat mesuré :** dans `Features`, 15 déclarations `public` et 15 `package`
+— la moitié de la surface a cessé d'être visible depuis l'application.
+
+**Trois trouvailles de la passe :**
+
+- `EmptySeed` était un **double de test** compilé dans l'application. Il est
+  descendu dans la cible de test ;
+- `InMemoryPreferences` n'avait aucun consommateur, nulle part. Supprimé ; il
+  reviendra avec l'écran de réglages, dans le package qui en aura besoin ;
+- `UserDefaultsPreferences` n'est encore branché à rien — il attend l'écran de
+  réglages. Il a désormais ses tests, parce que son format de stockage est un
+  **choix** (une chaîne plate relisible à la main, pas un blob encodé) et que ce
+  choix a un mode de panne silencieux : rien ne casse, l'application s'ouvre
+  simplement dans la mauvaise langue.
+
+---
+
+## 18. Chaque couche est un package — **fait**
+
+**Demandé :** *« Je veux aussi que chaque couche puisse avoir des dépendances !
+Ce qui fera qu'on pourra bloquer par dépendances le fait que certaines couches se
+connaissent ou non. »*
+
+C'est le prolongement de ce qui avait été fait pour le design system, et c'est
+plus fort qu'une cible :
+
+- une **cible** d'un même package voit les types `public` de ses sœurs dès qu'on
+  ajoute la dépendance au manifeste — une ligne, et la frontière tombe ;
+- un **package** a son propre manifeste et ne peut pas atteindre ce qu'il ne
+  déclare pas. `Features/Package.swift` ne nomme jamais `Networking` : dans un
+  écran, `import Networking` ne donne pas une remarque en revue, il donne
+  « no such module ».
+
+### Le découpage retenu
+
+| Package | Ce qu'il contient | Ce qu'il déclare |
+|---|---|---|
+| `Domain` | entités, ports | **rien** |
+| `Networking` | HTTP | rien |
+| `Persistence` | octets sur disque | rien |
+| `DesignSystem` | couleur, typo, mouvement | Lottie |
+| `Data` | DTO, correspondances, dépôts, sources | Domain + les deux techniques |
+| `Presentation` | phases, store, chrome, formatage, routes | Domain |
+| `Features` | `ViewKit` → `Decisions` → `FeatureKit` → les écrans | Domain, Presentation, DesignSystem, Textual |
+| `App/Sources` | le câblage | tout — la cible `.app` **est** la racine, depuis le 2026-09-19 |
+
+⚠️ **Pas de préfixe `Amissan`** : *« on sait qu'on est dans Amissan, donc pas
+besoin de re-préfixer partout »*. Le nom du package est celui du module.
+
+### Ce que le découpage rend possible
+
+`package` — le niveau de visibilité qu'on oublie — **veut enfin dire quelque
+chose**. Dans `Features`, un type partagé entre `ViewKit` et `FeatureKit` se
+déclare `package` : les écrans le voient, l'application non. Avec un package par
+cible, il aurait fallu le passer `public`, donc l'exposer à tout le monde pour
+satisfaire un voisin.
+
+---
+
+## 18 bis. `Data` n'est pas `Adapters` — le renommage était une faute
+
+**Relevé par l'auteur le 2026-09-18 :** *« Tu as renommé data en adapters ? Non,
+on y est pas ! Pour moi ce sont deux choses différentes. […] Pour moi la couche
+adapter c'est ce qui prépare les données pour la partie UI ; la couche data,
+c'est autre chose. »*
+
+Il a raison, et la correction a produit une couche de plus.
+
+**« Adapter » est un rôle, pas un étage.** Tout ce qui convertit entre la forme
+de l'application et celle d'une technologie en est un — `URLSessionHTTPClient`
+en est un, et il vit dans `Networking` ; `PortfolioStore` en est un aussi, de
+l'autre côté. Appeler `Adapters` le seul étage des dépôts revendiquait un rôle
+qu'il ne détient pas seul.
+
+**Dans le vocabulaire canonique**, l'anneau *Interface Adapters* de la Clean
+Architecture contient **deux moitiés** qui n'ont rien à faire ensemble :
+
+| Moitié | Ce qu'elle fait | Ici |
+|---|---|---|
+| **Gateways** | obtenir et écrire la donnée | `Data` |
+| **Presenters** | préparer la donnée pour l'écran | `Presentation` |
+
+L'intuition de l'auteur — « l'adapter, c'est ce qui prépare pour l'UI » —
+désigne exactement la seconde. Elle **existait**, éparpillée dans `FeatureKit`,
+mêlée à des vues SwiftUI, et **sans nom**. Ce qui n'a pas de nom ne peut pas
+être dépendu volontairement, ni défendu en revue.
+
+### `Presentation` — ce qui en sort et pourquoi
+
+`ViewPhase`, `PhaseFailure`, `PortfolioStore`, `AppChrome`, `DateStyle`,
+`Route`, `Sheet`, `AppSection`, `Router`.
+
+**L'invariant : rien n'y importe SwiftUI.** C'est le test décisif d'une couche de
+présentation — si ça dessine, c'est une vue ; si ça décide quoi dessiner, c'est
+ici. Conséquence directe : tout s'y teste **sans simulateur et sans rendu**.
+
+SwiftUI venant du SDK, aucun manifeste ne peut l'interdire : c'est
+`Scripts/check-layers.sh` qui le refuse, et il est mutation-testé.
+
+### `Icon` — le prix de l'invariant, et ce qu'il rapporte
+
+Un `PhaseFailure` portant `"wifi.slash"` échoue au test ci-dessus : c'est une
+instruction à un moteur de rendu précis. Il porte donc un **sens** — `.offline` —
+et `ViewKit` décide du glyphe. Trois gains :
+
+- la présentation se teste sans rendu : affirmer `.offline` est exact, affirmer
+  `"wifi.slash"` teste une orthographe ;
+- le jeu d'icônes change dans **un** fichier ;
+- **un symbole SF mal orthographié n'affiche rien, en silence.** Un cas
+  d'énumération ne peut pas être mal orthographié — et `IconTests` vérifie que
+  chacun existe réellement (`UIImage(systemName:)` rend `nil` sinon).
+
+### Le défaut que l'extraction a mis au jour
+
+Deux traductions **divergentes** de la même erreur coexistaient :
+`PortfolioStore` rendait `.nothingAvailable` avec une icône de bac vide, et une
+seconde copie du même `switch` — écrite dans une vue — avec un symbole de wifi
+barré. La même panne avait deux visages selon l'écran où l'on se trouvait.
+
+Aucune des deux n'était fausse isolément, ce qui est précisément pourquoi
+personne ne l'avait vu. **Une logique de présentation dupliquée ne se signale pas
+en cassant : elle se signale en dérivant.** Il n'en reste qu'une,
+`PhaseFailure.init(_:chrome:)`.
+
+---
+
+## 19. `AppRoot` viole le SRP
+
+**Demandé :** *« Il y a trop de choses différentes dans `AppRoot.swift` ! C'est
+clairement un antipattern ! SRP ! »*
+
+Constat juste. Le fichier porte aujourd'hui : la `TabView`, la résolution des
+routes, la résolution des feuilles, la feuille de contact, l'accessoire de barre,
+la lecture de l'argument de lancement, et le câblage de l'environnement. Sept
+responsabilités dans un fichier appelé « racine ».
+
+Découpage :
+
+| Fichier | Responsabilité unique |
+|---|---|
+| `AppRoot` | assembler la scène — et **rien** d'autre |
+| `AppTabs` | la `TabView` et ses onglets |
+| `RouteResolver` | route → écran |
+| `SheetResolver` | feuille → écran |
+| `ContactSheet` | son propre écran, dans sa fonctionnalité |
+| `BackstageAccessory` | l'accessoire de barre |
+| `LaunchArguments` | lire `-tab` et `-decision` |
+| `AppEnvironment` | construire le graphe de dépendances |
+
+---
+
+## 20. Où on en est
+
+*Tenu à jour à chaque étape, pour qu'une reprise ne reparte pas de zéro.*
+
+**Fait :**
+
+- [x] cahier des charges (ce document)
+- [x] politique de fraîcheur : réseau d'abord, `cacheFirst(maxAge:)` par appel ;
+      une charge mal formée n'est pas rattrapée par le cache ; le cache est écrit
+      à **chaque** appel réussi
+- [x] `ViewPhase` (4 états) + `PhaseView` + `FailureView`
+- [x] `Sources/Features/` par le `path:` du manifeste
+- [x] préférences dans le domaine (apparence, langue, coulisses), repli **anglais**
+- [x] design system en package séparé
+- [x] tokens en **deux couches** : hub partagé + `tokens.ios.json` spécifique,
+      assemblés à la génération ; recouvrement refusé
+- [x] zéro nombre magique (17 remplacés par des tokens)
+- [x] **une couche = un package** (§18) — huit packages, sans préfixe `Amissan`
+- [x] **`Data` rétabli**, et `Presentation` extraite (§18 bis) — les deux moitiés
+      de l'anneau *Interface Adapters* cessent d'être confondues
+- [x] `Scripts/check-layers.sh` — le domaine ignore SwiftUI, la présentation ne
+      dessine pas ; mutation-testé
+- [x] `ExistentialAny` activé partout — chaque existentiel se lit `any`
+- [x] `AppRoot` découpé en sept types (§19)
+- [x] **un fichier par type** (§16) — 151 fichiers Swift
+- [x] **tout le Swift en anglais** (151 fichiers), CI comprise
+- [x] `MalformedReason` — le diagnostic cesse d'être une phrase française
+      fabriquée trois couches sous l'écran
+- [x] `Icon` — un sens, pas un nom de glyphe ; `IconTests` vérifie que chacun existe
+- [x] `Package.resolved` versionné — une construction propre ne résout plus au
+      plus récent
+- [x] garde de langue corrigée : elle prenait du **contenu** français pour des
+      commentaires (toute ligne commençant par `**gras**`)
+
+- [x] **`Core`** — horloge, stockage clé-valeur, connectivité, bus d'événements
+      (§22). `Persistence` absorbé : deux abstractions du stockage, c'était la
+      duplication à éviter
+- [x] **`CoreUI`** — les composants, et le **seul** package qui nomme Lottie,
+      Textual et PDFKit. `import Textual` ailleurs répond « no such module »
+- [x] `DesignSystem` redevient le **langage visuel** : des valeurs, rien qui
+      dessine — donc consommable hors SwiftUI
+- [x] **les suffixes** (§21) — `check-naming.sh`, mutation-testé quatre fois
+- [x] deux bugs trouvés par les mutations : `check-layers.sh` déclarait son
+      verdict **entre** ses deux gardes, donc la seconde était effacée ; et des
+      backticks dans une chaîne à guillemets doubles
+- [x] `ConnectivityMonitor` **branché** sur la politique de fraîcheur : « hors
+      ligne » se déduisait d'un échec après quinze secondes, alors que le système
+      le savait avant que la requête ne parte. `.unknown` ne court-circuite rien
+      — ne pas savoir n'est pas une raison de renoncer
+
+- [x] **§3 l'écran de réglages** — langue, apparence, coulisses, réinitialisation
+- [x] **l'injection segmentée par écran** (§11) — chaque écran déclare son
+      protocole de dépendances, la racine prouve qu'elle sait le satisfaire.
+      Interface Segregation, vérifiée par le compilateur, sans conteneur
+- [x] **§6 l'accroche refaite** — monogramme, nom, signature, métier, **une**
+      action ; la présentation longue part dans « À propos »
+- [x] **§7 le CV en trois secondes** — `ToolbarItem` permanent sur tous les
+      écrans, ouverture en `fullScreenCover`
+- [x] **§8 les coulisses par paliers** — au repos rien, puis des pastilles, puis
+      une phrase, puis tout. Le palier de feuille **est** la révélation
+- [x] **§14 le rafraîchissement au retour** — premier plan et retour en ligne,
+      la première activation exclue, une seule requête par transition
+- [x] haptique (`sensoryFeedback` lié à une **valeur qui change**, jamais à un
+      tap), bandeaux, `confirmationDialog`
+- [x] `Scripts/screens.sh` — dix-huit captures, deux thèmes, `accessibility5`
+- [x] garde de langue : elle ne voyait que les fichiers **suivis**, donc un
+      fichier neuf passait au vert
+
+- [x] **§4.3 les animations Lottie** — état vide, injoignable, CV téléchargé,
+      écrites à la main depuis les tokens ; et elles **suivent le thème**, ce que
+      la signature ne faisait pas
+- [x] **§9 le comparatif d'architectures** — MVC · MVP · MVVM · Clean en `Grid`,
+      et trois bases de code avec leurs comptes relevés
+- [x] **§10 les routes iOS** côté API — `/v1/architectures`, `/v1/deep-dives`,
+      `/v1/timeline`, avec deux gardes éditoriales falsifiées
+- [x] **§5 le `popover`** — la provenance du contenu, rattachée au bandeau
+- [x] **api en anglais** (56 fichiers)
+- [x] un drapeau `-route` : la matrice atteignait les racines et les couvertures,
+      jamais un écran **poussé**
+- [x] **§23 le texte quitte le code** — 314 entrées dans des catalogues
+      `.xcstrings`, résolus sur la langue du contenu ; `Bilingual` supprimé
+- [x] **le vocabulaire** — « coulisses » et « chrome » retirés, `DesignDecision`
+      et `EngineeringRecord` à la place, audit de nommage passé sur tout le dépôt
+- [x] **l'API déployée** — `architectures` et `deepDives` sont en production,
+      `seed.sh --check` est vert
+
+- [x] **convertir web en anglais** (76 fichiers) — et, au passage, Tailwind
+      retiré : 87 sélecteurs employés, 87 définis par le CSS maison, 0 utilitaire
+      Tailwind ; rendu vérifié identique au pixel sur les deux langues
+
+- [x] **§13 la passe d'accessibilité**, revue capture par capture à la plus
+      grande taille — l'accroche du profil était tronquée (« Ingénieur iOS s… »),
+      six textes servis par l'API pouvaient l'être, et le tableau comparatif
+      cachait sa barre de défilement
+
+- [x] **l'écran partagé sur iPad** — les deux conditions du multitâche sont
+      désormais sous test (`UIRequiresFullScreen` absent, les quatre
+      orientations offertes sur iPad), et la matrice de captures tourne aussi
+      sur iPad Pro 11"
+
+- [x] **fastlane / TestFlight** — la voie de livraison est écrite et versionnée
+      (`fastlane/`, `.github/workflows/testflight.yml`, `docs/testflight.md`).
+      Elle attend quatre secrets que seul l'auteur peut fabriquer : une clé
+      App Store Connect, son identifiant, son émetteur, et la phrase de `match`.
+
+**Rien à faire. Les quarante-sept cases sont cochées.**
+
+### ⚠️ Un ordre de livraison, pas un bug
+
+`architectures` n'est pas déployé. Le DTO iOS le rend **non optionnel**, donc
+l'application ne décode pas la charge de production : elle affiche « contenu
+illisible » en nommant `data.architectures`, et le cache ne la rattrape pas.
+
+C'est l'invariant n° 5 qui fonctionne, pas une régression. La conséquence est une
+**contrainte d'ordre** : l'API part d'abord, l'application ensuite.
+`seed.sh --check` échouera en CI jusque-là, et une garde qui tairait ça serait
+pire qu'une garde rouge.
 
 ---
 
@@ -371,3 +769,410 @@ certain âge.
   qu'on va reprendre entièrement n'apporte rien ;
 - **le paysage et l'écran partagé sur iPad** — à regarder, pas encore tenu pour
   acquis.
+
+---
+
+## 21. Les suffixes — le nom dit le rôle
+
+**Demandé :** *« Tout ce qui est network request doit avoir le suffixe `Request`,
+pareil pour les responses, pour les adapter `Adapter`, pour les screens `Screen`,
+etc. Tu pourras l'adapter à nos couches réelles. »*
+
+La règle, en une phrase : **le suffixe nomme le rôle dans l'architecture, jamais
+la sorte Swift.** `PortfolioEntity` ou `LanguageEnum` ajoutent un mot qui ne dit
+rien — tout type est un type. `PortfolioDTO` dit à quelle couche il appartient et
+ce qu'il fait.
+
+| Couche | Rôle | Suffixe | Exemple |
+|---|---|---|---|
+| `Domain` | entité | **aucun** | `Portfolio`, `CaseStudy`, `Experience` |
+| `Domain` | port | **aucun** — voir l'exception | `PortfolioReading` |
+| `Networking` | requête | `Request` | `HTTPRequest` |
+| `Networking` | réponse | `Response` | `HTTPResponse` |
+| `Networking` | transport | `Client` | `URLSessionHTTPClient` |
+| `Data` | objet de transfert | `DTO` | `PortfolioDTO` |
+| `Data` | traduction DTO → entité | `Mapper` | `PortfolioMapper` |
+| `Data` | implémentation d'un port | `Repository` | `PortfolioRepository` |
+| `Data` | source de données | `DataSource` | `BundledSeedDataSource` |
+| `Data` | pont vers un framework tiers | `Adapter` | `KeychainCredentialsAdapter` |
+| `Presentation` | porteur d'état d'écran | `Store` | `PortfolioStore` |
+| `Presentation` | domaine → affichable | `Presenter` | `FailurePresenter` |
+| `Presentation` | navigation | `Router` / `Resolver` | `Router`, `RouteResolver` |
+| `Presentation` | mise en forme | `Style` | `DateStyle`, `FreshnessStyle` |
+| `Features` | écran (connaît le store) | `Screen` | `ProfileScreen` |
+| `Features` | vue bête (reçoit tout) | `View` | `FailureView` |
+| `CoreUI` | composant réutilisable | **aucun** | `Chip`, `Surface`, `PDFPreview` |
+| partout | double de test | `Stub` / `Spy` | `HTTPClientSpy` |
+
+### Les deux exceptions, et pourquoi
+
+**Les entités n'ont pas de suffixe.** Le domaine parle le vocabulaire du métier,
+et le métier ne dit pas « PortfolioEntity ». C'est la seule couche dont les noms
+devraient se lire à voix haute devant quelqu'un qui ne code pas.
+
+**Les protocoles suivent la convention Swift, pas la nôtre.** Les *Swift API
+Design Guidelines* sont explicites : un protocole qui décrit une **capacité** se
+nomme en `-able`, `-ible` ou `-ing` — `Equatable`, `Collection`,
+`ProgressReporting`. D'où `PortfolioReading`, `SeedProviding`,
+`PreferencesStoring`. Écrire `PortfolioProtocol` ou `PortfolioPort` serait une
+habitude de C# ou de Java plaquée sur un langage qui a tranché autrement — et ça
+se lit mal au point d'usage : `any PortfolioReading` dit ce qu'il fait,
+`any PortfolioPort` dit seulement qu'il existe.
+
+### Tenu par une garde
+
+`Scripts/check-naming.sh` lit chaque répertoire et refuse un type dont le nom ne
+porte pas le suffixe de son rôle. Une convention que rien n'exécute est une
+convention qui tient trois semaines.
+
+---
+
+## 22. `Core` et `CoreUI` — une seule implémentation, partout
+
+**Demandé :** *« On pourrait avoir un package core dans lequel on a tous nos
+helpers ; notre abstraction sur la gestion de Core Data ou SwiftData,
+UserDefaults, si le user est offline, mettre à dispo des listeners/events
+auxquels peut s'abonner toute l'app, les mécaniques d'injection de dépendances
+qui doivent être communes, les protocols, les contextes — pour qu'on soit sûr
+que quel que soit l'endroit dans l'app, on a une seule implémentation. »*
+
+*« Et aussi une sorte de core-ui, dans lequel les composants réutilisables
+pourront être déclarés, parfaitement configurables. Des choses comme le
+previewer PDF ; et même Textual : c'est core-ui qui doit le tirer. Je ne dois pas
+avoir d'`import Textual` dans les fichiers de code, mais `import CoreUI` — comme
+ça, si un jour je change de bibliothèque, je n'ai pas à changer d'import. »*
+
+### `Core` — les mécaniques, et zéro connaissance du portfolio
+
+| Ce qu'il porte | Pourquoi là |
+|---|---|
+| `Clock` + `SystemClock` + `FixedClock` | trois couches injectent déjà une horloge par fermeture `() -> Date`. Trois fermetures, trois conventions |
+| `KeyValueStoring` + `UserDefaultsKeyValueStore` | l'abstraction sur `UserDefaults`, qui n'a plus à être réécrite par qui en a besoin |
+| `FileStore`, `StorageKey`, `StoredValue`, `LocalStoring` | l'ancien package `Persistence`, absorbé — deux abstractions du stockage, c'était exactement la duplication à éviter |
+| `ConnectivityReporting` + `ConnectivityMonitor` | *« si le user est offline »*. Aujourd'hui c'est déduit d'un échec réseau ; un moniteur le **sait** avant d'essayer |
+| `EventBus` | *« des listeners auxquels peut s'abonner toute l'app »* |
+
+**Il ne dépend de rien.** Pas de `Domain`, pas de SwiftUI. Le critère d'entrée est
+écrit et se vérifie :
+
+> Entre dans `Core` ce qui **(a)** sert à au moins deux couches, **(b)** ne sait
+> rien du portfolio, et **(c)** pourrait être livré dans une autre application
+> sans changer d'une ligne.
+
+⚠️ **Un `Core` est un tiroir fourre-tout en puissance.** Tout le monde en dépend,
+donc tout ce qu'on y met devient global — c'est-à-dire l'inverse du découpage.
+Les trois critères ci-dessus sont la seule chose qui l'en empêche, et
+`ArchitectureTests` vérifie que `Core` ne gagne jamais une dépendance.
+
+#### L'`EventBus` — et sa règle d'admission
+
+Un bus d'événements devient du spaghetti dès qu'on y fait passer des **ordres** :
+plus personne ne sait qui déclenche quoi, et la pile d'appels ne dit plus rien.
+
+> Un événement décrit un **fait déjà arrivé** (`contentRefreshed`,
+> `connectivityChanged`, `languageChanged`), dont **plusieurs parties sans lien**
+> ont besoin. Un ordre (« recharge ») passe par un port, pas par le bus.
+
+#### L'injection de dépendances — ce que `Core` apporte, et ce qu'il n'apporte pas
+
+Il **n'apporte pas** de conteneur. L'arbitrage est déjà écrit dans
+`AppEnvironment` et il tient : un enregistrement dispersé fait qu'on ne sait plus
+en lisant ce qui répond à quoi, et une résolution manquante ne se découvre qu'à
+l'exécution. Un `@Injected` est un localisateur de service déguisé — il cache le
+graphe au lieu de le montrer.
+
+Ce qu'il apporte est plus utile : **le vocabulaire commun d'abstractions**
+(`Clock`, `KeyValueStoring`, `ConnectivityReporting`, `EventPublishing`) et **leurs
+doubles**. Deux couches qui ont besoin d'une horloge dépendent du même protocole,
+et la racine de composition reste le seul endroit qui décide. C'est ça, « une
+seule implémentation partout ».
+
+### `CoreUI` — les composants, et le seul à connaître les bibliothèques
+
+| Ce qu'il porte | Ce qu'il enveloppe |
+|---|---|
+| `MarkdownText` | **Textual** |
+| `LottieAnimation` | **Lottie** |
+| `PDFPreview` | **PDFKit** |
+| `Chip`, `Surface`, `MetricTile`, `Reveal`, `WrappingRow`, `Skeleton`, le verre | — |
+
+**Aucun autre package ne déclare Lottie ni Textual.** Ce n'est pas une règle de
+revue : leurs manifestes ne les nomment pas, donc `import Textual` ailleurs
+répond « no such module ». Le jour où Textual est remplacé, un fichier change —
+et l'interface, elle, ne bouge pas.
+
+### `DesignSystem` cesse d'être une bibliothèque de composants
+
+Il garde ce que son nom annonce : le **langage visuel** — tokens, couleurs,
+typographie, mouvement. Rien qui dessine. Deux conséquences qui comptent :
+
+- il reste consommable par ce qui n'est pas SwiftUI — un générateur de PDF, une
+  extension, un jour une app watchOS ;
+- `CoreUI` s'appuie dessus, et pas l'inverse. Un composant connaît sa palette ;
+  une palette ne connaît aucun composant.
+
+## 23. L'internationalisation — le texte quitte le code
+
+> Arbitrage rendu le 2026-09-18, à la demande de l'auteur : *« pourquoi les vues
+> n'ont pas uniquement des clés, référencées dans le truc Localizables d'Xcode
+> avec des trads en français et anglais ? »*
+
+### Ce qui existait, et pourquoi ça ne tenait plus
+
+Le texte vivait dans des valeurs Swift — `Bilingual(fr:en:)` — qui portaient les
+deux langues côte à côte. Ça tenait une promesse réelle : une traduction
+manquante ne compilait pas. Et ça en cassait deux.
+
+**SRP, au sens d'Uncle Bob** — « un module, une raison de changer », et *raison*
+veut dire *acteur*. `AppChrome` changeait quand un rédacteur retouchait une
+phrase **et** quand un développeur touchait à une logique de présentation. Deux
+acteurs, un fichier.
+
+**OCP** — `Bilingual(fr:en:)` est fermé à l'extension par construction : ajouter
+une troisième langue, c'était éditer chacune des ~250 déclarations une par une.
+
+### La décision
+
+Le texte vit dans des catalogues `.xcstrings`, **un par module qui en porte**,
+à côté du code qu'il habille. Une vue nomme une clé typée ; le mot est dans le
+catalogue, éditable sans ouvrir un fichier Swift.
+
+```
+ViewKit/Resources/            les libellés partagés + l'écran Réglages
+Decisions/Resources/          les libellés autour d'une décision
+Features/<Nom>/Resources/     les décisions annotées sur cet écran
+Features/Engineering/         ce que l'application dit d'elle-même
+```
+
+### Les trois règles qui font que ce n'est pas « juste un .xcstrings »
+
+**1. Résolu sur la langue choisie, pas sur celle de l'appareil.** C'était la
+seule objection sérieuse à un catalogue, et elle ne visait pas le catalogue mais
+son *lookup par défaut*. `TextCatalogue` passe par le sous-bundle `<code>.lproj`,
+donc sur la langue **du contenu servi**. Une suite l'épingle, y compris le repli
+d'un code inconnu — qui va vers la langue **source** et non vers celle de
+l'appareil, sans quoi le défaut rentrerait par la fenêtre.
+
+**2. Seule la couche vue résout.** Résoudre demande un bundle, un catalogue
+compilé et la langue à l'écran : trois détails de livraison. `Presentation` ne
+déclare donc pas `Localization`, et `import Localization` y répond « no such
+module ». Les couches basses rendent des **valeurs** : `PhaseFailure` porte la
+cause et le chemin du champ, `AppSection` un cas, `ArchitecturePattern.Criterion`
+un cas. Le mapping vers une clé vit dans `ViewKit`.
+
+**3. Rien n'énumère les langues.** Ni un type, ni une vue. La liste est ce que le
+catalogue compilé contient (`TextCatalogue.languages`). `\.contentLanguage` est
+**posé une fois** par la scène et **lu par deux résolveurs** : `@Localized` pour
+les clés, `@LocalizedDecision` pour les phrases d'une décision. Aucun écran n'en
+voit une. `check-strings.sh` le refuse, mutation testé.
+
+### Pourquoi `Localization` est un package et pas un coin de `Core`
+
+`Core` porte aussi le stockage disque et la connectivité, et l'invariant central
+dit qu'**aucun écran ne les atteint**. L'y ranger aurait acheté une commodité au
+prix de l'accès disque pour toutes les vues de l'application. Ségrégation des
+interfaces, tenue par le manifeste plutôt que par la bonne volonté.
+
+### Ce que ça a coûté, et comment c'est racheté
+
+Une traduction manquante n'est plus une erreur de compilation : la clé s'affiche
+à l'écran, en silence. `check-strings.sh` rachète ça en CI — et va plus loin que
+`Bilingual` ne savait aller :
+
+| ce qui échoue | ce que `Bilingual` en disait |
+|---|---|
+| une traduction vide ou non `translated` | erreur de compilation |
+| une clé requise absente d'un catalogue | erreur de compilation |
+| une **clé morte** que rien n'atteint | rien |
+| une **langue absente d'un seul** catalogue | rien |
+| une phrase écrite en dur dans une vue | rien |
+| une vue qui lit `\.contentLanguage` | rien |
+| un `case .french` n'importe où | rien |
+
+### Le défaut que ça a fait sortir
+
+```swift
+language == .french ? "\(count) chantiers" : "\(count) workstreams"
+```
+
+Faux au singulier — « 1 chantiers ». Le pluriel revient à la plateforme
+(*Vary by Plural*), qui applique la règle **de la langue demandée** : le français
+met 0 et 1 au singulier, l'anglais seulement 1.
+
+### Le vocabulaire, au passage
+
+« Coulisses » / `Backstage` était une métaphore de théâtre dans un portfolio
+professionnel, et elle écrasait deux concepts. L'onglet porte des couches, des
+défis, des parcours de code et l'arbitrage des dépendances : c'est de
+l'**ingénierie**. L'annotation sur un composant porte le rôle, la justification,
+ce qui a été écarté, quand l'employer et le piège : c'est la structure exacte
+d'un **ADR**, donc une `DesignDecision`.
+
+`Chrome` était du jargon de navigateur sans contrepartie : c'est `interface`.
+
+⚠️ **Un mot du contrat de contenu ne se renomme pas d'un seul côté.** `eyebrow` a
+été renommé en `overline` et la suite l'a refusé : c'est un champ servi par
+l'API. Rendu tel quel — la décision, si elle se prend, se prend sur les trois
+dépôts à la fois.
+
+## 24. La refonte UI/UX — l'app cesse d'être un gabarit web
+
+> Verdict de l'auteur, 2026-09-19 : *« l'app je la trouve nulle à chier ! j'ai
+> des dark screens sans contenu ! l'app est vraiment une app web dégueu ! ce truc
+> fait tout sauf me mettre en valeur. »*
+
+L'audit lui a donné raison, et l'a chiffré. Neuf écrans sur dix étaient **le même
+objet** : `ScrollView` → `VStack(spacing: 48)` → [surtitre, titre serif 34 pt,
+chapô] puis N cartes identiques.
+
+| Idiome mesuré dans `Packages/Features/Sources` | Avant | Après |
+|---|---|---|
+| `List` | **0** | 1 — l'écran dont la donnée est en lignes |
+| `.eyebrowStyle()` | 21 | 12 |
+| gouttière `.padding(.horizontal, s5)` recollée à la main | 21 | **1** |
+| `matchedTransitionSource` | **0** | 1, et la transition zoom marche |
+| captures d'application près de l'accueil | **0** | 2 écrans |
+
+### Le partage qui rend l'app native sans rendre tout identique
+
+**`List` quand la donnée est homogène et en lignes** — le parcours, un
+formulaire de réglages. **Composition libre quand le contenu est éditorial** —
+une étude de cas, un essai, le profil.
+
+C'est le changement le plus lourd et le plus payant : le parcours était un
+`ScrollView` de `VStack` de cartes, c'est-à-dire `<div class="card">` traduit en
+Swift. Une `List` donne gratuitement les séparateurs système et leurs encarts,
+les en-têtes de section, des métriques de ligne qui tiennent aux tailles
+d'accessibilité, et le recyclage.
+
+### Ce qui était servi et que **rien ne dessinait**
+
+C'est la catégorie de défaut la plus coûteuse de cette base, parce qu'elle ne
+produit ni erreur ni avertissement — juste une absence :
+
+| Contenu | Où il était |
+|---|---|
+| `profile.remote` — « télétravail complet et fréquent » | décodé, modélisé, transporté sur trois couches, **affiché nulle part** |
+| `profile.showcase` — la capture de KCalories | image dans le bundle, modèle décodé, **rendu par personne** |
+| `AppCatalogue.items` rôles `end-to-end` et `features` | `items` n'était atteint que par `.ticketing` |
+| `kcalories.png` | actif mort du catalogue |
+| les trois annotations de l'écran Réglages | émises, **rien ne les dessinait** — une feuille est son propre arbre de vues |
+| la langue du document CV | `ResumeStore` la connaissait ; l'UI ne la disait jamais |
+
+### Les invariants structurels posés au passage
+
+- **une seule ancre de présentation.** `Sheet` et `FullScreenCover` fusionnent en
+  `Modal`, et le style devient une propriété du modal. Deux enums, c'était deux
+  résolveurs, deux actions d'environnement et **deux ancres** — dont une qui ne
+  réappliquait pas l'environnement de scène. Le crash *No Observable object of
+  type SettingsStore found* avait déjà été payé une fois ; il dormait sur le
+  chemin contact ;
+- **la gouttière appartient à la page.** `SectionScrollView` la pose une fois,
+  avec la colonne de lecture et l'encart du bas ;
+- **le namespace du zoom appartient à la pile.** Il était déclaré dans un écran
+  (qui n'atteignait que la source) et dans la scène (qui n'atteignait que la
+  destination). Un zoom à une moitié n'est pas une erreur : il redevient un
+  slide, en silence ;
+- **retoucher l'onglet actif** dépile, puis remonte en haut. `TabView` ne
+  rapporte pas ce geste — seule l'écriture qui ne change rien le trahit, et
+  seule la scène la voit ;
+- **`-modal <nom>`** remplace `-settings` et `-resume`. Un drapeau par cas est
+  une liste qui a toujours un cas de retard : la feuille contact était le seul
+  écran que la matrice ne pouvait pas atteindre.
+
+### Les quatre onglets
+
+`Profil · Travail · Parcours · **Produit**`. « Ingénierie » n'était pas une
+destination : personne ne revient sur une liste de décisions d'architecture. Elle
+est poussée depuis Travail, à un toucher de ce qui pose la question, et la place
+va à la seule chose que l'app ne montrait pas — une application qu'on peut
+installer.
+
+### Ce qui ne se voyait qu'en capture
+
+Aucun de ces défauts n'a produit d'avertissement :
+
+| Défaut | Vu où |
+|---|---|
+| `> 99,8` coupé sur **trois lignes** — « > », « 99, », « 8 » | iPhone, thème clair |
+| deux grands titres en New York 34 pt, quarante points d'écart | iPhone, l'œil prend le second pour un sous-titre |
+| un `Spacer` clouant un lien au bas d'une carte, ouvrant une bande de vide | **iPad seulement** — sur iPhone le texte remplissait la colonne par hasard |
+| une ligne de texte de **1 300 pt** dans une `List` | iPad Pro 13" |
+| un titre de barre tronqué mid-mot, seul endroit où il apparaissait | iPhone |
+| un chevron de `DisclosureGroup` centré au milieu de quatre puces | iPhone |
+| une colonne de titre de **trois mots de large** à côté d'une icône de 76 pt | AX5 |
+
+### Deux hypothèses mesurées puis abandonnées
+
+Elles comptent autant que ce qui est resté, parce que les deux paraissaient
+justes :
+
+1. **Un grand titre sur l'écran de détail d'étude de cas.** Il dit le titre une
+   fois au lieu de deux — et il le **tronque à une ligne**, parce qu'un grand
+   titre UIKit ne passe pas à la ligne. Le titre complet n'apparaissait alors
+   nulle part.
+2. **Un observateur de `UIContentSizeCategory`** pour réinstaller la police du
+   grand titre. Mesuré sans lui : **129 pt, exactement pareil**. UIKit re-résout
+   déjà l'attribut au changement de trait. C'était de la cérémonie qui
+   ressemblait à de la rigueur.
+
+### Ce que les gardes ont gagné
+
+- `check-strings.sh` refuse une **clé déclarée, traduite et rendue par personne**.
+  L'ancienne version appariait les constantes et le catalogue, donc les deux
+  restaient parfaitement cohérents pendant qu'un mot mort était traduit et relu.
+  Six clés mortes trouvées dès l'ajout. ⚠️ La première version comptait des
+  *fichiers* et se laissait avoir par un commentaire de doc — elle compte des
+  **usages**, hors commentaires, et c'est mutation testé dans les deux sens ;
+- `check-naming.sh` accueille `Section` et `Behaviour`, chacun avec son argument
+  écrit — la barre que le garde se fixe à lui-même ;
+- `screens.sh` gagne `--only` et `--sizes`, la feuille contact, l'écran
+  d'ingénierie et l'étude de cas. Les deux options existent parce que j'ai écrit
+  ma propre boucle de capture pour itérer plus vite et qu'elle a **photographié
+  deux fois l'écran précédent** : `simctl terminate` rend la main avant la fin du
+  processus. Le script le sait ; un raccourci qui le contourne, non.
+
+### Le seul changement de contenu
+
+`contact.body` disait « développeur iOS — **confirmé**, senior ou lead ». Sur un
+CV qui vise 65–70 k€, c'est la première étiquette retenue, et elle contredit
+« Ingénieur iOS senior » affiché deux touchers plus loin. Corrigé dans l'API,
+donc sur le site aussi.
+
+Le plan en prévoyait un second — réécrire les résumés de chapitres pour qu'ils
+annoncent le résultat. L'audit dit que ce n'était pas nécessaire : les
+sous-titres l'annonçaient déjà, rendus en 13 pt `ink3`, le traitement d'une note
+de bas de page. Ce n'était pas le contenu, c'était la hiérarchie — et le contrat
+partagé avec le site n'a pas bougé.
+
+### Ce que l'usage réel a trouvé, et que les captures ne pouvaient pas trouver
+
+La matrice photographie des états au repos. Trois défauts ne vivaient que dans
+le **geste** — scroller, toucher, pousser — et il a fallu tenir l'app en main :
+
+| Défaut | Cause |
+|---|---|
+| les annotations ne s'affichaient que sur l'écran Réglages | la feuille avait **cinq ancres** liées au même optionnel ; SwiftUI choisissait, et il choisissait la dernière |
+| les numéros de pastille changeaient au défilement | le numéro était l'index dans l'ensemble **actuellement à l'écran**, et une `List` recycle ses lignes |
+| une étude de cas s'ouvrait sur la pastille 3 | un `NavigationStack` garde sa racine vivante, donc ses annotations restaient collectées en profondeur |
+
+Les deux premiers sont exactement la même erreur que celles déjà corrigées un
+cran plus tôt — deux ancres pour une présentation, un état recalculé au lieu
+d'être tenu. La première avait été corrigée sur `Sheet`/`FullScreenCover` et
+laissée debout ici.
+
+La numérotation est sortie du modificateur pour devenir `DecisionNumbering`, une
+valeur : un défaut qui a été livré mérite un test qui l'aurait attrapé, et dans
+un `ViewModifier` il n'était vérifiable qu'en scrollant un simulateur à l'œil.
+
+### Trois retours de l'auteur, après usage
+
+- **De l'ombre autour des cartes.** Ajoutée en **échelle** et non à plat —
+  `recessed` rien, `flat` au repos, `raised` nettement — parce qu'une ombre
+  identique partout écrase la hiérarchie, ce que ce dépôt refuse explicitement.
+- **La barre d'onglets se cache en profondeur.** Ça renverse une décision
+  inverse prise ici même ; les deux raisonnements sont gardés dans le code. Le
+  sien gagne : le lecteur est déjà dans un univers, et lui offrir quatre sorties
+  pendant sa lecture, c'est offrir de l'interrompre.
+- **Un modificateur se nomme là où il s'applique.** `.sceneEnvironment(scene)`
+  et plus `.modifier(sceneEnvironment)`, et `check-layers.sh` tient la règle.

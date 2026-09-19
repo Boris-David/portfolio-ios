@@ -14,9 +14,19 @@
 # a le droit de changer sans qu'on republie l'application.
 set -euo pipefail
 
+# La source par défaut est l'API **déployée**. Pour travailler sur une ressource
+# qui n'est pas encore en ligne, pointer vers un worker local :
+#
+#   cd ../api && npx wrangler dev --port 8788
+#   API_BASE_URL=http://127.0.0.1:8788 ./Scripts/seed.sh
+#
+# ⚠️ Conséquence à assumer : tant que la nouvelle ressource n'est pas déployée,
+# `--check` échoue en CI. C'est correct — l'application ne peut pas partir avant
+# l'API dont elle décrit la forme, et une garde qui tairait ça serait pire
+# qu'une garde rouge.
 API="${API_BASE_URL:-https://api.amissan.dev}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DEST="$ROOT/Packages/AmissanKit/Sources/Data/Resources"
+DEST="$ROOT/Packages/Data/Sources/Data/Resources"
 CHECK=false
 [ "${1:-}" = "--check" ] && CHECK=true
 

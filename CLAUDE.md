@@ -2,7 +2,7 @@
 
 > Ce fichier se charge à **chaque** session ouverte dans ce dépôt. Il ne contient
 > que ce qui régit le dépôt **entier**. Ce qui ne concerne qu'une sous-surface —
-> architecture, design system, coulisses, CI — vit dans `.claude/rules/` avec un
+> architecture, design system, annotations, CI — vit dans `.claude/rules/` avec un
 > `paths:`, et ne se charge que quand on touche aux fichiers concernés.
 >
 > Le workspace `portfolio` ajoute par-dessus ses règles racines (posture,
@@ -20,15 +20,71 @@ lecteur visé ouvre le dépôt, pas seulement l'App Store.
 
 ## Les invariants — ce qui ne se négocie pas
 
-### 1. Le graphe de modules est la frontière
+### 0. Le source Swift est en anglais
 
-Chaque couche est une **cible SPM**. `FeatureProfile` ne déclare pas
-`Networking` : `import Networking` ne compile pas. Ce n'est pas une convention,
-c'est une erreur de compilation.
+Commentaires, types, fonctions, variables locales. **Sans exception.**
 
-`Domain` ne dépend de rien. Aucune fonctionnalité ne voit `Networking`,
-`Persistence` ni `Data`. Aucune fonctionnalité n'en importe une autre.
-`ArchitectureTests` lit le manifeste et échoue si le graphe dérive.
+La raison est de lectorat : ce dépôt est ouvert par des gens qui ne lisent pas
+forcément le français, et un raisonnement qu'ils ne peuvent pas lire ne sert à
+rien. `docs/` et le contenu de l'application restent en français.
+
+`./Scripts/check-language.sh` le refuse en CI.
+
+### 1. Une couche = un package. Le manifeste **est** la frontière
+
+Chaque couche a son `Package.swift`, donc ses propres dépendances. `Features` ne
+déclare jamais `Networking` : dans un écran, `import Networking` ne donne pas une
+remarque en revue, il donne **« no such module »**.
+
+```
+Core          rien            ← mécaniques : horloge, stockage, réseau-dispo, bus
+Domain        rien            ← entités + ports. Zéro dépendance, et c'est le point
+Networking    rien
+DesignSystem  rien            ← le langage visuel. Des valeurs, rien qui dessine
+Localization  rien            ← lire un catalogue dans une langue NOMMÉE
+CoreUI        DesignSystem + Lottie + Textual   ← les composants, et SEUL à les connaître
+Data          Domain + Networking + Core        ← le seul qui voie les deux côtés
+Presentation  Domain                            ← ni SwiftUI, ni catalogue
+Features      Domain + Presentation + DesignSystem + CoreUI + Localization
+
+App/          tout                              ← la cible .app EST la racine
+```
+
+
+Trois invariants qu'aucun manifeste ne peut tenir : **le domaine ignore qu'une
+interface existe**, **la présentation ne dessine pas** (SwiftUI vient du SDK), et
+**`import Textual`, `import Lottie`, `import PDFKit` n'existent que dans
+`CoreUI`**. C'est `./Scripts/check-layers.sh` qui les refuse.
+
+⚠️ **`Core` est un tiroir fourre-tout en puissance** — tout le monde en dépend,
+donc tout ce qu'on y met devient global. Le critère d'entrée est écrit dans son
+manifeste : sert à **deux couches au moins**, ne sait **rien** du portfolio, et
+pourrait être livré dans une autre application sans changer d'une ligne.
+
+`ArchitectureTests` lit tous les manifestes et échoue si le graphe dérive.
+
+⚠️ **`Data` n'est pas `Adapters`.** Un « adapter » est un *rôle* — `URLSessionHTTPClient`
+en est un, `PortfolioStore` aussi. L'anneau *Interface Adapters* a deux moitiés :
+les **gateways** (`Data`) et les **presenters** (`Presentation`). Ne pas refondre
+les deux sous un seul nom : l'erreur a déjà été faite et corrigée le 2026-09-18.
+
+⚠️ **Pas de préfixe `Amissan` sur les packages.** Le nom du package est celui du
+module.
+
+### 1 bis. La racine de composition est la cible d'application
+
+Elle l'était dans un package, `Composition`, et l'argument était que ses tests
+tournaient **sans simulateur**. Vérifié le 2026-09-18 : faux. Chaque package
+déclare `.iOS(.v18)` seulement, donc `swift test` ne compile pas, et
+`Scripts/test.sh` a toujours tout lancé sur simulateur. Le bénéfice n'était pas
+encaissé, et la forme était fausse : en clean archi le *Main* est l'anneau que
+**personne n'importe**, or `AmissanApp` écrivait `import Composition`.
+
+`App/Sources/` déclare donc tout le graphe, parce qu'assembler est son travail.
+Ce que ça a coûté : la cible ne pouvait pas écrire `import Networking`.
+`check-layers.sh` le remplace par la règle que ça tenait vraiment — **aucun
+écran ici** : pas de catalogue, pas de clé, pas de phrase. La frontière qui
+compte, un écran qui ne voit pas le réseau, reste dans `Features/Package.swift`.
 
 ### 2. Aucune valeur de design écrite à la main
 
@@ -42,20 +98,30 @@ Après toute modification des tokens : `./Scripts/tokens.mjs`.
 
 ADR 0002. Chiffres, dates, phrases : tout vient de `portfolio-api`. Ce qui reste
 ici, ce sont les **libellés d'interface** (`AppChrome`) et la **documentation
-d'architecture** (`AppDossier`) — qui n'ont aucun sens sans l'application.
+d'architecture** (`EngineeringRecord`) — qui n'ont aucun sens sans l'application.
 
-La graine embarquée (`Sources/Data/Resources/seed-*.json`) est **générée** par
+La graine embarquée (`Packages/Data/Sources/Data/Resources/seed-*.json`) est **générée** par
 `./Scripts/seed.sh`, jamais écrite à la main.
 
 ### 4. La langue affichée est celle du contenu, pas celle de l'appareil
 
-Un catalogue de chaînes suit l'appareil. Le contenu vient de l'API. Les deux
-peuvent donc différer — et le défaut s'est produit : des onglets français
-au-dessus d'un texte anglais.
+Le *lookup par défaut* d'un catalogue suit l'appareil. Le contenu vient de
+l'API. Les deux peuvent donc différer — et le défaut s'est produit : des onglets
+français au-dessus d'un texte anglais.
 
-`\.contentLanguage` porte **une** langue, et `AppChrome` s'en dérive. Ne jamais
-réintroduire un `Localizable.xcstrings` pour le chrome sans rouvrir cette
-décision.
+Le texte vit donc dans des `.xcstrings`, **résolus par le sous-bundle
+`<code>.lproj`** et non par la préférence de l'appareil. `TextCatalogue` ne
+propose aucun appel sans langue, et `\.contentLanguage` la porte.
+
+⚠️ **Seule la couche vue résout une clé.** Résoudre demande un bundle, un
+catalogue compilé et la langue à l'écran : trois détails de livraison. Un
+presenter rend une **valeur** ou une **clé**, jamais une phrase — c'est ce qui le
+rend testable sans langue. `Presentation` ne déclare pas `Localization`, donc
+`import Localization` y répond « no such module ».
+
+⚠️ **Rien n'énumère les langues.** Ni un type, ni une vue. La liste est ce que le
+catalogue compilé contient (`TextCatalogue.languages`) ; une langue de plus est
+une colonne, pas un `case`. `Bilingual(fr:en:)` a été supprimé pour ça.
 
 ### 5. Un contenu incomplet arrête tout — il ne se replie jamais en silence
 
@@ -72,42 +138,126 @@ Il se génère depuis `project.yml` (`xcodegen generate`). Ne jamais committer
 
 ```bash
 xcodegen generate
-./Scripts/test.sh              # les 8 suites, sur simulateur
+./Scripts/test.sh              # les 11 suites, sur simulateur
 ./Scripts/tokens.mjs --check   # le design descend bien des tokens
 ./Scripts/seed.sh --check      # la graine décrit encore ce que sert l'API
 ./Scripts/assets.py --check    # chaque actif attendu est présent
 ./Scripts/check-secrets.sh     # dépôt public
+./Scripts/check-language.sh    # le source Swift est en anglais
+./Scripts/check-layers.sh      # aucune couche ne voit ce qu'elle ne doit pas
+./Scripts/check-naming.sh      # le nom dit le rôle
+./Scripts/check-suites.sh      # aucune suite ne s'est évaporée
+./Scripts/check-strings.sh     # chaque clé a sa traduction, chaque traduction sa clé
+./Scripts/screens.sh           # 36 captures : 2 thèmes, la plus grande taille
+                               # d'accessibilité, les écrans poussés, les modaux
+./Scripts/screens.sh --only work --sizes light   # itérer sur un seul écran
 ```
 
 **Et on regarde l'écran.** Une application qui compile n'est pas une application
-qui marche : trois défauts de cette base — le mode de compatibilité sans
-`UILaunchScreen`, l'annotation qui effaçait ses voisines, le bouton principal
-illisible sur iOS 18 — ne se voyaient qu'en capture d'écran.
+qui marche : une quinzaine de défauts de cette base ne se voyaient qu'en capture
+— le mode de compatibilité sans `UILaunchScreen`, l'annotation qui effaçait ses
+voisines, le bouton principal illisible sur iOS 18, un nombre coupé sur trois
+lignes, une ligne de 1 300 points sur iPad.
+
+⚠️ **Ne pas écrire sa propre boucle de capture** pour itérer plus vite.
+`simctl terminate` rend la main avant la fin du processus : `launch` remet au
+premier plan l'instance vivante, ignore les drapeaux, et la capture montre
+l'écran précédent sans que rien ne le dise. `--only` et `--sizes` existent pour
+ça.
 
 ```bash
-xcrun simctl launch <appareil> dev.amissan.portfolio -backstage
+xcrun simctl launch <appareil> dev.amissan.portfolio -decisions
+xcrun simctl launch <appareil> dev.amissan.portfolio -tab journey
+xcrun simctl launch <appareil> dev.amissan.portfolio -modal settings
+xcrun simctl launch <appareil> dev.amissan.portfolio -modal resume
+xcrun simctl launch <appareil> dev.amissan.portfolio -modal contact
+xcrun simctl launch <appareil> dev.amissan.portfolio -route engineering
+xcrun simctl launch <appareil> dev.amissan.portfolio -route caseStudy:kcalories
 xcrun simctl io <appareil> screenshot capture.png
 ```
+
+⚠️ **`xcrun simctl ui … content_size` sort avec 0 sur une valeur qu'il refuse.**
+`accessibility5` n'existe pas ; c'est `accessibility-extra-extra-extra-large`.
+Tout un axe de la matrice a été capturé à la mauvaise taille sans que rien ne le
+dise. `screens.sh` relit désormais la valeur au lieu de croire le code de retour.
+
+⚠️ **Un drapeau de capture n'écrit jamais dans les réglages.** `-decision` le
+faisait, et toutes les captures suivantes sortaient annotées — y compris celles
+censées montrer l'application au repos.
 
 ## Où vont les choses
 
 | Quoi | Où |
 |---|---|
-| Entités et ports | `Packages/AmissanKit/Sources/Domain/` |
-| Transport, stockage | `Sources/Networking/`, `Sources/Persistence/` |
-| DTO, correspondances, dépôts | `Sources/Data/` |
-| Couleurs, typo, mouvement, composants | `Sources/DesignSystem/` |
-| Annotations de coulisses | `Sources/Backstage/` |
-| Un écran | `Sources/Feature*/` |
-| Le câblage | `Sources/AppComposition/` |
+| Horloge, stockage, connectivité, bus d'événements | `Packages/Core/` |
+| Entités et ports | `Packages/Domain/Sources/Domain/` |
+| Transport HTTP | `Packages/Networking/` |
+| DTO, correspondances, dépôts, sources | `Packages/Data/Sources/Data/` |
+| Tokens, couleurs, typo, mouvement | `Packages/DesignSystem/` |
+| Composants, et Lottie / Textual / PDFKit | `Packages/CoreUI/` |
+| Phases, stores, formatage, routes — **des valeurs, jamais des phrases** | `Packages/Presentation/` |
+| Vues partagées, environnement, icônes, **catalogue d'interface** | `Packages/Features/Sources/ViewKit/` |
+| Annotations de décision de conception | `Packages/Features/Sources/Decisions/` |
+| Coquille d'écran, résolution de routes | `Packages/Features/Sources/Features/Kit/` |
+| Un écran | `Packages/Features/Sources/Features/<Nom>/` |
+| Le câblage, et la racine de composition | `App/Sources/` |
 | Configuration du projet | `project.yml` |
 | Générateurs et gardes | `Scripts/` |
+
+**Le nom dit le rôle.** `*DTO`, `*Mapper`, `*Repository`, `*DataSource`,
+`*Request`, `*Response`, `*Store`, `*Screen`, `*View`, `*Stub`, `*Spy`. Deux
+exceptions : les **entités** n'ont pas de suffixe (le domaine parle le
+vocabulaire du métier), et les **protocoles** suivent Swift — `-able`, `-ible`,
+`-ing`. `./Scripts/check-naming.sh` le tient. Détail : `docs/refonte.md` §21.
+
+**Aucun `import` de bibliothèque hors de `CoreUI`.** Un écran demande
+`MarkdownText`, `LottieAnimation`, `PDFPreview`. Le jour où la bibliothèque
+change, un fichier change.
+
+**Un fichier par type.** Un type public porte le nom de son fichier. Les
+exceptions sont étroites : un type imbriqué reste avec son parent, une extension
+de conformité courte reste avec le type, un `#Preview` reste avec sa vue.
+
+**`private` par défaut.** On ne monte d'un cran qu'avec une raison nommée.
+`package` est le niveau qu'on oublie : un type partagé entre deux modules d'un
+même package n'a aucune raison d'être visible depuis l'application. Dans
+`Features`, la moitié de la surface est `package` — et `check-layers.sh` refuse
+un type `public` que rien, dehors, ne nomme.
+
+## L'ordre de livraison : l'API d'abord
+
+Le DTO décrit ce que l'API sert **aujourd'hui**, et un champ manquant lève —
+c'est l'invariant n° 5, et il n'a pas d'exception. Conséquence : une ressource
+ajoutée à l'API doit être **déployée avant** que l'application qui la lit ne
+parte. En attendant, `./Scripts/seed.sh --check` échoue, et c'est correct.
+
+Pour travailler pendant ce temps :
+
+```bash
+cd ../api && npx wrangler dev --port 8788
+API_BASE_URL=http://127.0.0.1:8788 ./Scripts/seed.sh
+```
+
+## Livrer
+
+```bash
+git tag v1.0.0 && git push --tags   # déclenche la livraison TestFlight
+```
+
+La suite complète tourne **avant** la signature : un test qui échoue ne doit
+jamais atteindre l'étape qui coûte un certificat. `match` est en lecture seule en
+CI — un runner capable de régénérer du matériel de signature est un runner
+capable d'invalider toutes les autres machines. Détail : `docs/testflight.md`.
+
+⚠️ Les quatre secrets ne vivent nulle part dans ce dépôt, et ne se collent
+jamais dans une conversation. Ils vont de l'interface qui les fabrique aux
+secrets GitHub, et nulle part ailleurs.
 
 ## Ce qui se discute avant d'être fait
 
 - **Ajouter une dépendance.** La règle : *ce qui serait pire sans elle, pas ce
   qu'elle rend pratique.* Les arbitrages déjà rendus — Lottie oui, Alamofire
-  non, Textual oui, SwiftData non — sont dans `AppDossier`, et l'application les
+  non, Textual oui, SwiftData non — sont dans `EngineeringRecord`, et l'application les
   affiche. En ajouter une, c'est devoir l'expliquer à l'écran.
 - **Ajouter une cible.** Le graphe est la frontière : une cible de plus est une
   frontière de plus à justifier.

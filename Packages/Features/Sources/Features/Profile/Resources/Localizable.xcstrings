@@ -1,0 +1,613 @@
+{
+  "sourceLanguage": "fr",
+  "strings": {
+    "profile.action.pitfall": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`glassEffect` applies to the view, never as a background: put in `.background`, it **covers** the label and the button looks empty."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`glassEffect` s'applique à la vue, jamais en arrière-plan : posé dans un `.background`, il **recouvre** le libellé et le bouton paraît vide."
+          }
+        }
+      }
+    },
+    "profile.action.rationale": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One primary action per screen, at most. Two buttons of equal weight are not twice as useful: they cancel the hierarchy, and the reader ends up arbitrating in the designer's place.\n\nThe style renders differently in the two worlds — tinted glass on iOS 26, a solid accent fill on iOS 18 — because the same tint at low opacity over a translucent material gives white on pale in light theme. Measured on screen, not assumed."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une action principale par écran, au plus. Deux boutons de même poids ne sont pas deux fois plus utiles : ils annulent la hiérarchie et le lecteur doit arbitrer à la place du concepteur.\n\nLe style se rend différemment sur les deux mondes — verre teinté sur iOS 26, aplat d'accent sur iOS 18 — parce que la même teinte à faible opacité sur un matériau translucide donne du blanc sur du pâle en thème clair. Mesuré à l'écran, pas supposé."
+          }
+        }
+      }
+    },
+    "profile.action.rejected.1.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It ignores Liquid Glass on iOS 26: the button would look like iOS 17 in the middle of a glass bar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il ignore Liquid Glass sur iOS 26 : le bouton aurait l'air d'iOS 17 au milieu d'une barre en verre."
+          }
+        }
+      }
+    },
+    "profile.action.rejected.1.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`.borderedProminent`"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`.borderedProminent`"
+          }
+        }
+      }
+    },
+    "profile.action.role": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The opening screen's one primary action."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'unique action principale de l'écran d'ouverture."
+          }
+        }
+      }
+    },
+    "profile.action.whenToUse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The action the screen exists to offer. If there are two, one of them is not one."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'action que l'écran existe pour proposer. S'il y en a deux, l'une des deux n'en est pas une."
+          }
+        }
+      }
+    },
+    "profile.hero.pitfall": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Without `fixedSize(horizontal:false, vertical:true)` a line **truncates** instead of wrapping, and only at the accessibility sizes: \"Ingénieur iOS senior\" came out as \"Ingénieur iOS s…\" — the one line on the first screen that says what he does. Invisible when reading the file, obvious in a capture."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sans `fixedSize(horizontal:false, vertical:true)`, une ligne **tronque** au lieu de passer à la ligne, et seulement aux tailles d'accessibilité : « Ingénieur iOS senior » sortait en « Ingénieur iOS s… » — la seule ligne du premier écran qui dit son métier. Invisible en lisant le fichier, évident en capture."
+          }
+        }
+      }
+    },
+    "profile.hero.rationale": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This block gave up 106 pt of decoration — a 72 pt monogram and an animated signature — on the screen that decides whether anybody reads on. A monogram is what you put when you have neither a photograph nor a product; he has thirty-five, and they sit two blocks down in the space this gave back.\n\nWhat took its place: **`profile.remote`**. Remote work was decoded, modelled, carried through three layers and **displayed by nobody**. It is a recruiter's first filter, and it was the one fact the app did not say."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce bloc a perdu 106 pt de décoration — un monogramme de 72 pt et une signature animée — sur l'écran qui décide si quelqu'un lit la suite. Un monogramme, c'est ce qu'on met quand on n'a ni photo ni produit ; il en a trente-cinq, et ils sont deux blocs plus bas grâce à la place reprise ici.\n\nCe qui est arrivé à la place : **`profile.remote`**. Le télétravail était décodé, modélisé, transporté sur trois couches et **affiché par personne**. C'est le premier filtre d'un recruteur, et c'était le seul fait que l'application ne disait pas."
+          }
+        }
+      }
+    },
+    "profile.hero.rejected.1.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Several countries' hiring guidance advises against a CV photo: it invites a judgement that has nothing to do with the work. The monogram gives the same anchor."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plusieurs pays déconseillent explicitement la photo sur un CV : elle invite un jugement qui n'a rien à voir avec le travail. Le monogramme donne le même point d'ancrage."
+          }
+        }
+      }
+    },
+    "profile.hero.rejected.1.name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A photograph"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une photo"
+          }
+        }
+      }
+    },
+    "profile.hero.rejected.2.because": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "72 pt for two letters, plus an animated signature under it: 106 pt that prove nothing, right above the fold. A portfolio shows the work, not the initials."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "72 pt pour deux lettres, plus une signature animée en dessous : 106 pt qui ne prouvent rien, juste au-dessus de la ligne de flottaison. Un portfolio montre le travail, pas les initiales."
+          }
+        }
+      }
+    },
+    "profile.hero.rejected.2.name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A monogram"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un monogramme"
+          }
+        }
+      }
+    },
+    "profile.hero.rejected.3.because": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asking for a decision on the sixth line of the app, before there is anything to decide about. The same action sits at the foot of this very scroll, after the argument."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander une décision à la sixième ligne de l'application, avant qu'il y ait de quoi décider. La même action est au bas de ce défilement, après l'argument."
+          }
+        }
+      }
+    },
+    "profile.hero.rejected.3.name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A \"contact me\" button here"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un bouton « Me contacter » ici"
+          }
+        }
+      }
+    },
+    "profile.hero.role": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The opening: the name, the role, and the working condition."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'ouverture : le nom, le rôle, et la condition de travail."
+          }
+        }
+      }
+    },
+    "profile.hero.whenToUse": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accented text rather than a pill when one fact has to stand out without borrowing a landing page's vocabulary. `fixedSize(horizontal:false, vertical:true)` on every line that can wrap at the accessibility sizes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un texte accentué plutôt qu'une pastille quand un fait doit ressortir sans emprunter le vocabulaire d'une page d'atterrissage. `fixedSize(horizontal:false, vertical:true)` sur chaque ligne qui peut passer à la ligne aux tailles d'accessibilité."
+          }
+        }
+      }
+    },
+    "profile.metrics.rationale": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A number that changes value also changes **width**: digits are not all the same size. Left alone, the tile jitters through the whole count.\n\nTwo modifiers answer this together. `.monospacedDigit()` fixes each digit's width; `.contentTransition(.numericText())` asks the system to interpolate glyphs rather than replace them, which gives the mechanical roll of an odometer.\n\nAnd the counting is not decided here: it is a content field. “~5 M” **could** count up — we choose not to, because animating an approximation lends it a precision it does not have."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un nombre qui change de valeur change aussi de **largeur** : les chiffres n'ont pas tous la même. Sans précaution, la tuile tremble pendant tout le décompte.\n\nDeux modificateurs y répondent ensemble. `.monospacedDigit()` fige la largeur de chaque chiffre ; `.contentTransition(.numericText())` demande au système d'interpoler les glyphes plutôt que de les remplacer, ce qui donne le défilement mécanique d'un compteur.\n\nEt le décompte n'est pas décidé ici : c'est un champ du contenu. « ~5 M » **pourrait** se compter — on choisit que non, parce qu'animer une approximation lui donne une précision qu'elle n'a pas."
+          }
+        }
+      }
+    },
+    "profile.metrics.rejected.1.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "it runs at its own cadence, independent of the display refresh — the count stutters on a busy device"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "il tourne à sa propre cadence, indépendante du rafraîchissement de l'écran — le décompte saute sur un appareil chargé"
+          }
+        }
+      }
+    },
+    "profile.metrics.rejected.1.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A `Timer` that increments"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un `Timer` qui incrémente"
+          }
+        }
+      }
+    },
+    "profile.metrics.rejected.2.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "the width changes every frame and the whole block shifts"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "la largeur change à chaque image et tout le bloc se décale"
+          }
+        }
+      }
+    },
+    "profile.metrics.rejected.2.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Animating the value without `monospacedDigit`"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Animer la valeur sans `monospacedDigit`"
+          }
+        }
+      }
+    },
+    "profile.metrics.role": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rolls the counting figures without the tile jittering."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fait défiler les chiffres qui se comptent, sans que la tuile tremble."
+          }
+        }
+      }
+    },
+    "profile.metrics.whenToUse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whenever a number changes **on screen** and the transition should be seen: a score, a counter, a price. For a static number, both modifiers cost nothing and add nothing."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dès qu'un nombre change **à l'écran** et que la transition doit se voir : un score, un compteur, un prix. Pour un nombre statique, ces deux modificateurs ne coûtent rien mais n'apportent rien."
+          }
+        }
+      }
+    },
+    "profile.scrollview.pitfall": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`.refreshable` only works when applied to the scrollable view itself or one of its direct ancestors. On a child it simply does not propagate — and warns about nothing."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`.refreshable` ne fonctionne **que** s'il est posé sur la vue défilable elle-même ou l'un de ses ancêtres directs. Placé sur un enfant, il ne remonte pas — et ne produit aucun avertissement."
+          }
+        }
+      }
+    },
+    "profile.scrollview.rationale": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`.refreshable` wires the system gesture to an `async` function and **waits for it to finish** before removing the spinner. That is what makes the feedback honest: it spins while the network works, not for an arbitrary half second."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`.refreshable` branche le geste système sur une fonction `async`, et **attend qu'elle se termine** pour retirer l'indicateur. C'est ce qui rend le retour honnête : l'utilisateur voit tourner tant que le réseau travaille, pas une demi-seconde arbitraire."
+          }
+        }
+      }
+    },
+    "profile.scrollview.rejected.1.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "imposes its own insets, separators and background; the layout here is editorial, not tabular"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "impose ses marges, ses séparateurs et son fond ; ici la mise en page est éditoriale, pas tabulaire"
+          }
+        }
+      }
+    },
+    "profile.scrollview.rejected.1.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "List"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "List"
+          }
+        }
+      }
+    },
+    "profile.scrollview.rejected.2.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "everyone already knows the pull gesture; an extra button would take the place of content"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "le geste de tirer est déjà connu de tout le monde, un bouton en plus occuperait la place d'un contenu"
+          }
+        }
+      }
+    },
+    "profile.scrollview.rejected.2.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A “Reload” button"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un bouton « Recharger »"
+          }
+        }
+      }
+    },
+    "profile.scrollview.role": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carries the whole home screen and its pull-to-refresh gesture."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Porte tout l'écran d'accueil et son geste de rafraîchissement."
+          }
+        }
+      }
+    },
+    "profile.scrollview.whenToUse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`ScrollView` whenever the layout is free-form. `List` when rows are homogeneous and numerous, and you want cell reuse, swipe actions and selection."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`ScrollView` dès que la mise en page est libre. `List` quand les éléments sont homogènes, nombreux, et qu'on veut le recyclage de cellules, le glissement latéral et la sélection."
+          }
+        }
+      }
+    },
+    "profile.shelf.pitfall": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A shelf that stops at the page's gutter reads as ending there. It runs the full width — margin cancelled, inset given back inside — or the last visible card looks like the last one there is."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un rayon qui s'arrête à la gouttière de la page se lit comme s'il finissait là. Il court sur toute la largeur — marge annulée, encart rendu à l'intérieur — sinon la dernière carte visible semble être la dernière tout court."
+          }
+        }
+      }
+    },
+    "profile.shelf.rationale": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It is not a claim: every icon is an app anybody can download today, and the ticketing layer inside it is his. The argument is carried by the objects, not by the sentence above them.\n\nIt was **1 050 pt down the second tab**. Nobody reading for thirty seconds reached it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce n'est pas une affirmation : chaque icône est une application téléchargeable aujourd'hui, et la couche billettique qu'elle embarque est la sienne. L'argument est porté par les objets, pas par la phrase au-dessus.\n\nElle était **1 050 pt plus bas, dans le deuxième onglet**. Personne qui lit trente secondes ne l'atteignait."
+          }
+        }
+      }
+    },
+    "profile.shelf.rejected.1.because": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thirty-three cells is a whole screen on the first screen. The count is in the heading: a reader who never scrolls the shelf has already had the fact."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trente-trois cellules, c'est un écran entier sur le premier écran. Le compte est dans le titre : un lecteur qui ne fait jamais défiler le rayon a déjà eu le fait."
+          }
+        }
+      }
+    },
+    "profile.shelf.rejected.1.name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The full grid here"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La grille complète ici"
+          }
+        }
+      }
+    },
+    "profile.shelf.role": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The apps in production, on a shelf."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les applications en production, en rayon."
+          }
+        }
+      }
+    },
+    "profile.shelf.whenToUse": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A horizontal shelf when the message is \"there are many of these, and this is what they look like\"; a grid when the reader came to browse. `scrollTargetBehavior(.viewAligned)` so each card comes to rest under the finger."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un rayon horizontal quand le message est « il y en a beaucoup, et voilà à quoi ça ressemble » ; une grille quand on vient pour parcourir. `scrollTargetBehavior(.viewAligned)` pour que chaque carte s'arrête sous le doigt."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

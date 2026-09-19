@@ -20,7 +20,7 @@ paths:
                    └────────┬─────────┘
           ┌─────────────────┼──────────────────┐
           ▼                 ▼                  ▼
-     Feature*            Data              Backstage
+     Feature*            Data              Decisions
           │            ┌───┴────┐              │
           ▼            ▼        ▼              ▼
      FeatureKit   Networking Persistence  DesignSystem

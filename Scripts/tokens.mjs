@@ -1,27 +1,44 @@
 #!/usr/bin/env node
 /**
- * `./Scripts/tokens.mjs`          écrit le Swift dérivé de design/tokens.json
- * `./Scripts/tokens.mjs --check`  échoue s'il diverge, ou si la copie des
- *                                 tokens a dérivé du hub
+ * `./Scripts/tokens.mjs`          writes the Swift derived from design/tokens.json
+ * `./Scripts/tokens.mjs --check`  fails if it has diverged, or if the local copy
+ *                                 of the tokens has drifted from the hub
  *
- * Le design a **une** source : `design/tokens.json`, dans le dépôt hub. Le CSS
- * du site, le gabarit du CV en PDF et ce fichier Swift en descendent — aucune
- * valeur n'est recopiée à la main nulle part.
+ * Design has **one** source: `design/tokens.json`, in the hub repository. The
+ * site's CSS, the PDF résumé's template and this Swift file all descend from it
+ * — no value is copied by hand anywhere.
  *
- * Le mode `--check` est ce qui transforme « on régénère après avoir touché aux
- * tokens » d'une discipline en une garde : la CI l'exécute, et une divergence
- * casse la construction au lieu de se découvrir à l'œil sur un écran — c'est-à-
- * dire trop tard, et seulement sur le thème qu'on avait ouvert.
+ * The `--check` mode is what turns "regenerate after touching the tokens" from a
+ * discipline into a guard: CI runs it, and a divergence breaks the build instead
+ * of being noticed by eye on a screen — that is, too late, and only on whichever
+ * theme happened to be open.
  */
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve, relative } from "node:path";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const TOKENS = resolve(ROOT, "design/tokens.json");
-/** Le hub, quand on travaille depuis le workspace `portfolio`. */
+
+/**
+ * Two layers, assembled here.
+ *
+ * `tokens.json` is the copy from the hub: colours, spacing, radii, curves, type
+ * scale. It is what the site and the PDF résumé share, and it is only ever
+ * edited in the hub.
+ *
+ * `tokens.ios.json` carries only what makes sense on iOS alone — symbol sizes,
+ * stroke widths, durations. The site would never see them, and lifting them into
+ * the hub would clutter a shared source with values only one client uses.
+ *
+ * The assembly happens at generation time, not by hand: that is what allows an
+ * iOS token to be added without touching the hub, and what lets the shared half
+ * be checked for drift.
+ */
+const SHARED = resolve(ROOT, "design/tokens.json");
+const PLATFORM = resolve(ROOT, "design/tokens.ios.json");
+/** The hub, when working from inside the `portfolio` workspace. */
 const UPSTREAM = resolve(ROOT, "../design/tokens.json");
-const OUTPUT = resolve(ROOT, "Packages/AmissanKit/Sources/DesignSystem/Generated/Tokens.swift");
+const OUTPUT = resolve(ROOT, "Packages/DesignSystem/Sources/DesignSystem/Generated/Tokens.swift");
 
 const check = process.argv.includes("--check");
 
@@ -33,10 +50,30 @@ const readOr = async (path, fallback) => {
   }
 };
 
-const source = await readFile(TOKENS, "utf8");
-const tokens = JSON.parse(source);
+const source = await readFile(SHARED, "utf8");
+const platformSource = await readFile(PLATFORM, "utf8");
 
-// ── Petites conversions ────────────────────────────────────────────────────
+/**
+ * A group present on both sides would be a divergence in the making: the hub's
+ * value and the client's would end up saying different things with nothing to
+ * report it. Overlap is refused rather than resolved in favour of a winner.
+ */
+const shared = JSON.parse(source);
+const platform = JSON.parse(platformSource);
+const overlap = Object.keys(platform).filter(
+  (key) => !key.startsWith("$") && Object.hasOwn(shared, key),
+);
+if (overlap.length > 0) {
+  console.error(
+    `✖ these groups exist on both sides: ${overlap.join(", ")}.\n` +
+      "  A token is shared (hub) or specific (here), never both.",
+  );
+  process.exit(1);
+}
+
+const tokens = { ...shared, ...platform };
+
+// ── Small conversions ──────────────────────────────────────────────────────
 
 /** `#FAF8F3` → `(red: 0.98, green: 0.972, blue: 0.953)`, en composantes sRGB. */
 function rgb(hex) {
@@ -49,22 +86,22 @@ function rgb(hex) {
 function bezier(css) {
   const numbers = css.match(/-?\d*\.?\d+/g);
   if (numbers?.length !== 4) {
-    throw new Error(`Courbe « ${css} » illisible : quatre nombres attendus.`);
+    throw new Error(`Unreadable curve "${css}": four numbers expected.`);
   }
   return numbers.map((n) => (n.startsWith(".") ? `0${n}` : n));
 }
 
-/** `paper-2` → `paper2`, `on-accent` → `onAccent` : un nom d'identifiant Swift. */
+/** `paper-2` → `paper2`, `on-accent` → `onAccent`: a Swift identifier. */
 const camel = (name) => name.replace(/-(.)/g, (_, c) => c.toUpperCase());
 
 const swiftName = (name) => (/^\d/.test(name) ? `s${name}` : camel(name));
 
-// ── Génération ─────────────────────────────────────────────────────────────
+// ── Generation ─────────────────────────────────────────────────────────────
 
 const colorCases = Object.entries(tokens.color).map(([name, pair]) => {
   const [lr, lg, lb] = rgb(pair.light);
   const [dr, dg, db] = rgb(pair.dark);
-  return `    /// \`${pair.light}\` en clair, \`${pair.dark}\` en sombre.
+  return `    /// \`${pair.light}\` in light, \`${pair.dark}\` in dark.
     public static let ${swiftName(name)} = Palette(
       light: Components(red: ${lr}, green: ${lg}, blue: ${lb}),
       dark: Components(red: ${dr}, green: ${dg}, blue: ${db})
@@ -81,7 +118,7 @@ const radiusCases = Object.entries(tokens.radius).map(
 
 const easeCases = Object.entries(tokens.ease).map(([name, css]) => {
   const [x1, y1, x2, y2] = bezier(css);
-  return `    /// \`${css}\` — la même courbe que sur le site.
+  return `    /// \`${css}\` — the same curve as on the website.
     public static let ${swiftName(name)} = Curve(x1: ${x1}, y1: ${y1}, x2: ${x2}, y2: ${y2})`;
 });
 
@@ -89,36 +126,64 @@ const typeCases = Object.entries(tokens.type)
   .filter(([name]) => !name.startsWith("$"))
   .map(([name, value]) => `    public static let ${swiftName(name)}: CGFloat = ${value}`);
 
-const generated = `// Généré par Scripts/tokens.mjs depuis design/tokens.json — NE PAS ÉDITER.
+const iconCases = Object.entries(tokens.icon)
+  .filter(([name]) => !name.startsWith("$"))
+  .map(([name, value]) => `    public static let ${swiftName(name)}: CGFloat = ${value}`);
+
+const strokeCases = Object.entries(tokens.stroke)
+  .filter(([name]) => !name.startsWith("$"))
+  .map(([name, value]) => `    public static let ${swiftName(name)}: CGFloat = ${value}`);
+
+const opacityCases = Object.entries(tokens.opacity)
+  .filter(([name]) => !name.startsWith("$"))
+  .map(([name, value]) => `    public static let ${swiftName(name)}: Double = ${value}`);
+
+const durationCases = Object.entries(tokens.duration)
+  .filter(([name]) => !name.startsWith("$"))
+  .map(([name, value]) => `    public static let ${swiftName(name)}: Double = ${value}`);
+
+const elevationCases = Object.entries(tokens.elevation)
+  .filter(([name]) => !name.startsWith("$"))
+  .map(
+    ([name, shadow]) =>
+      `    public static let ${swiftName(name)} = Shadow(` +
+      `radius: ${shadow.radius}, y: ${shadow.y}, opacity: ${shadow.opacity})`,
+  );
+
+const layoutCases = Object.entries(tokens.layout)
+  .filter(([name]) => !name.startsWith("$"))
+  .map(([name, value]) => `    public static let ${swiftName(name)}: CGFloat = ${value}`);
+
+const generated = `// Generated by Scripts/tokens.mjs — DO NOT EDIT.
 //
 // ${tokens.$comment}
 //
-// Toute modification à la main sera écrasée, et \`./Scripts/tokens.mjs --check\`
-// la refusera en CI avant même qu'elle n'atteigne une branche.
+// Any hand edit will be overwritten, and \`./Scripts/tokens.mjs --check\` will
+// refuse it in CI before it ever reaches a branch.
 import CoreGraphics
 
 public enum Tokens {}
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Couleurs
+// Colours
 // ─────────────────────────────────────────────────────────────────────────────
 
 extension Tokens {
-  /// Les composantes sRGB d'une couleur, sans dépendre d'un framework d'interface.
+  /// A colour's sRGB components, with no interface framework involved.
   ///
-  /// Le paquet ne connaît ici ni SwiftUI ni UIKit : \`DesignSystem/Colors.swift\`
-  /// se charge de la conversion. Ça garde le fichier généré lisible, testable,
-  /// et indépendant de la plateforme sur laquelle on le compile.
+  /// This file knows neither SwiftUI nor UIKit: \`DesignSystem/Colors.swift\`
+  /// does the conversion. That keeps the generated file readable, testable, and
+  /// independent of the platform it is compiled on.
   public struct Components: Sendable, Hashable {
     public let red: Double
     public let green: Double
     public let blue: Double
   }
 
-  /// Une couleur et son équivalent en thème sombre — les deux, toujours.
+  /// A colour and its dark-theme counterpart — both, always.
   ///
-  /// Le type rend impossible ce qui arrive systématiquement autrement : une
-  /// couleur définie pour un seul thème, qui devient illisible sur l'autre.
+  /// The type makes impossible what otherwise happens every time: a colour
+  /// defined for one theme only, unreadable on the other.
   public struct Palette: Sendable, Hashable {
     public let light: Components
     public let dark: Components
@@ -130,7 +195,7 @@ ${colorCases.join("\n")}
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Espacements — une échelle de 4 points, comme sur le site
+// Spacing — a 4-point scale, as on the website
 // ─────────────────────────────────────────────────────────────────────────────
 
 extension Tokens {
@@ -144,13 +209,13 @@ ${radiusCases.join("\n")}
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Mouvement
+// Motion
 // ─────────────────────────────────────────────────────────────────────────────
 
 extension Tokens {
-  /// Une courbe de Bézier cubique, dans la forme qu'attendent CSS **et**
-  /// \`Animation.timingCurve\`. Les deux plateformes partagent donc la même
-  /// sensation de mouvement, à la valeur près.
+  /// A cubic Bézier curve, in the form CSS **and** \`Animation.timingCurve\`
+  /// both expect. The two platforms therefore share the same feel of motion, to
+  /// the value.
   public struct Curve: Sendable, Hashable {
     public let x1: Double
     public let y1: Double
@@ -164,7 +229,7 @@ ${easeCases.join("\n")}
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Typographie
+// Typography
 //
 // ${tokens.type.$comment}
 // ─────────────────────────────────────────────────────────────────────────────
@@ -175,10 +240,57 @@ ${typeCases.join("\n")}
   }
 
   public enum Accessibility {
-    /// La plus petite cible tactile admissible, en points.
+    /// The smallest acceptable touch target, in points.
     public static let minimumTouchTarget: CGFloat = ${tokens.a11y.minTouchTarget}
-    /// Le niveau de contraste visé.
+    /// The contrast level aimed for.
     public static let contrastLevel = "${tokens.a11y.contrast}"
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// iOS-specific — from design/tokens.ios.json
+// ─────────────────────────────────────────────────────────────────────────────
+
+extension Tokens {
+  /// SF Symbol and illustration sizes, in points.
+  public enum Icon {
+${iconCases.join("\n")}
+  }
+
+  /// Stroke widths. \`hairline\` is half a point: one and a half pixels at 3×,
+  /// the thinnest line that still renders crisply.
+  public enum Stroke {
+${strokeCases.join("\n")}
+  }
+
+  /// Named opacities — by what they mean, not by their value.
+  public enum Opacity {
+${opacityCases.join("\n")}
+  }
+
+  /// Animation durations, in seconds.
+  ///
+  /// The **curves** are shared with the website: the curve carries the feel, the
+  /// duration tunes it to the medium. A touch screen has less patience than a
+  /// web page.
+  public enum Duration {
+${durationCases.join("\n")}
+  }
+
+  /// A shadow described by the three numbers that only mean anything together.
+  /// Splitting them invites changing one alone.
+  public struct Shadow: Sendable, Hashable {
+    public let radius: CGFloat
+    public let y: CGFloat
+    public let opacity: Double
+  }
+
+  public enum Elevation {
+${elevationCases.join("\n")}
+  }
+
+  public enum Layout {
+${layoutCases.join("\n")}
   }
 }
 `;
