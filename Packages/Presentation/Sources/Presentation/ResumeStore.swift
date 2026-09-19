@@ -29,7 +29,11 @@ public final class ResumeStore {
   /// Held here rather than passed at every call, exactly as `PortfolioStore`
   /// holds its own. A screen that had to supply it would be a screen handling a
   /// language, and the only place allowed to decide one is the composition root.
-  private var language: Language
+  /// Readable, because the screen has to say which language the document it
+  /// is showing was produced in. It stays settable only from here — the
+  /// composition root decides the language, and a view that could set it would
+  /// be a view handling localisation.
+  public private(set) var language: Language
 
   public init(reading: any ResumeReading, language: Language) {
     self.reading = reading

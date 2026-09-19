@@ -18,6 +18,8 @@ public struct ResumeScreen: View {
   @Environment(ToastCenter.self) private var toasts
   @Localized(.interface) private var text
 
+  @State private var isShowingProvenance = false
+
   public init() {}
 
   public var body: some View {
@@ -50,10 +52,22 @@ public struct ResumeScreen: View {
       }
       .background(Color.paper2)
       .navigationTitle(text(InterfaceText.resumeTitle))
+      // The one fact about this document the reader cannot work out for
+      // themselves and might be surprised by: which language it came in. The
+      // store has always known; nothing ever said it.
+      //
+      // It is **also** in the provenance popover, because iOS 18 has no
+      // subtitle slot — see `navigationDetail`.
+      .navigationDetail(LanguageStyle(language: store.language).endonym)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
           Button(text(InterfaceText.close)) { dismiss() }
+        }
+        ToolbarItem(placement: .primaryAction) {
+          if case .loaded(let document) = store.phase {
+            provenanceButton(document)
+          }
         }
         ToolbarItem(placement: .primaryAction) {
           if case .loaded(let document) = store.phase {
@@ -68,11 +82,6 @@ public struct ResumeScreen: View {
             }
             .decision(ResumeDecisions.share)
           }
-        }
-      }
-      .safeAreaInset(edge: .bottom) {
-        if case .loaded(let document) = store.phase {
-          provenance(document)
         }
       }
     }
@@ -90,24 +99,64 @@ public struct ResumeScreen: View {
     .decisionOverlay()
   }
 
+  /// ⚠️ This was a **permanent bar** across the bottom of the résumé, carrying
+  /// the file name, the cache origin and a "revalidated" seal.
+  ///
+  /// All three are engineering sawdust shown to the reader. Somebody who opened
+  /// a CV is reading a CV; whether it arrived over the network or came out of a
+  /// cache, and whether an `ETag` matched, answers a question they did not ask
+  /// — while taking a strip off the document they did.
+  ///
+  /// It is not deleted, because it is genuinely worth having: this app claims
+  /// its content is served and verifiable, and somebody inspecting that claim
+  /// has every reason to check. It moved behind an ⓘ, which is exactly what a
+  /// footnote is.
+  private func provenanceButton(_ document: ResumeDocument) -> some View {
+    Button { isShowingProvenance = true } label: {
+      Image(systemName: "info.circle")
+    }
+    .accessibilityLabel(text(InterfaceText.provenanceTitle))
+    .popover(isPresented: $isShowingProvenance) {
+      provenance(document)
+        // A popover **points at** the control it belongs to; a sheet covers the
+        // screen and severs the connection between the question and what
+        // prompted it. Without this, SwiftUI turns every popover into a sheet
+        // in a compact size class.
+        .presentationCompactAdaptation(.popover)
+    }
+  }
+
   private func provenance(_ document: ResumeDocument) -> some View {
-    HStack(spacing: Tokens.Space.s2) {
-      Image(systemName: document.origin == .network ? "arrow.down.circle" : "internaldrive")
-        .font(.footnote)
-      Text(document.fileName)
-        .font(Typography.caption)
-        .lineLimit(1)
-        .truncationMode(.middle)
-      Spacer(minLength: 0)
+    VStack(alignment: .leading, spacing: Tokens.Space.s3) {
+      Text(text(InterfaceText.provenanceTitle)).eyebrowStyle()
+
+      // The language again, in full, because iOS 18 has no navigation subtitle
+      // and this is then the only place that says it.
+      Label(
+        LanguageStyle(language: store.language).endonym,
+        icon: .language
+      )
+      .font(Typography.secondary)
+      .foregroundStyle(Color.ink)
+
+      Label {
+        Text(document.fileName)
+          .lineLimit(1)
+          .truncationMode(.middle)
+      } icon: {
+        Image(systemName: document.origin == .network ? "arrow.down.circle" : "internaldrive")
+      }
+      .font(Typography.caption)
+      .foregroundStyle(Color.ink3)
+
       if document.entityTag != nil {
         Label(text(InterfaceText.revalidated), systemImage: "checkmark.seal")
           .font(Typography.caption)
+          .foregroundStyle(Color.ink3)
       }
     }
-    .foregroundStyle(Color.ink3)
-    .padding(.horizontal, Tokens.Space.s4)
-    .padding(.vertical, Tokens.Space.s2)
-    .background(.bar)
+    .padding(Tokens.Space.s5)
+    .frame(maxWidth: Tokens.Layout.popoverWidth, alignment: .leading)
   }
 
   // ── Decisions ──────────────────────────────────────────────────────────

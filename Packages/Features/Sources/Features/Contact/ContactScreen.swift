@@ -1,5 +1,6 @@
 import CoreUI
 import DesignSystem
+import FeatureKit
 import Presentation
 import SwiftUI
 import ViewKit
@@ -12,7 +13,21 @@ import ViewKit
 /// quietly becomes a screen file. It is a screen: it reads the store, it
 /// renders, it opens URLs. Everything a screen does.
 ///
-/// ## Why a medium detent and not a full sheet
+/// ## What it stopped doing itself
+///
+/// Two things, and both were the only place in the app that did them.
+///
+/// It **drew its own contact**, so the same content existed here and at the
+/// foot of the profile — and the two had already drifted on which glyph each
+/// link carries. The card is now one component; this screen decides only that
+/// it is presented as a sheet.
+///
+/// And it was the only screen not going through `PhaseView`: an `if let` and a
+/// hand-written skeleton, which meant a failed load showed a skeleton for ever
+/// instead of a failure with a retry. Nine screens shared one switch; this one
+/// had a tenth of its own.
+///
+/// ## Why a medium detent
 ///
 /// There is one address and a short list of links. A sheet sized to its content
 /// keeps the screen underneath in view, which is what tells the reader they have
@@ -20,47 +35,16 @@ import ViewKit
 public struct ContactScreen: View {
   @Environment(PortfolioStore.self) private var store
   @Environment(\.dismiss) private var dismiss
-  @Environment(\.openURL) private var openURL
   @Localized(.interface) private var text
 
   public init() {}
 
   public var body: some View {
     NavigationStack {
-      Group {
-        if let contact = store.portfolio?.profile.contact {
-          ScrollView {
-            VStack(alignment: .leading, spacing: Tokens.Space.s4) {
-              Text(contact.title)
-                .font(Typography.title)
-                .foregroundStyle(Color.ink)
-
-              Text(contact.body)
-                .font(Typography.body)
-                .foregroundStyle(Color.ink2)
-                .fixedSize(horizontal: false, vertical: true)
-
-              Button {
-                open("mailto:\(contact.email)")
-              } label: {
-                Label(contact.email, systemImage: "envelope")
-              }
-              .buttonStyle(.adaptiveGlassProminent)
-
-              ForEach(contact.links) { link in
-                Button {
-                  open(link.url)
-                } label: {
-                  Label(link.label, systemImage: "link")
-                }
-                .buttonStyle(.adaptiveGlass)
-              }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+      PhaseView(store.phase, retry: { store.load() }) { snapshot in
+        ScrollView {
+          ContactCard(contact: snapshot.portfolio.profile.contact)
             .padding(Tokens.Space.s5)
-          }
-        } else {
-          LoadingSkeletonView()
         }
       }
       .background(Color.paper)
@@ -72,16 +56,11 @@ public struct ContactScreen: View {
         }
       }
     }
-    // Medium by default, and expandable — not medium only. At the
-    // accessibility text sizes the address and three links no longer fit in
-    // half a screen, and a sheet that can only be scrolled inside a fixed
-    // window is the one place a reader cannot make room.
+    // Medium by default, and expandable — not medium only. At the accessibility
+    // text sizes the address and the links no longer fit in half a screen, and
+    // a sheet that can only be scrolled inside a fixed window is the one place
+    // a reader cannot make room.
     .presentationDetents([.medium, .large])
     .presentationDragIndicator(.visible)
-  }
-
-  private func open(_ string: String) {
-    guard let url = URL(string: string) else { return }
-    openURL(url)
   }
 }

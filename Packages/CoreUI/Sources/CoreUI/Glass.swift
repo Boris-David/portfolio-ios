@@ -90,3 +90,24 @@ public extension View {
   /// is written where somebody would otherwise re-add the modifier.
   func minimizingTabBarOnScroll() -> some View { self }
 }
+
+public extension View {
+  /// A second line under a navigation title, saying something about what is
+  /// being shown rather than what it is called.
+  ///
+  /// Named here rather than written at the call site, for the reason this file
+  /// exists: a screen must never carry `if #available(iOS 26, *)`. iOS 26 has
+  /// `navigationSubtitle`; iOS 18 has no such slot, and inventing one would put
+  /// a hand-built bar under a system bar.
+  ///
+  /// Whatever this line says must therefore also be reachable another way, or
+  /// it is a fact half the readers never get.
+  @ViewBuilder
+  func navigationDetail(_ detail: String) -> some View {
+    if #available(iOS 26.0, *) {
+      navigationSubtitle(detail)
+    } else {
+      self
+    }
+  }
+}

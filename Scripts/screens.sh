@@ -92,7 +92,7 @@ SCREENS=(
   "journey|"
   "product|"
   "work|-decisions"
-  "profile|-settings"
+  "profile|-modal settings"
   # Settings **with** the annotations on.
   #
   # The mode was captured on one tab and the settings sheet was captured with
@@ -100,8 +100,11 @@ SCREENS=(
   # this screen emitted three annotations that nothing drew, because a sheet is
   # its own view tree and had never been given a `.decisionOverlay()`. Neither
   # of the two captures could show it; their intersection does.
-  "profile|-settings -decisions"
-  "profile|-resume"
+  "profile|-modal settings -decisions"
+  "profile|-modal resume"
+  # The contact sheet: a screen of the app the matrix could not reach at all,
+  # because it was the one modal without a flag of its own.
+  "profile|-modal contact"
   # A pushed screen needs the route flag: a tab flag cannot reach it, and
   # without this the comparison table — the one screen a `Grid` exists for —
   # is the only one the matrix never sees.

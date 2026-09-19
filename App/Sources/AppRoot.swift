@@ -113,8 +113,7 @@ public struct AppRoot: View {
         // only**, and does not write: a screenshot flag that changes what the
         // reader stored is a bug, and it was one.
         if launch.showsDecisions { settings.forceDecisions() }
-        if launch.opensSettings { modal = .settings }
-        if launch.opensResume { modal = .resume }
+        if let initialModal = launch.initialModal { modal = initialModal }
         store.load()
       }
       .task { await followLanguageChanges() }

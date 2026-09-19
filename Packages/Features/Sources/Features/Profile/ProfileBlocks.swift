@@ -275,55 +275,19 @@ struct ExpertiseBlock: View {
   }
 }
 
-/// The one published contact channel.
+/// The contact card, at the foot of the profile.
+///
+/// A `Surface` around the shared card and nothing else: what a contact *is* is
+/// decided in one place, and this decides where it sits. It is the last block
+/// of the scroll on purpose — the action comes after the argument.
 struct ContactBlock: View {
   let contact: Profile.Contact
-  @Environment(\.openURL) private var openURL
 
   var body: some View {
     Surface {
-      VStack(alignment: .leading, spacing: Tokens.Space.s4) {
-        Text(contact.title)
-          .font(Typography.title)
-          .foregroundStyle(Color.ink)
-          .fixedSize(horizontal: false, vertical: true)
-        Text(contact.body)
-          .font(Typography.body)
-          .foregroundStyle(Color.ink2)
-          .fixedSize(horizontal: false, vertical: true)
-
-        Button {
-          if let url = URL(string: "mailto:\(contact.email)") { openURL(url) }
-        } label: {
-          Label(contact.email, icon: .contact)
-        }
-        .buttonStyle(.adaptiveGlassProminent)
-        .decision(ProfileDecisions.action)
-
-        WrappingRow {
-          ForEach(contact.links) { link in
-            Button {
-              if let url = URL(string: link.url) { openURL(url) }
-            } label: {
-              Label(link.label, systemImage: symbol(for: link.id))
-                .font(Typography.secondary)
-            }
-            .buttonStyle(.adaptiveGlass)
-          }
-        }
-      }
+      ContactCard(contact: contact)
     }
     .reveal()
-  }
-
-  /// SF Symbols does not cover brands: GitHub and LinkedIn are not in it.
-  /// Rather than embedding logos — whose use their owners govern — a generic
-  /// symbol is used, and the **label** carries the identification.
-  private func symbol(for id: String) -> String {
-    switch id {
-    case "github": "chevron.left.forwardslash.chevron.right"
-    case "linkedin": "person.2"
-    default: "link"
-    }
+    .decision(ProfileDecisions.action)
   }
 }

@@ -38,8 +38,16 @@ struct LaunchArgumentsTests {
 
   @Test("-settings opens the settings sheet")
   func settingsFlag() {
-    #expect(LaunchArguments(["-settings"]).opensSettings)
-    #expect(!LaunchArguments([]).opensSettings)
+    #expect(LaunchArguments(["-modal", "settings"]).initialModal == .settings)
+    #expect(LaunchArguments(["-modal", "contact"]).initialModal == .contact)
+    #expect(LaunchArguments([]).initialModal == nil)
+    // A name the app does not know is `nil` rather than a default: a flag that
+    // silently opened the wrong screen would make the capture lie, which is
+    // the one thing this whole matrix exists to prevent.
+    #expect(LaunchArguments(["-modal", "nonsense"]).initialModal == nil)
+    // And the flag with nothing after it, which is the crash `-tab` already had
+    // once, before the first frame, on the one path only CI took.
+    #expect(LaunchArguments(["-modal"]).initialModal == nil)
   }
 
   @Test("-route pushes a screen that no tab flag can reach", arguments: [
@@ -66,9 +74,9 @@ struct LaunchArgumentsTests {
   /// is one launch, not two.
   @Test("the flags compose")
   func flagsCompose() {
-    let launch = LaunchArguments(["-decisions", "-settings", "-tab", "journey"])
+    let launch = LaunchArguments(["-decisions", "-modal", "settings", "-tab", "journey"])
     #expect(launch.showsDecisions)
-    #expect(launch.opensSettings)
+    #expect(launch.initialModal == .settings)
     #expect(launch.initialSection == .journey)
   }
 }

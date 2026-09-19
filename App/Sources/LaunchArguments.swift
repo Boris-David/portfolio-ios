@@ -25,14 +25,19 @@ struct LaunchArguments: Sendable {
 
   let initialSection: AppSection
   let showsDecisions: Bool
-  /// Opens the settings sheet on launch. Same reason as the other two: a sheet
-  /// cannot be captured without somebody tapping, and a screenshot nobody can
+  /// A modal to present on launch. Same reason as the tab flag: a sheet cannot
+  /// be captured without somebody tapping, and a screenshot nobody can
   /// reproduce never reaches CI.
   ///
-  ///     xcrun simctl launch <device> dev.amissan.portfolio -settings
-  let opensSettings: Bool
-  /// Opens the résumé cover on launch, same reason again.
-  let opensResume: Bool
+  ///     xcrun simctl launch <device> dev.amissan.portfolio -modal settings
+  ///
+  /// ⚠️ It was two boolean flags, `-settings` and `-resume`, from the days when
+  /// a sheet and a cover were two types. There are three modals now and the
+  /// third — the contact sheet — was the one screen in the app the capture
+  /// matrix could not reach. A flag per case is a list that grows one case
+  /// behind; naming the case reaches every one of them, including the ones
+  /// added after this line was written.
+  let initialModal: Modal?
   /// A route to push on launch, so a **pushed** screen can be captured.
   ///
   /// The tab flags reach the four roots and the two covers; nothing reached a
@@ -60,8 +65,7 @@ struct LaunchArguments: Sendable {
 
   init(_ arguments: [String]) {
     showsDecisions = arguments.contains("-decisions")
-    opensSettings = arguments.contains("-settings")
-    opensResume = arguments.contains("-resume")
+    initialModal = Self.value(after: "-modal", in: arguments).flatMap(Modal.init(rawValue:))
     initialRoute = Self.route(in: arguments)
     apiBaseURL = Self.value(after: "-api", in: arguments).flatMap(URL.init(string:))
     initialSection = Self.section(in: arguments) ?? .profile
