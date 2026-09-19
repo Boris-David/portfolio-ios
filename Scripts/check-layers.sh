@@ -146,6 +146,28 @@ for file in $(find App/Sources -name "*.swift" 2>/dev/null); do
   fi
 done
 
+# ── A modifier is named where it is applied ────────────────────────────────
+#
+# `.modifier(sceneEnvironment)` says *that* a modifier is applied and never
+# *which*. Every modifier in this codebase is reached through a named function
+# — `.decisionOverlay()`, `.returningToTop()`, `.navigationDetail(_:)` — and the
+# one place that had not been was the composition root, where it mattered most:
+# the list of everything the scene injects.
+#
+# The *definition* is what a `View` extension is for, and it is untouched here:
+# it writes `modifier(X())` with no leading dot. Only the call site is refused.
+#
+# Comment lines are skipped — the doc explaining this very rule quotes the form
+# it forbids, and the first version of the check failed on its own explanation.
+hits="$(grep -rn '\.modifier(' --include="*.swift" Packages App 2>/dev/null \
+  | grep -v ':[0-9]*: *//' || true)"
+if [ -n "$hits" ]; then
+  echo "X a modifier is applied without being named:" >&2
+  printf '    %s\n' "$hits" >&2
+  echo "  add 'func name() -> some View { modifier(TheModifier()) }' and call that" >&2
+  status=1
+fi
+
 if [ "$status" -ne 0 ]; then
   echo "" >&2
   echo "A layer reached for something it must not see. See Scripts/check-layers.sh." >&2

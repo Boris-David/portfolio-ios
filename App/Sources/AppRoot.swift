@@ -89,7 +89,20 @@ public struct AppRoot: View {
     AppTabs(selection: tabSelection)
       .resumeAccessory(present: presentAction)
       .toasts(toasts)
-      .modifier(sceneEnvironment)
+      // ⚠️ **Inside** `sceneEnvironment`, and the order is the whole of it.
+      //
+      // A sheet inherits the environment as it stands at the point the `.sheet`
+      // modifier is attached — not the environment of whatever ends up on
+      // screen. Attached after `.sceneEnvironment(scene)` this sits *outside*
+      // it, and the modifier itself cannot even read the controller: *No
+      // Observable object of type DecisionController found*, on the first tap.
+      //
+      // The two modal anchors below are the opposite case: they are attached
+      // outside on purpose and re-apply the environment inside their content,
+      // because a sheet presented from the scene is hosted outside the scene's
+      // tree. This one is attached inside and needs no re-application.
+      .decisionSheet(isEnabled: modal == nil)
+      .sceneEnvironment(scene)
       // The **one** place the app presents anything over the scene. Which
       // presentation a modal gets is the modal's own answer, not the caller's
       // — see `Modal.style`.
@@ -97,11 +110,14 @@ public struct AppRoot: View {
       // The environment is applied again inside, because a presented screen is
       // hosted outside the presenting view's tree and inherits nothing from it.
       .sheet(item: modalBinding(.sheet)) { modal in
-        resolver(modal).modifier(sceneEnvironment)
+        resolver(modal).sceneEnvironment(scene)
       }
       .fullScreenCover(item: modalBinding(.fullScreen)) { modal in
-        resolver(modal).modifier(sceneEnvironment)
+        resolver(modal).sceneEnvironment(scene)
       }
+      // The decision note, presented from the scene — and only while the scene
+      // is what the reader is looking at. A screen presented over it brings its
+      // own anchor; see `decisionSheet(isEnabled:)`.
       // `nil` means "follow the device", which is what `preferredColorScheme`
       // expects for that case — not a third scheme.
       .preferredColorScheme(settings.appearance.isDarkForced.map { $0 ? .dark : .light })
@@ -139,7 +155,9 @@ public struct AppRoot: View {
     PresentAction { modal = $0 }
   }
 
-  private var sceneEnvironment: SceneEnvironment {
+  /// Everything the scene owns, gathered once and applied wherever a root is
+  /// needed — see `SceneEnvironment`.
+  private var scene: SceneEnvironment {
     SceneEnvironment(
       language: settings.resolvedLanguage,
       portfolio: store,

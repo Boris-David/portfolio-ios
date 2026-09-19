@@ -32,6 +32,15 @@ import SwiftUI
 ///
 /// There is now one `Modal` type and one anchor. The list below is applied
 /// twice in `AppRoot`, on lines you can see without scrolling.
+///
+/// ## Why it is applied through a named modifier
+///
+/// `.modifier(sceneEnvironment)` says *that* a modifier is applied and never
+/// *which*: the reader has to go and look. `.sceneEnvironment(scene)` says it
+/// at the call site, the way every other modifier in this codebase does —
+/// `.decisionOverlay()`, `.returningToTop()`, `.navigationDetail(_:)`.
+///
+/// `check-layers.sh` refuses a bare `.modifier(` in a view from now on.
 struct SceneEnvironment: ViewModifier {
   let language: Language
   let portfolio: PortfolioStore
@@ -58,5 +67,12 @@ struct SceneEnvironment: ViewModifier {
       .environment(\.present, present)
       .environment(\.initialRoute, initialRoute)
       .tint(Color.accent)
+  }
+}
+
+extension View {
+  /// Puts everything the scene owns where the screens can find it.
+  func sceneEnvironment(_ scene: SceneEnvironment) -> some View {
+    modifier(scene)
   }
 }
