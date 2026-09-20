@@ -51,9 +51,9 @@ struct AppTabs: View {
         SectionLabel(.product)
       }
     }
-    // The bar shrinks as you read down: the content is what you came for, the
-    // navigation can step aside. iOS 26 only; on iOS 18 the bar stays, which is
-    // its normal behaviour and not a defect.
-    .minimizingTabBarOnScroll()
+    // The bar stays whole while you read — see `tabBarStaysWhileReading`. It
+    // has to be asked for: with an accessory docked under it, iOS 26 minimizes
+    // on scroll by default.
+    .tabBarStaysWhileReading()
   }
 }

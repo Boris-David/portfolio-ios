@@ -1,10 +1,11 @@
 struct ProfileDTO: Decodable {
   struct Name: Decodable {
     let display: String
-    let full: String
+    let formal: String
   }
 
   struct Showcase: Decodable {
+    let description: String
     let media: MediaDTO
     let caseStudy: String?
   }
@@ -25,7 +26,6 @@ struct ProfileDTO: Decodable {
   let headline: String
   let availability: String
   let location: String
-  let remote: String
   let languages: String
   let summary: [[SpanDTO]]
   let showcase: Showcase

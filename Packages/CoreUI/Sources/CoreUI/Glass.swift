@@ -75,7 +75,7 @@ public extension View {
 
   /// The tab bar stays put while you read.
   ///
-  /// ## Why `.onScrollDown` was removed
+  /// ## Why the bar does not shrink
   ///
   /// iOS 26 can shrink the bar as the reader scrolls, and it is the right
   /// default for an app whose content is the point and whose navigation is a
@@ -86,9 +86,24 @@ public extension View {
   /// collapsed. The four sections are not a means: they are the argument, and a
   /// reader who cannot see that there are three more has been told less.
   ///
-  /// Kept as a named no-op rather than deleted at the call site, so the decision
-  /// is written where somebody would otherwise re-add the modifier.
-  func minimizingTabBarOnScroll() -> some View { self }
+  /// ## ⚠️ Why this is a modifier and not an empty function
+  ///
+  /// It **was** an empty function: the modifier had been removed from the call
+  /// site and this held the reasoning, on the assumption that doing nothing
+  /// meant the bar stayed. It does not. A `TabView` that carries a
+  /// `tabViewBottomAccessory` minimizes on scroll by default on iOS 26, so the
+  /// app did the exact thing this comment says is wrong — and the author found
+  /// it before any test did: *"why does the tab bar compress or disappear?"*
+  ///
+  /// A decision written in a comment and enforced by a default is not enforced.
+  @ViewBuilder
+  func tabBarStaysWhileReading() -> some View {
+    if #available(iOS 26.0, *) {
+      tabBarMinimizeBehavior(.never)
+    } else {
+      self
+    }
+  }
 }
 
 public extension View {

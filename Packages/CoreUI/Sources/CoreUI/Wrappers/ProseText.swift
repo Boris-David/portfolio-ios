@@ -203,3 +203,74 @@ public extension UIFont {
     return UIFont(descriptor: descriptor, size: 0)
   }
 }
+
+/// A prose role, expressed in both worlds at once.
+///
+/// SwiftUI draws with a `Font`; TextKit needs a `UIFont.TextStyle` to resolve
+/// the same size against Dynamic Type. They are declared side by side here so
+/// that one role cannot end up two sizes — which is exactly what happened while
+/// the justified path hard-coded `.body` and the SwiftUI path honoured the
+/// caller's font.
+public enum ProseRole: Sendable, Hashable {
+  case body
+  case secondary
+  case caption
+
+  public var font: Font {
+    switch self {
+    case .body: Typography.body
+    case .secondary: Typography.secondary
+    case .caption: Typography.caption
+    }
+  }
+
+  var textStyle: UIFont.TextStyle {
+    switch self {
+    case .body: .body
+    case .secondary: .subheadline
+    case .caption: .caption1
+    }
+  }
+}
+
+public extension ProseText {
+  /// A paragraph of **inline** Markdown — bold, italic, code — laid out by
+  /// TextKit so it can be justified.
+  ///
+  /// The emphases are resolved to `UIFont` here because a `UILabel` cannot
+  /// render a SwiftUI `Font`, and a paragraph that falls back to the system
+  /// default is a paragraph whose typography quietly left the design system.
+  init(markdown: String, role: ProseRole, color: Color, language: String) {
+    self.init(Self.styled(markdown, role: role, color: color), language: language)
+  }
+
+  static func styled(_ markdown: String, role: ProseRole, color: Color) -> AttributedString {
+    let base = UIFont.preferredFont(forTextStyle: role.textStyle)
+    // `.inlineOnlyPreservingWhitespace` keeps the string a single paragraph:
+    // the full parser would swallow a lone newline, and the caller has already
+    // split the source into paragraphs.
+    var parsed = (try? AttributedString(
+      markdown: markdown,
+      options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)
+    )) ?? AttributedString(markdown)
+
+    for run in parsed.runs {
+      let intent = run.inlinePresentationIntent
+      var attributes = AttributeContainer()
+      if intent?.contains(.code) == true {
+        attributes.uiKit.font = .monospacedSystemFont(ofSize: base.pointSize, weight: .regular)
+        attributes.uiKit.foregroundColor = UIColor(Color.accent)
+      } else if intent?.contains(.stronglyEmphasized) == true {
+        // Weight **and** primary ink: weight alone does not lift a fragment out
+        // of a paragraph set in secondary ink.
+        attributes.uiKit.font = base.semibold
+        attributes.uiKit.foregroundColor = UIColor(Color.ink)
+      } else {
+        attributes.uiKit.font = base
+        attributes.uiKit.foregroundColor = UIColor(color)
+      }
+      parsed[run.range].setAttributes(attributes)
+    }
+    return parsed
+  }
+}

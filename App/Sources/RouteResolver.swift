@@ -2,6 +2,7 @@ import CoreUI
 import FeatureArchitecture
 import FeatureEngineering
 import FeatureKit
+import FeatureProduct
 import FeatureProfile
 import FeatureWork
 import Presentation
@@ -43,6 +44,18 @@ struct RouteScreen: View {
         // received before the first load. Say so; do not show a blank screen.
         RouteMissingView()
       }
+    case .product(let slug):
+      if let portfolio = store.portfolio,
+         let product = portfolio.apps.items.first(where: { $0.slug == slug }) {
+        ProductDetailScreen(
+          product: product,
+          study: portfolio.caseStudies.first { $0.slug == slug },
+          metric: portfolio.metrics.first { $0.caption.contains(product.name) }
+        )
+      } else {
+        missing
+      }
+
     case .about:
       if let profile = store.portfolio?.profile {
         AboutScreen(profile: profile)

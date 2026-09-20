@@ -4,4 +4,5 @@ struct MetricDTO: Decodable {
   let unit: String?
   let countTo: Int?
   let caption: String
+  let detail: String
 }

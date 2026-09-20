@@ -207,7 +207,7 @@ package struct DecisionSheet: View {
   /// Dynamic Type and selection that come with it, instead of a rebuilt view
   /// tree.
   private func markdown(_ source: String) -> some View {
-    MarkdownText(source)
+    ProseView(source)
       .font(Typography.body)
       .foregroundStyle(Color.ink2)
       .frame(maxWidth: .infinity, alignment: .leading)

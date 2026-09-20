@@ -66,13 +66,13 @@ public struct AboutScreen: View {
   /// The set gained the two it was short of, and `IconTests` checks every
   /// symbol resolves.
   ///
-  /// `remote` joins them here too: it is the reader's first filter, and this
-  /// screen is where somebody goes for the longer answer.
+  /// ⚠️ There is no separate télétravail row. `availability` says what he is
+  /// open to, remote included, since 2026-09-20 — and the short form the résumé
+  /// puts in its facts line would only repeat it here, one row apart.
   private var facts: [(icon: Icon, text: String)] {
     [
-      (.availability, profile.availability),
-      (.remote, profile.remote),
       (.location, profile.location),
+      (.availability, profile.availability),
       (.language, profile.languages),
     ]
   }
