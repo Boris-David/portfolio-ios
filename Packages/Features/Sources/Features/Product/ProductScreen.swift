@@ -7,7 +7,7 @@ import Presentation
 import SwiftUI
 import ViewKit
 
-/// What he built himself, end to end.
+/// What he built himself, end to end — as a list you can take in at a glance.
 ///
 /// ## Why this earns a tab
 ///
@@ -20,6 +20,19 @@ import ViewKit
 /// the only screen in the portfolio where a reader can go and use the result,
 /// or read every line of it. That is worth a permanent place in the bar.
 ///
+/// ## Why a list, and why the detail is presented
+///
+/// It rendered every product in full, one after the other: KCalories' four
+/// screenshots and its whole story, and only then the next app. The author's
+/// reading was that the tab had stopped answering its own question — *"you have
+/// to be able to see all the apps at a glance"*. A list answers it in one
+/// screen; the depth is one tap away.
+///
+/// That tap **presents** rather than pushes. A product detail is a thing you
+/// look at and come back from, which is what a modal means; pushing would put a
+/// full case study under a tab bar and make the way back a back button. The
+/// same reasoning already governs a case study opened from deep inside a stack.
+///
 /// ## Two tiers, kept apart
 ///
 /// Products first, then the open projects — a component and an interview
@@ -27,14 +40,6 @@ import ViewKit
 /// answers "what has he built himself"; they do not belong at the same level as
 /// something published, and running them together would let an exercise stand
 /// next to an App Store product as though it were the same claim.
-///
-/// ## What it costs in new content: almost nothing
-///
-/// Every piece of this was already being served. `AppCatalogue.items` was only
-/// ever reached through `.ticketing`, so the `end-to-end` and `features` roles
-/// were displayed on no screen at all, and `kcalories.png` sat in the catalogue
-/// as a dead asset. The four screenshots were published under the case study
-/// and shown at the very bottom of a push two levels down.
 public struct ProductScreen: View {
   @Environment(PortfolioStore.self) private var store
   @Localized(.interface) private var text
@@ -54,54 +59,44 @@ public struct ProductScreen: View {
 
   @ViewBuilder
   private func content(_ portfolio: Portfolio) -> some View {
-    // Everything he owns end to end, named by the content and never by a slug
-    // written here. The day a third one ships, this screen shows it without a
-    // line changing.
+    // Named by the content and never by a slug written here. The day a third
+    // one ships, this screen shows it without a line changing.
     let products = portfolio.apps.ownedEndToEnd
+    let openProjects = portfolio.background.openProjects
 
-    if products.isEmpty, portfolio.background.openProjects.isEmpty {
+    if products.isEmpty, openProjects.isEmpty {
       // The catalogue published nothing in that role. Say so rather than draw an
       // empty screen — which is precisely the failure a `default:` case caused
       // on the expertise route.
       FailureView(failure: PhaseFailure(.nothingAvailable), retry: { store.load() })
     } else {
-      SectionScrollView {
-        VStack(alignment: .leading, spacing: Tokens.Space.s7) {
+      List {
+        Section {
           ForEach(products) { product in
-            productSection(product, in: portfolio)
-          }
-          if !portfolio.background.openProjects.isEmpty {
-            OpenProjectsBlock(projects: portfolio.background.openProjects)
+            ProductRow(product: product, study: study(for: product, in: portfolio))
           }
         }
-        .padding(.top, Tokens.Space.s5)
+
+        if !openProjects.isEmpty {
+          Section {
+            ForEach(openProjects) { OpenProjectRow(project: $0) }
+          } header: {
+            Text(text(InterfaceText.openProjects)).eyebrowStyle()
+          }
+        }
       }
+      .listStyle(.insetGrouped)
+      // The list draws its own grouped background, a system grey the rest of
+      // the app does not use. Hidden, so the paper shows through.
+      .scrollContentBackground(.hidden)
+      // ⚠️ A `List` on iPad runs the full width of the window — a line of text
+      // measured **1 300 pt** there before this was applied to the journey.
+      .readableWidth()
       .refreshable { await store.refresh() }
     }
   }
 
-  /// One product: what it is, what it looks like, and how it was built.
-  ///
-  /// The gallery and the story are conditional because they come from a case
-  /// study, and only one of these products has one. A product without a case
-  /// study is not a degraded product — it is a product whose story has not been
-  /// written yet, and the screen shows what exists rather than a placeholder.
-  @ViewBuilder
-  private func productSection(_ product: ProductionApp, in portfolio: Portfolio) -> some View {
-    let study = portfolio.caseStudies.first { $0.slug == product.slug }
-
-    VStack(alignment: .leading, spacing: Tokens.Space.s6) {
-      ProductHeaderBlock(
-        product: product,
-        study: study,
-        metric: portfolio.metrics.first { $0.caption.contains(product.name) }
-      )
-      if let study, !study.media.isEmpty {
-        ProductGalleryBlock(media: study.media)
-      }
-      if let study {
-        ProductStoryBlock(study: study)
-      }
-    }
+  private func study(for product: ProductionApp, in portfolio: Portfolio) -> CaseStudy? {
+    portfolio.caseStudies.first { $0.slug == product.slug }
   }
 }

@@ -51,6 +51,8 @@ package enum InterfaceText {
   package static let provenanceTitle: TextKey = "interface.provenanceTitle"
   package static let provenanceVersion: TextKey = "interface.provenanceVersion"
   package static let readStudy: TextKey = "interface.readStudy"
+  /// The way in from the showcase card: the product first, the study after.
+  package static let learnMore: TextKey = "interface.learnMore"
   package static let resumeAction: TextKey = "interface.resumeAction"
   package static let resumeLoading: TextKey = "interface.resumeLoading"
   package static let resumeTitle: TextKey = "interface.resumeTitle"

@@ -72,12 +72,7 @@ struct ProductHeaderBlock: View {
       // is where somebody about to download something looks for it.
       if let metric {
         Surface(.recessed) {
-          MetricTile(
-            value: metric.value,
-            unit: metric.unit,
-            caption: metric.caption,
-            countTo: metric.countTo
-          )
+          MetricRow(metric)
         }
       }
     }

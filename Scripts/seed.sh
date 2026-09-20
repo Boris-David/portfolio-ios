@@ -47,15 +47,28 @@ def walk(value, path="", into=None):
 print("\n".join(sorted(walk(json.load(sys.stdin)))))'
 }
 
+# ── Les doubles des tests de correspondance ────────────────────────────────
+#
+# `DataTests` décode une charge utile de l'API pour vérifier la correspondance
+# DTO → domaine. Cette charge utile était une **troisième** copie, maintenue à
+# la main, et elle a fait rougir la suite le jour où le contrat a gagné un
+# champ : trois fichiers à retenir, dont un que rien ne rappelait.
+#
+# Elle descend donc de la même source, par le même script. Un double de test
+# qui ne descend pas de ce qu'il double finit par tester autre chose.
+DOUBLES="$ROOT/Packages/Data/Tests/DataTests/Fixtures"
+
 status=0
 for lang in fr en; do
   file="$DEST/seed-$lang.json"
+  double="$DOUBLES/portfolio-$lang.json"
   served="$(curl -fsS "$API/v1/portfolio?lang=$lang")"
 
   if [ "$CHECK" = false ]; then
     printf '%s' "$served" | python3 -m json.tool --no-ensure-ascii > "$file"
+    printf '%s' "$served" | python3 -m json.tool --no-ensure-ascii --indent 4 > "$double"
     version="$(printf '%s' "$served" | python3 -c 'import json,sys; print(json.load(sys.stdin)["meta"]["contentVersion"])')"
-    echo "✓ seed-$lang.json régénéré — contenu $version"
+    echo "✓ seed-$lang.json et son double de test régénérés — contenu $version"
     continue
   fi
 
@@ -73,6 +86,15 @@ for lang in fr en; do
     status=1
   else
     echo "✓ seed-$lang.json décrit encore la forme servie par l'API"
+  fi
+
+  if [ ! -f "$double" ]; then
+    echo "✖ $double absent — lancer ./Scripts/seed.sh" >&2
+    status=1
+  elif [ -n "$(diff <(shape < "$double") <(printf '%s' "$served" | shape) || true)" ]; then
+    echo "✖ le double de DataTests a dérivé de la forme servie par l'API" >&2
+    echo "  Corriger : ./Scripts/seed.sh" >&2
+    status=1
   fi
 done
 exit "$status"

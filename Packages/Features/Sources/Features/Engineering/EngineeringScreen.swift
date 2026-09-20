@@ -101,7 +101,7 @@ struct LayersBlock: View {
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
       Text(text(InterfaceText.architecture)).eyebrowStyle()
-      InlineMarkdown(text(InterfaceText.architectureIntro))
+      ProseView(text(InterfaceText.architectureIntro))
 
       VStack(spacing: Tokens.Space.s3) {
         ForEach(EngineeringRecord.layers) { layer in
@@ -116,12 +116,15 @@ struct LayersBlock: View {
                   Chip(text(InterfaceText.noDependency), emphasis: .accented)
                 }
               }
+              // The responsibility keeps its SwiftUI rendering: it is a
+              // single emphasised line, not a paragraph, and justifying one
+              // line only stretches its last gap.
               InlineMarkdown(
                 record(layer.responsibilityKey),
                 font: Typography.bodyStrong,
                 color: .ink
               )
-              MarkdownText(record(layer.ruleKey), font: Typography.secondary, color: .ink2)
+              ProseView(record(layer.ruleKey), role: .secondary)
               if !layer.dependsOn.isEmpty {
                 WrappingRow {
                   ForEach(layer.dependsOn, id: \.self) { Chip($0) }
@@ -203,7 +206,7 @@ struct ChallengesBlock: View {
   private func labelled(_ title: String, _ markdown: String) -> some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s2) {
       Text(title).eyebrowStyle()
-      MarkdownText(markdown, font: Typography.body, color: .ink2)
+      ProseView(markdown)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
   }
@@ -223,7 +226,7 @@ struct WalkthroughsBlock: View {
             Text(record(walkthrough.titleKey))
               .font(Typography.heading)
               .foregroundStyle(Color.ink)
-            InlineMarkdown(record(walkthrough.summaryKey), font: Typography.secondary)
+            ProseView(record(walkthrough.summaryKey), role: .secondary)
 
             VStack(alignment: .leading, spacing: Tokens.Space.s3) {
               ForEach(Array(walkthrough.components.enumerated()), id: \.offset) { index, component in
@@ -238,7 +241,7 @@ struct WalkthroughsBlock: View {
                     Text(component)
                       .font(Typography.code)
                       .foregroundStyle(Color.accent)
-                    MarkdownText(record(walkthrough.stepKey(index + 1)), font: Typography.secondary, color: .ink2)
+                    ProseView(record(walkthrough.stepKey(index + 1)), role: .secondary)
                   }
                 }
                 .accessibilityElement(children: .combine)
@@ -260,7 +263,7 @@ struct DependenciesBlock: View {
   var body: some View {
     VStack(alignment: .leading, spacing: Tokens.Space.s4) {
       Text(text(InterfaceText.dependencies)).eyebrowStyle()
-      InlineMarkdown(text(InterfaceText.dependenciesRule))
+      ProseView(text(InterfaceText.dependenciesRule))
 
       ForEach(EngineeringRecord.dependencies) { decision in
         Surface {
@@ -272,7 +275,7 @@ struct DependenciesBlock: View {
               Spacer(minLength: Tokens.Space.s2)
               outcome(decision.outcome)
             }
-            MarkdownText(record(decision.reasoningKey), font: Typography.secondary, color: .ink2)
+            ProseView(record(decision.reasoningKey), role: .secondary)
           }
         }
       }

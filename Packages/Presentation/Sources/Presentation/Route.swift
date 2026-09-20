@@ -12,6 +12,14 @@
 /// profile screen pushes on a tap — opened a **black screen** in production.
 public enum Route: Hashable, Sendable {
   case caseStudy(slug: String)
+  /// One of the applications he built himself: what it is, where to get it or
+  /// read it, and — when there is one — its case study.
+  ///
+  /// Distinct from `caseStudy` on purpose. Not every product has a study: this
+  /// one does, that one is public source and no story yet. A route that only
+  /// worked for the documented half would have left the other half as a row
+  /// that opens nothing.
+  case product(slug: String)
   case expertise(id: String)
   /// The long-form introduction, which the first screen deliberately does not
   /// carry: an opening gives the scale, not the story.

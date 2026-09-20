@@ -126,6 +126,10 @@ SCREENS=(
   # The two readings the profile pushes. Neither was on the matrix, and one of
   # them — the deep dive — rendered **nothing at all** for weeks behind a card
   # a reader reaches by touching it.
+  # The product detail is **presented** from the list, so this entry is the
+  # only way it is ever captured.
+  "product|-route product:kcalories"
+  "product|-route product:portfolio"
   "profile|-route about"
   "profile|-route expertise:concurrency"
 )

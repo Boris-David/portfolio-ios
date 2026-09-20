@@ -244,8 +244,9 @@ done
 # its own, `SectionShell` passed it to a tip. None of them was wrong; all of them
 # were a language being managed outside the one place that manages languages.
 #
-# `RichTextView` is the one reader that does none of that. It never looks a key
-# up and never branches: it hands the code to a **text engine**, as the locale
+# `RichTextView` and `ProseView` are the readers that do none of that. Neither
+# looks a key up and neither branches: they hand the code to a **text engine**,
+# as the locale
 # whose dictionary decides where a word may be hyphenated. Setting a paragraph
 # in French with an English dictionary is the same defect this rule exists to
 # prevent, arriving from the other side — so here reading the language is the
@@ -255,7 +256,7 @@ done
 # had matched nothing since the composition root moved into the app target. An
 # allowlist entry pointing at a dead path is an exemption nobody is using and
 # everybody trusts.
-ALLOWED="Localization/Localized.swift Decisions/DecisionText.swift ViewKit/ContentLanguage.swift ViewKit/RichTextView.swift App/Sources/SceneEnvironment.swift"
+ALLOWED="Localization/Localized.swift Decisions/DecisionText.swift ViewKit/ContentLanguage.swift ViewKit/RichTextView.swift ViewKit/ProseView.swift App/Sources/SceneEnvironment.swift"
 while read -r found; do
   [ -z "$found" ] && continue
   file="${found%%:*}"

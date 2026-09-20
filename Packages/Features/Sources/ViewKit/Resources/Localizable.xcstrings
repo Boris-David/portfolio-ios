@@ -6,13 +6,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Read the introduction"
+            "value": "More about me"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lire la présentation"
+            "value": "En savoir plus sur moi"
           }
         }
       }
@@ -521,6 +521,22 @@
         }
       }
     },
+    "interface.learnMore": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Learn more"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En savoir plus"
+          }
+        }
+      }
+    },
     "interface.linkCopied": {
       "localizations": {
         "en": {
@@ -782,13 +798,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Read the case study"
+            "value": "A concrete example of it in use"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lire l'étude de cas"
+            "value": "Exemple concret d'utilisation"
           }
         }
       }

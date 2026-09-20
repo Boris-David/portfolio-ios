@@ -4,11 +4,11 @@ public struct Profile: Sendable, Hashable {
     /// The short form, shown everywhere.
     public let display: String
     /// The long form, kept for the footer and the résumé.
-    public let full: String
+    public let formal: String
 
-    public init(display: String, full: String) {
+    public init(display: String, formal: String) {
       self.display = display
-      self.full = full
+      self.formal = formal
     }
   }
 
@@ -30,7 +30,6 @@ public struct Profile: Sendable, Hashable {
   public let headline: String
   public let availability: String
   public let location: String
-  public let remote: String
   public let languages: String
   public let summary: [RichText]
   public let showcase: Showcase
@@ -42,7 +41,6 @@ public struct Profile: Sendable, Hashable {
     headline: String,
     availability: String,
     location: String,
-    remote: String,
     languages: String,
     summary: [RichText],
     showcase: Showcase,
@@ -53,7 +51,6 @@ public struct Profile: Sendable, Hashable {
     self.headline = headline
     self.availability = availability
     self.location = location
-    self.remote = remote
     self.languages = languages
     self.summary = summary
     self.showcase = showcase
@@ -66,10 +63,18 @@ extension Profile {
   /// The featured screenshot, and the case study it illustrates.
   public struct Showcase: Sendable, Hashable {
     public let media: Media
+    /// What the **product** does.
+    ///
+    /// Separate from `media.alt`, which describes the **picture** for somebody
+    /// who cannot see it. The two were one string, so the sentence a sighted
+    /// reader took as a pitch was also the one VoiceOver read as a description
+    /// of a screenshot — neither job was done well.
+    public let description: String
     public let caseStudySlug: String?
 
-    public init(media: Media, caseStudySlug: String?) {
+    public init(media: Media, description: String, caseStudySlug: String?) {
       self.media = media
+      self.description = description
       self.caseStudySlug = caseStudySlug
     }
   }

@@ -109,6 +109,7 @@ struct LaunchArguments: Sendable {
     case "engineering": .engineering
     case "architectures": .architectures
     case "caseStudy": value.map { Route.caseStudy(slug: $0) }
+    case "product": value.map { Route.product(slug: $0) }
     case "expertise": value.map { Route.expertise(id: $0) }
     default: nil
     }

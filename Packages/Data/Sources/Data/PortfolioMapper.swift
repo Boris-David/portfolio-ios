@@ -54,15 +54,15 @@ enum PortfolioMapper {
 
   static func profile(from dto: ProfileDTO) throws(MappingError) -> Profile {
     Profile(
-      name: Profile.Name(display: dto.name.display, full: dto.name.full),
+      name: Profile.Name(display: dto.name.display, formal: dto.name.formal),
       headline: dto.headline,
       availability: dto.availability,
       location: dto.location,
-      remote: dto.remote,
       languages: dto.languages,
       summary: dto.summary.map(richText),
       showcase: Profile.Showcase(
         media: media(dto.showcase.media),
+        description: dto.showcase.description,
         caseStudySlug: dto.showcase.caseStudy
       ),
       contact: Profile.Contact(
@@ -88,7 +88,14 @@ enum PortfolioMapper {
   // ── Chiffres et sections ───────────────────────────────────────────────
 
   static func metric(_ dto: MetricDTO) -> Metric {
-    Metric(id: dto.id, value: dto.value, unit: dto.unit, countTo: dto.countTo, caption: dto.caption)
+    Metric(
+      id: dto.id,
+      value: dto.value,
+      unit: dto.unit,
+      countTo: dto.countTo,
+      caption: dto.caption,
+      detail: dto.detail
+    )
   }
 
   static func section(_ dto: SectionDTO) -> Portfolio.Section {

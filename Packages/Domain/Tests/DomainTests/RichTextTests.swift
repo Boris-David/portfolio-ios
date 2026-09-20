@@ -60,9 +60,9 @@ extension Portfolio {
   /// content, only about structure.
   static let fixture = Portfolio(
     profile: Profile(
-      name: .init(display: "A.", full: "A."),
-      headline: "h", availability: "a", location: "l", remote: "r", languages: "fr",
-      summary: [], showcase: .init(media: .init(id: "m", alt: "", caption: ""), caseStudySlug: nil),
+      name: .init(display: "A.", formal: "A."),
+      headline: "h", availability: "a", location: "l", languages: "fr",
+      summary: [], showcase: .init(media: .init(id: "m", alt: "", caption: ""), description: "d", caseStudySlug: nil),
       contact: .init(email: "a@b.c", title: "t", body: "b", links: []),
       footer: .init(role: "r", location: "l")
     ),
