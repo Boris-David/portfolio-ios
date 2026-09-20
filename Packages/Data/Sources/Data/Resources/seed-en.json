@@ -1,7 +1,7 @@
 {
     "meta": {
         "locale": "en",
-        "contentVersion": "LiDa80q0ooGUpeQs1_OHyT"
+        "contentVersion": "vymZ6K1FYeAODkg6A2-OXj"
     },
     "data": {
         "profile": {
@@ -96,7 +96,7 @@
                 "unit": "M",
                 "countTo": null,
                 "caption": "users of the apps I have contributed to",
-                "detail": "That is how many people use an app I have contributed to, today."
+                "detail": "That is how many people use apps I have contributed to, today."
             },
             {
                 "id": "experience",
