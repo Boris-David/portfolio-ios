@@ -6,13 +6,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "And the graph itself is under test: `ArchitectureTests` reads all eight manifests and fails if a layer gains a forbidden dependency. Two invariants no manifest can hold — the domain ignores SwiftUI, the presentation does not draw — are refused by `Scripts/check-layers.sh`, because SwiftUI ships with the SDK."
+            "value": "And the graph itself is under test: `ArchitectureTests` reads all nine manifests and fails if a layer gains a forbidden dependency. Two invariants no manifest can hold — the domain ignores SwiftUI, the presentation does not draw — are refused by `Scripts/check-layers.sh`, because SwiftUI ships with the SDK."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Et le graphe lui-même est sous test : `ArchitectureTests` lit les huit manifestes et échoue si une couche gagne une dépendance interdite. Deux invariants qu'aucun manifeste ne peut tenir — le domaine ignore SwiftUI, la présentation ne dessine pas — sont refusés par `Scripts/check-layers.sh`, parce que SwiftUI vient du SDK."
+            "value": "Et le graphe lui-même est sous test : `ArchitectureTests` lit les neuf manifestes et échoue si une couche gagne une dépendance interdite. Deux invariants qu'aucun manifeste ne peut tenir — le domaine ignore SwiftUI, la présentation ne dessine pas — sont refusés par `Scripts/check-layers.sh`, parce que SwiftUI vient du SDK."
           }
         }
       }
@@ -294,13 +294,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "There is no relation here, no query, no migration: one payload per language, written whole, read back whole. SwiftData would add a model to describe, a context to manage and a schema to evolve — to replace `Data.write(to:)`.\n\nUsing it because it is the modern framework would be a display choice, not an engineering one. If searching, sorting or relating were ever needed, the decision would be revisited — and `LocalStore` is the protocol that would make that possible without touching the rest."
+            "value": "There is no relation here, no query, no migration: one payload per language, written whole, read back whole. SwiftData would add a model to describe, a context to manage and a schema to evolve — to replace `Data.write(to:)`.\n\nUsing it because it is the modern framework would be a display choice, not an engineering one. If searching, sorting or relating were ever needed, the decision would be revisited — and `LocalStoring` is the protocol that would make that possible without touching the rest."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il n'y a ici ni relation, ni requête, ni migration : une charge utile par langue, écrite en entier, relue en entier. SwiftData apporterait un modèle à décrire, un contexte à gérer et un schéma à faire évoluer — pour remplacer `Data.write(to:)`.\n\nL'employer parce que c'est le framework moderne serait un choix d'affichage, pas d'ingénierie. S'il fallait un jour chercher, trier ou lier, la décision se reprendrait — et `LocalStore` est le protocole qui la rendrait possible sans toucher au reste."
+            "value": "Il n'y a ici ni relation, ni requête, ni migration : une charge utile par langue, écrite en entier, relue en entier. SwiftData apporterait un modèle à décrire, un contexte à gérer et un schéma à faire évoluer — pour remplacer `Data.write(to:)`.\n\nL'employer parce que c'est le framework moderne serait un choix d'affichage, pas d'ingénierie. S'il fallait un jour chercher, trier ou lier, la décision se reprendrait — et `LocalStoring` est le protocole qui la rendrait possible sans toucher au reste."
           }
         }
       }
@@ -321,7 +321,7 @@
         }
       }
     },
-    "layer.composition.responsibility": {
+    "layer.app.responsibility": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -337,18 +337,82 @@
         }
       }
     },
-    "layer.composition.rule": {
+    "layer.app.rule": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The only package allowed to see everything, because someone has to decide which concrete object answers which protocol. Its dependency list is long and everybody else's is short: that is exactly what you want to read."
+            "value": "The only module allowed to see everything, because someone has to decide which concrete object answers which protocol. Its dependency list is long and everybody else's is short: that is exactly what you want to read. It wires, and it draws nothing — `Scripts/check-layers.sh` refuses a screen here."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le seul package qui a le droit de tout voir, parce que quelqu'un doit décider quel objet concret répond à quel protocole. Sa liste de dépendances est longue, et celle de tous les autres est courte : c'est exactement ce qu'on veut lire."
+            "value": "Le seul module qui a le droit de tout voir, parce que quelqu'un doit décider quel objet concret répond à quel protocole. Sa liste de dépendances est longue, celle de tous les autres est courte : c'est exactement ce qu'on veut lire. Il branche, et il ne dessine rien — `Scripts/check-layers.sh` refuse un écran ici."
+          }
+        }
+      }
+    },
+    "layer.core.responsibility": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Storage, clock, connectivity, events. No portfolio in it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stockage, horloge, connectivité, événements. Aucun portfolio dedans."
+          }
+        }
+      }
+    },
+    "layer.core.rule": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing here names a profile or a case study — which is why the same `FileStore` caches a résumé and a payload without knowing what either one is. The disk is reached through an **actor** rather than a lock: isolation becomes a property of the type, and forgetting it becomes impossible rather than unlikely."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien ici ne nomme un profil ni une étude de cas — c'est pourquoi le même `FileStore` met en cache un CV et une charge utile sans savoir ce que l'un ou l'autre contient. Le disque s'atteint par un **acteur** et non par un verrou : l'isolation devient une propriété du type, et l'oubli devient impossible plutôt qu'improbable."
+          }
+        }
+      }
+    },
+    "layer.coreui.responsibility": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Draw. Wrap what UIKit still does better."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dessiner. Envelopper ce qu'UIKit fait encore mieux."
+          }
+        }
+      }
+    },
+    "layer.coreui.rule": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Knows the design system and nothing else — no domain, no store, no route. It is where a `UIViewRepresentable` is allowed to exist: justified prose, a PDF preview, a Lottie animation. A component that needed to know **what** it displays would belong one layer up."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connaît le design system et rien d'autre — ni domaine, ni store, ni route. C'est ici qu'un `UIViewRepresentable` a le droit d'exister : prose justifiée, aperçu de PDF, animation Lottie. Un composant qui aurait besoin de savoir **quoi** il affiche appartiendrait à la couche au-dessus."
           }
         }
       }
@@ -470,13 +534,45 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "See **neither** `Networking`, **nor** `Persistence`, **nor** `Data`. A view talks to a domain port; what implements it is decided elsewhere. This is not a convention: those three names are absent from this package's manifest, and `import Networking` answers “no such module”."
+            "value": "See **neither** `Networking`, **nor** `Core`, **nor** `Data`. A view talks to a domain port; what implements it is decided elsewhere. This is not a convention: those three names are absent from this package's manifest, and `import Networking` answers “no such module”."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ne voient **ni** `Networking`, **ni** `Persistence`, **ni** `Data`. Une vue parle à un port du domaine ; ce qui l'implémente est décidé ailleurs. Ce n'est pas une convention : ces trois noms sont absents du manifeste de ce package, et `import Networking` répond « no such module »."
+            "value": "Ne voient **ni** `Networking`, **ni** `Core`, **ni** `Data`. Une vue parle à un port du domaine ; ce qui l'implémente est décidé ailleurs. Ce n'est pas une convention : ces trois noms sont absents du manifeste de ce package, et `import Networking` répond « no such module »."
+          }
+        }
+      }
+    },
+    "layer.localization.responsibility": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name a sentence. Never hold one."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nommer une phrase. Jamais en contenir une."
+          }
+        }
+      }
+    },
+    "layer.localization.rule": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A `TextKey` is an identity; the sentence lives in a string catalogue next to the screen that renders it. Correcting a wording never reopens a Swift file, and a third language is one more column rather than one more type. `Scripts/check-strings.sh` refuses a sentence written inside a view."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une `TextKey` est une identité ; la phrase vit dans un catalogue, à côté de l'écran qui l'affiche. Corriger une formulation ne rouvre jamais un fichier Swift, et une troisième langue est une colonne de plus, pas un type de plus. `Scripts/check-strings.sh` refuse une phrase écrite dans une vue."
           }
         }
       }
@@ -509,38 +605,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ne connaît pas le portfolio. Aucun de ses types ne mentionne un profil ou une étude de cas — c'est ce qui permet de la tester sans rien savoir du domaine, et de la remplacer sans rouvrir une ligne ailleurs."
-          }
-        }
-      }
-    },
-    "layer.persistence.responsibility": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Write and read back bytes, serialised."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Écrire et relire des octets, de façon sérialisée."
-          }
-        }
-      }
-    },
-    "layer.persistence.rule": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "An actor, not a lock: isolation becomes a property of the type, and forgetting becomes impossible rather than unlikely."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Un acteur, pas un verrou : l'isolation devient une propriété du type, et l'oubli devient impossible plutôt qu'improbable."
           }
         }
       }
