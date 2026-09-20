@@ -92,20 +92,6 @@ public struct JourneyScreen: View {
         }
       )
 
-      RecordSection(
-        title: text(InterfaceText.openProjects),
-        rows: portfolio.background.openProjects.map { project in
-          RecordRow.Model(
-            when: nil,
-            what: project.name,
-            detail: project.description.plain,
-            link: project.sourceURL.flatMap(URL.init(string:)).map {
-              RecordRow.Model.Link(label: text(InterfaceText.sourceCode), url: $0)
-            }
-          )
-        }
-      )
-
       SkillsSection(groups: portfolio.skills, title: text(InterfaceText.skills))
     }
     .listStyle(.insetGrouped)

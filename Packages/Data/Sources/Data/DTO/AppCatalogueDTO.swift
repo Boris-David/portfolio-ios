@@ -3,7 +3,9 @@ struct AppCatalogueDTO: Decodable {
     let slug: String
     let name: String
     let territory: String
-    let appStoreUrl: String
+    let appStoreUrl: String?
+    let sourceUrl: String?
+    let summary: String?
     let role: String
   }
 

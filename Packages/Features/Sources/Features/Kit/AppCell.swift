@@ -25,9 +25,17 @@ package struct AppCell: View {
 
   package init(app: ProductionApp) { self.app = app }
 
+  /// Where the card sends the reader: the store listing when there is one, the
+  /// public repository otherwise. The content guarantees one of the two, so a
+  /// `nil` here is a contract violation and not a state to design for — the
+  /// button simply does nothing rather than the cell pretending it is tappable.
+  private var destination: URL? {
+    (app.appStoreURL ?? app.sourceURL).flatMap(URL.init(string:))
+  }
+
   package var body: some View {
     Button {
-      if let url = URL(string: app.appStoreURL) { openURL(url) }
+      if let destination { openURL(destination) }
     } label: {
       VStack(alignment: .leading, spacing: Tokens.Space.s2) {
         AppIconView(slug: app.slug)
@@ -59,12 +67,12 @@ package struct AppCell: View {
     // grid's visual weight for something almost nobody wants — and the one
     // person who does already knows where to look.
     .contextMenu {
-      if let url = URL(string: app.appStoreURL) {
-        ShareLink(item: url) {
+      if let destination {
+        ShareLink(item: destination) {
           Label(text(InterfaceText.share), icon: .share)
         }
         Button {
-          UIPasteboard.general.url = url
+          UIPasteboard.general.url = destination
           toasts.show(text(InterfaceText.linkCopied), kind: .succeeded, icon: .succeeded)
         } label: {
           Label(text(InterfaceText.copyLink), icon: .link)

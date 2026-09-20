@@ -170,6 +170,11 @@ let package = Package(
       swiftSettings: .strict
     ),
     .testTarget(
+      name: "FeatureEngineeringTests",
+      dependencies: ["FeatureEngineering", "ViewKit"],
+      swiftSettings: .strict
+    ),
+    .testTarget(
       name: "DecisionsTests",
       dependencies: ["Decisions"],
       // A probe catalogue. What is under test is a **catalogue lookup**, and a

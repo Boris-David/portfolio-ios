@@ -26,8 +26,16 @@ package enum EngineeringRecord {
   /// One layer of the graph, as the app describes itself.
   ///
   /// `dependsOn` is not prose: the screen draws the arrows from it, and
-  /// `ArchitectureTests` reads the real manifests. A layer that lied here would
-  /// be caught by the suite rather than by a reader.
+  /// `FeatureEngineeringTests` reads the real manifests to compare them with
+  /// this list. A layer that lies here is caught by the suite rather than by a
+  /// reader.
+  ///
+  /// That test was written because this list **had** lied: it named
+  /// `Persistence` and `Composition`, two modules that never existed under
+  /// those names, and omitted `Core`, `CoreUI` and `Localization`. A second
+  /// hand-maintained copy of the package graph drifts the day a package is
+  /// renamed — and an architecture screen is the worst place in the app to be
+  /// wrong.
   package struct Layer: Identifiable, Sendable, Hashable {
     package let id: String
     /// The module's real name, not translated: `Domain` is called `Domain` in
@@ -41,15 +49,30 @@ package enum EngineeringRecord {
     package var ruleKey: TextKey { TextKey("layer.\(id).rule") }
   }
 
+  /// Listed leaves first: a layer only ever appears after everything it names.
+  /// The order is the reading order of the graph, not an opinion about it.
   package static let layers: [Layer] = [
     Layer(id: "domain", name: "Domain", dependsOn: []),
     Layer(id: "networking", name: "Networking", dependsOn: []),
-    Layer(id: "persistence", name: "Persistence", dependsOn: []),
-    Layer(id: "data", name: "Data", dependsOn: ["Domain", "Networking", "Persistence"]),
+    Layer(id: "core", name: "Core", dependsOn: []),
+    Layer(id: "localization", name: "Localization", dependsOn: []),
     Layer(id: "designsystem", name: "DesignSystem", dependsOn: []),
+    Layer(id: "data", name: "Data", dependsOn: ["Core", "Domain", "Networking"]),
     Layer(id: "presentation", name: "Presentation", dependsOn: ["Domain"]),
-    Layer(id: "features", name: "Features", dependsOn: ["Domain", "Presentation", "DesignSystem"]),
-    Layer(id: "composition", name: "Composition", dependsOn: ["Domain", "Networking", "Persistence", "Data", "Presentation", "DesignSystem", "Features"]),
+    Layer(id: "coreui", name: "CoreUI", dependsOn: ["DesignSystem"]),
+    Layer(
+      id: "features",
+      name: "Features",
+      dependsOn: ["CoreUI", "DesignSystem", "Domain", "Localization", "Presentation"]
+    ),
+    Layer(
+      id: "app",
+      name: "Amissan",
+      dependsOn: [
+        "Core", "CoreUI", "Data", "DesignSystem", "Domain",
+        "Features", "Localization", "Networking", "Presentation",
+      ]
+    ),
   ]
 
   // ---------------------------------------------------------------------
@@ -136,7 +159,7 @@ package enum EngineeringRecord {
   }
 
   package static let walkthroughs: [Walkthrough] = [
-    Walkthrough(id: "resume", components: ["ResumeScreen", "ResumeRepository", "URLSessionHTTPClient", "API", "ContentDisposition", "ResumeRepository", "PDFView", "ShareLink"]),
+    Walkthrough(id: "resume", components: ["ResumeScreen", "ResumeRepository", "URLSessionHTTPClient", "API", "ContentDisposition", "ResumeRepository", "PDFPreview", "ShareLink"]),
     Walkthrough(id: "content", components: ["PortfolioStore", "PortfolioRepository", "PortfolioRepository", "JSONDecoder", "PortfolioMapper", "PortfolioRepository", "PortfolioStore"]),
   ]
 }

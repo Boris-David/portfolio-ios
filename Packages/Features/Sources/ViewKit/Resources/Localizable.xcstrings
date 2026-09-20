@@ -54,13 +54,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Every layer is an SPM package: a missing dependency is not a convention, it is an `import` that does not resolve."
+            "value": "Every layer is an SPM package — except the composition root, which is the application target. A missing dependency is not a convention, it is an `import` that does not resolve."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chaque couche est un package SPM : une dépendance absente n'est pas une convention, c'est un `import` qui ne résout pas."
+            "value": "Chaque couche est un package SPM — sauf la racine de composition, qui est la cible de l'application. Une dépendance absente n'est pas une convention, c'est un `import` qui ne résout pas."
           }
         }
       }
@@ -1119,13 +1119,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Product"
+            "value": "My apps"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Produit"
+            "value": "Mes apps"
           }
         }
       }
@@ -1151,13 +1151,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Work"
+            "value": "Problems"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Travail"
+            "value": "Problèmes"
           }
         }
       }
@@ -1489,13 +1489,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Every component gets a numbered badge explaining why it was chosen, and what was ruled out."
+            "value": "Each annotated component outlines itself and explains why it was chosen, and what was turned down."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chaque composant reçoit une pastille numérotée qui explique pourquoi il a été choisi, et ce qui a été écarté."
+            "value": "Chaque composant annoté s'entoure de son cadre et explique pourquoi il a été choisi, et ce qui a été écarté."
           }
         }
       }

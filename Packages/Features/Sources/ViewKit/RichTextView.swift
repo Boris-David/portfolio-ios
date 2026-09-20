@@ -35,6 +35,10 @@ package struct RichTextView: View {
   /// keeps the justified paragraph answering Dynamic Type.
   @Environment(\.dynamicTypeSize) private var typeSize
 
+  /// The language the content is in — not the device's. It is what decides
+  /// which hyphenation dictionary breaks the words.
+  @Environment(\.contentLanguage) private var language
+
   public var body: some View {
     // Two renderers for one paragraph, and the token decides which.
     //
@@ -47,7 +51,7 @@ package struct RichTextView: View {
         .multilineTextAlignment(alignment)
         .fixedSize(horizontal: false, vertical: true)
     } else {
-      ProseText(attributed)
+      ProseText(attributed, language: language.rawValue)
     }
   }
 
