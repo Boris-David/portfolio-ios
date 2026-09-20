@@ -27,6 +27,12 @@ public enum Modal: Identifiable, Hashable, Sendable {
   case contact
   /// Appearance, language, annotations.
   case settings
+  /// Who he is when he is not writing code.
+  ///
+  /// A sheet with a medium detent, and deliberately not a screen: it is an
+  /// aside. The reader keeps a foot in the page they were on, and closing it
+  /// costs a swipe rather than a back button.
+  case personality
   /// The document itself.
   case resume
   /// A reading that would otherwise have been a third push.
@@ -45,12 +51,13 @@ public enum Modal: Identifiable, Hashable, Sendable {
 
   /// The three that a launch flag can name, and the whole of what `-modal`
   /// accepts. A reading carries a route, so it is reached by opening one.
-  public static let allCases: [Modal] = [.contact, .settings, .resume]
+  public static let allCases: [Modal] = [.contact, .settings, .personality, .resume]
 
   public var id: String {
     switch self {
     case .contact: "contact"
     case .settings: "settings"
+    case .personality: "personality"
     case .resume: "resume"
     case .reading(let route): "reading:\(route)"
     }
@@ -72,7 +79,7 @@ public enum Modal: Identifiable, Hashable, Sendable {
   /// should be a decision rather than a stray downward swipe.
   public var style: Style {
     switch self {
-    case .contact, .settings, .reading: .sheet
+    case .contact, .settings, .personality, .reading: .sheet
     case .resume: .fullScreen
     }
   }

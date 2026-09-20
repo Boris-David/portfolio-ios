@@ -1,6 +1,7 @@
 import Domain
 import FeatureContact
 import FeatureKit
+import FeatureProfile
 import FeatureResume
 import FeatureSettings
 import Presentation
@@ -26,6 +27,8 @@ extension ModalResolver {
         AnyView(ContactScreen())
       case .settings:
         AnyView(SettingsScreen())
+      case .personality:
+        AnyView(PersonalityScreen())
       case .resume:
         AnyView(ResumeScreen())
       case .reading(let route):

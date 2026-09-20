@@ -43,14 +43,19 @@ struct ModalTests {
     #expect(Modal.reading(.about).id == Modal.reading(.about).id)
   }
 
-  /// `-modal` names one of the three. A reading carries a route, so there is no
-  /// name for it and the flag must not invent one.
-  @Test("only the three named modals answer to a launch flag")
-  func launchFlagNamesThree() {
-    #expect(Modal(rawValue: "resume") == .resume)
-    #expect(Modal(rawValue: "contact") == .contact)
+  /// `-modal` names a case that has a name. A reading carries a route, so there
+  /// is no name for it and the flag must not invent one.
+  ///
+  /// The count is **not** asserted: it was, at three, and adding a fourth modal
+  /// broke a test that had nothing to say about the fourth. What matters is
+  /// that every named case survives the round trip, and that nothing else does.
+  @Test("every named modal answers to its own name, and a reading to none")
+  func launchFlagNamesEveryCase() {
+    for modal in Modal.allCases {
+      #expect(Modal(rawValue: modal.id) == modal, "\(modal.id) did not come back")
+    }
     #expect(Modal(rawValue: "reading") == nil)
-    #expect(Modal.allCases.count == 3)
+    #expect(Modal(rawValue: "reading:about") == nil)
   }
 
   /// `Identifiable` decides whether SwiftUI rebuilds the presented screen or

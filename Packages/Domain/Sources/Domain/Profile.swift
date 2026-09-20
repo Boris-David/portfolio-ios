@@ -33,6 +33,7 @@ public struct Profile: Sendable, Hashable {
   public let languages: String
   public let summary: [RichText]
   public let showcase: Showcase
+  public let personality: Personality
   public let contact: Contact
   public let footer: Footer
 
@@ -44,6 +45,7 @@ public struct Profile: Sendable, Hashable {
     languages: String,
     summary: [RichText],
     showcase: Showcase,
+    personality: Personality,
     contact: Contact,
     footer: Footer
   ) {
@@ -54,6 +56,7 @@ public struct Profile: Sendable, Hashable {
     self.languages = languages
     self.summary = summary
     self.showcase = showcase
+    self.personality = personality
     self.contact = contact
     self.footer = footer
   }
@@ -76,6 +79,21 @@ extension Profile {
       self.media = media
       self.description = description
       self.caseStudySlug = caseStudySlug
+    }
+  }
+
+  /// Who he is when he is not writing code.
+  ///
+  /// Told by facts and not by adjectives: "class representative, president of
+  /// the student committee, team captain" says leader without the word, and a
+  /// reader can go and check it. The API refuses the adjectives outright.
+  public struct Personality: Sendable, Hashable {
+    public let summary: [RichText]
+    public let interests: [String]
+
+    public init(summary: [RichText], interests: [String]) {
+      self.summary = summary
+      self.interests = interests
     }
   }
 

@@ -378,6 +378,134 @@
         }
       }
     },
+    "profile.personality.pitfall": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A single `.large` detent turns the aside into a screen: you can no longer see where you came from, and the only way out becomes a button."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un seul palier `.large` transforme l'aside en écran : on ne voit plus d'où l'on vient, et la seule sortie devient un bouton."
+          }
+        }
+      }
+    },
+    "profile.personality.rationale": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An aside is not a chapter: at half height the reader keeps a foot on the page they came from, and closing costs a gesture. The first detent shows exactly the first paragraph — the roles — instead of a title and a scroll bar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une aside n'est pas un chapitre : à mi-hauteur, le lecteur garde un pied sur la page d'où il vient, et fermer coûte un geste. Le premier palier montre exactement le premier paragraphe — les rôles — au lieu d'un titre et d'une barre de défilement."
+          }
+        }
+      }
+    },
+    "profile.personality.rejected.1.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It would have put the personality on the same footing as a case study, and made a back tap the way out."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il aurait mis la personnalité au même rang qu'une étude de cas, et imposé un retour arrière pour en sortir."
+          }
+        }
+      }
+    },
+    "profile.personality.rejected.1.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A pushed screen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un écran poussé"
+          }
+        }
+      }
+    },
+    "profile.personality.rejected.2.because": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The home screen answers \"what has he done\". A reader looks for this one after being convinced, never before."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'accueil répond « qu'a-t-il fait ». Un lecteur cherche celle-ci après avoir été convaincu, jamais avant."
+          }
+        }
+      }
+    },
+    "profile.personality.rejected.2.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A block on the home screen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un bloc sur l'accueil"
+          }
+        }
+      }
+    },
+    "profile.personality.role": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens the sheet half-height, with the option of pulling it all the way up."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre la feuille à mi-hauteur, avec la possibilité de la tirer entièrement."
+          }
+        }
+      }
+    },
+    "profile.personality.whenToUse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Short content consulted without leaving what you were reading."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un contenu court qu'on consulte sans quitter ce qu'on lisait."
+          }
+        }
+      }
+    },
     "profile.scrollview.pitfall": {
       "localizations": {
         "en": {
