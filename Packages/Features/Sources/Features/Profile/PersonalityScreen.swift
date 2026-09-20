@@ -12,17 +12,21 @@ import ViewKit
 /// ## Why a sheet, and why it opens at a medium detent
 ///
 /// It is an aside, not a chapter. The reader keeps a foot on the page they came
-/// from, and closing it costs a swipe rather than a back button. Opening at
-/// `.medium` also means the first thing they see is the whole of the first
-/// paragraph — the roles, which are the part that says something — instead of a
-/// title and a scroll bar.
+/// from, and closing it costs a swipe rather than a back button.
 ///
-/// ## Why the signature is at the bottom
+/// ## Why one line is set much larger than the rest
 ///
-/// Because that is where a signature goes. Put at the top it would have taken
-/// 44 pt of the one screenful this sheet gets at its opening detent, above the
-/// sentence it is meant to sign — the roles, which are the part that says
-/// something. At the end it closes the statement instead of announcing it.
+/// Because it is the line somebody repeats about him afterwards. *"Mister Good
+/// Mood, voted for by the whole company"* was a sentence of running prose among
+/// three others, and it disappeared into them — the author's reading of the
+/// first version was *"just a pile of words put together"*.
+///
+/// The emphasis is **typographic and nothing else**: a large serif on the same
+/// paper, no card, no rule, no tint. A distinction that needed a badge to be
+/// noticed would be a distinction nobody gave him.
+///
+/// The detail under it is not decoration either: it carries the vote and the
+/// year. Without them the title is somebody handing themselves a prize.
 public struct PersonalityScreen: View {
   @Environment(PortfolioStore.self) private var store
   @Localized(.interface) private var text
@@ -46,6 +50,10 @@ public struct PersonalityScreen: View {
   private func content(_ personality: Profile.Personality) -> some View {
     SectionScrollView {
       VStack(alignment: .leading, spacing: Tokens.Space.s5) {
+        highlight(personality.highlight)
+
+        Divider()
+
         ForEach(Array(personality.summary.enumerated()), id: \.offset) { _, paragraph in
           RichTextView(paragraph)
         }
@@ -54,19 +62,31 @@ public struct PersonalityScreen: View {
           VStack(alignment: .leading, spacing: Tokens.Space.s3) {
             Text(text(InterfaceText.interests)).eyebrowStyle()
             WrappingRow {
-              ForEach(personality.interests, id: \.self) { Chip($0) }
+              ForEach(personality.interests) { interest in
+                Chip(interest.label, systemImage: InterestGlyph.name(for: interest.id))
+              }
             }
           }
+          .padding(.top, Tokens.Space.s2)
         }
-
-        LottieAnimation(LottieCatalogue.signature)
-          .frame(height: Tokens.Layout.signatureHeight)
-          .frame(maxWidth: .infinity, alignment: .trailing)
-          .accessibilityHidden(true)
-          .decision(ProfileDecisions.personality)
-          .padding(.top, Tokens.Space.s3)
       }
-      .padding(.top, Tokens.Space.s4)
+      .padding(.vertical, Tokens.Space.s4)
     }
+  }
+
+  private func highlight(_ highlight: Profile.Personality.Highlight) -> some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.s2) {
+      Text(highlight.title)
+        .font(Typography.title)
+        .foregroundStyle(Color.ink)
+        .fixedSize(horizontal: false, vertical: true)
+      Text(highlight.detail)
+        .font(Typography.secondary)
+        .foregroundStyle(Color.ink3)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .accessibilityElement(children: .combine)
+    .decision(ProfileDecisions.personality)
   }
 }
