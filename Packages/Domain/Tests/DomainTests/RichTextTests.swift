@@ -63,7 +63,7 @@ extension Portfolio {
       name: .init(display: "A.", formal: "A."),
       headline: "h", availability: "a", location: "l", languages: "fr",
       summary: [], showcase: .init(media: .init(id: "m", alt: "", caption: ""), description: "d", caseStudySlug: nil),
-      personality: .init(summary: [], interests: []),
+      personality: .init(highlight: .init(title: "t", detail: "d"), summary: [], interests: []),
       contact: .init(email: "a@b.c", title: "t", body: "b", links: []),
       footer: .init(role: "r", location: "l")
     ),

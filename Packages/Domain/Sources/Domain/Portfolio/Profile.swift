@@ -88,12 +88,45 @@ extension Profile {
   /// the student committee, team captain" says leader without the word, and a
   /// reader can go and check it. The API refuses the adjectives outright.
   public struct Personality: Sendable, Hashable {
+    /// The one fact set apart, because a reader remembers it.
+    public let highlight: Highlight
     public let summary: [RichText]
-    public let interests: [String]
+    public let interests: [Interest]
 
-    public init(summary: [RichText], interests: [String]) {
+    public init(highlight: Highlight, summary: [RichText], interests: [Interest]) {
+      self.highlight = highlight
       self.summary = summary
       self.interests = interests
+    }
+
+    /// A distinction, and what keeps it from being self-awarded.
+    ///
+    /// `detail` carries the vote and the year. Without it the title is somebody
+    /// handing themselves a prize; with it, it is a fact with witnesses — which
+    /// is the whole reason it is publishable at all.
+    public struct Highlight: Sendable, Hashable {
+      public let title: String
+      public let detail: String
+
+      public init(title: String, detail: String) {
+        self.title = title
+        self.detail = detail
+      }
+    }
+
+    /// An interest, under an identity a client can put a glyph beside.
+    ///
+    /// The glyph's **name** is not here: an SF Symbol means nothing to the
+    /// website and nothing at all to the résumé. The identity travels, the
+    /// presentation stays at home.
+    public struct Interest: Sendable, Hashable, Identifiable {
+      public let id: String
+      public let label: String
+
+      public init(id: String, label: String) {
+        self.id = id
+        self.label = label
+      }
     }
   }
 

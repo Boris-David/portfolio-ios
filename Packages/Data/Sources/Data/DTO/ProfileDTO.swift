@@ -11,8 +11,19 @@ struct ProfileDTO: Decodable {
   }
 
   struct Personality: Decodable {
+    struct Highlight: Decodable {
+      let title: String
+      let detail: String
+    }
+
+    struct Interest: Decodable {
+      let id: String
+      let label: String
+    }
+
+    let highlight: Highlight
     let summary: [[SpanDTO]]
-    let interests: [String]
+    let interests: [Interest]
   }
 
   struct Contact: Decodable {
