@@ -39,6 +39,10 @@ CATALOG = ROOT / "Packages" / "Features" / "Sources" / "ViewKit" / "Resources" /
 # `ASSETCATALOG_COMPILER_APPICON_NAME` resolves against it and nowhere else.
 APP_CATALOG = ROOT / "App" / "Resources" / "Assets.xcassets"
 WEB = ROOT.parent / "web" / "public"
+# Le slug que l'API donne à cette application elle-même, et le côté des icônes
+# publiées dans `portfolio-web` — la vignette générée doit leur ressembler.
+OWN_SLUG = "portfolio"
+OWN_ICON_SIDE = 132
 
 CHECK = "--check" in sys.argv
 
@@ -134,6 +138,44 @@ def import_imageset(name: str, source: Path, scale_free: bool = True) -> None:
     )
 
 
+def build_own_icon(tokens: dict) -> list[str]:
+    """La vignette du portfolio dans l'onglet « Mes apps ».
+
+    L'API sert cette application comme une app à lui, au même titre que
+    KCalories, et l'onglet dessine une icône par slug. Celle-ci ne vient donc
+    pas de `portfolio-web` comme les trente-trois autres : elle n'a pas de fiche
+    App Store d'où la tirer.
+
+    Elle est **générée**, à partir du même tracé que l'icône de l'application,
+    pour une raison précise : c'est la même identité affichée deux fois dans le
+    même téléphone — sur l'écran d'accueil et dans l'onglet. Un « A » redessiné à
+    l'œil, ou un PNG committé une fois puis oublié, dériverait de l'accent le
+    jour où les tokens changent, et personne ne le verrait.
+    """
+    target = CATALOG / f"{OWN_SLUG}.imageset"
+    problems: list[str] = []
+
+    if CHECK:
+        if not (target / f"{OWN_SLUG}.png").exists():
+            problems.append(f"icône « {OWN_SLUG} » manquante — lancer ./Scripts/assets.py")
+        return problems
+
+    target.mkdir(parents=True, exist_ok=True)
+    draw_app_icon(tokens, size=OWN_ICON_SIDE).save(
+        target / f"{OWN_SLUG}.png", format="PNG", optimize=True
+    )
+    write_json(
+        target / "Contents.json",
+        {
+            "images": [{"filename": f"{OWN_SLUG}.png", "idiom": "universal", "scale": "1x"}],
+            "info": {"author": "xcode", "version": 1},
+            "properties": {"preserves-vector-representation": False},
+        },
+    )
+    print(f"✓ icône « {OWN_SLUG} » générée depuis design/tokens.json")
+    return problems
+
+
 def build_imported() -> list[str]:
     problems: list[str] = []
     expected = {"icons": ".png", "shots": ".jpg"}
@@ -170,7 +212,7 @@ def main() -> int:
         CATALOG.mkdir(parents=True, exist_ok=True)
         write_json(CATALOG / "Contents.json", {"info": {"author": "xcode", "version": 1}})
 
-    problems = build_app_icon(tokens) + build_imported()
+    problems = build_app_icon(tokens) + build_own_icon(tokens) + build_imported()
     for problem in problems:
         print(f"✖ {problem}", file=sys.stderr)
     return 1 if problems else 0

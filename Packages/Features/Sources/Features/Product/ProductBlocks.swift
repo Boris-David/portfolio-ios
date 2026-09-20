@@ -42,14 +42,29 @@ struct ProductHeaderBlock: View {
           .fixedSize(horizontal: false, vertical: true)
       }
 
-      Button {
-        if let url = URL(string: product.appStoreURL) { openURL(url) }
-      } label: {
-        Label(text(InterfaceText.viewOnAppStore), systemImage: "arrow.up.right")
-          .frame(maxWidth: .infinity)
+      // Whichever links the product actually has.
+      //
+      // The store listing leads when there is one: it is what somebody reading
+      // a portfolio taps. Where there is none — an app of his own that is
+      // readable before it is downloadable — the repository takes the primary
+      // place rather than leaving the card with nothing to do.
+      VStack(spacing: Tokens.Space.s2) {
+        if let store = product.appStoreURL.flatMap(URL.init(string:)) {
+          Button { openURL(store) } label: {
+            Label(text(InterfaceText.viewOnAppStore), systemImage: "arrow.up.right")
+              .frame(maxWidth: .infinity)
+          }
+          .buttonStyle(.adaptiveGlassProminent)
+          .decision(ProductDecisions.store)
+        }
+        if let source = product.sourceURL.flatMap(URL.init(string:)) {
+          Button { openURL(source) } label: {
+            Label(text(InterfaceText.sourceCode), systemImage: "chevron.left.forwardslash.chevron.right")
+              .frame(maxWidth: .infinity)
+          }
+          .buttonStyle(product.appStoreURL == nil ? .adaptiveGlassProminent : .adaptiveGlass)
+        }
       }
-      .buttonStyle(.adaptiveGlassProminent)
-      .decision(ProductDecisions.store)
 
       // The reliability figure, where the product it describes is. It appears
       // on the profile too, in the row of three that gives the scale; here it
@@ -90,8 +105,12 @@ struct ProductHeaderBlock: View {
         .font(Typography.title)
         .foregroundStyle(Color.ink)
         .fixedSize(horizontal: false, vertical: true)
-      if let study {
-        Text(study.subtitle)
+      // The study's subtitle when there is a study, the app's own sentence
+      // otherwise. Without this fallback the card of an app with no case study
+      // was its name above a button, and nothing else — seen in a capture
+      // before it was written down.
+      if let sentence = study?.subtitle ?? product.summary {
+        Text(sentence)
           .font(Typography.secondary)
           .foregroundStyle(Color.ink2)
           .fixedSize(horizontal: false, vertical: true)
@@ -168,6 +187,46 @@ struct ProductStoryBlock: View {
         }
       }
       .reveal()
+    }
+  }
+}
+
+/// The things he wrote that are not products: a component, an exercise.
+///
+/// They sat in the journey, between certifications and skills, because that is
+/// where a CV puts them. They belong here: this tab answers "what has he built
+/// himself", and the honest answer has two tiers — what shipped, and what is
+/// readable. Keeping the tiers apart is what stops an interview exercise from
+/// standing next to an App Store product as though they were the same claim.
+struct OpenProjectsBlock: View {
+  let projects: [OpenProject]
+
+  @Environment(\.openURL) private var openURL
+  @Localized(.interface) private var text
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: Tokens.Space.s4) {
+      Text(text(InterfaceText.openProjects)).eyebrowStyle()
+
+      VStack(spacing: Tokens.Space.s3) {
+        ForEach(projects) { project in
+          Surface {
+            VStack(alignment: .leading, spacing: Tokens.Space.s2) {
+              Text(project.name)
+                .font(Typography.bodyStrong)
+                .foregroundStyle(Color.ink)
+              RichTextView(project.description, font: Typography.secondary, color: .ink2)
+              if let source = project.sourceURL.flatMap(URL.init(string:)) {
+                Button { openURL(source) } label: {
+                  Label(text(InterfaceText.sourceCode), systemImage: "arrow.up.right")
+                }
+                .buttonStyle(.adaptiveGlass)
+              }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+          }
+        }
+      }
     }
   }
 }

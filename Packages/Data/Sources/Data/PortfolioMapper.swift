@@ -155,6 +155,8 @@ enum PortfolioMapper {
           name: item.name,
           territory: item.territory,
           appStoreURL: try url(item.appStoreUrl, at: "apps.items[\(item.slug)].appStoreUrl"),
+          sourceURL: try url(item.sourceUrl, at: "apps.items[\(item.slug)].sourceUrl"),
+          summary: item.summary,
           role: role
         )
       }
@@ -346,6 +348,20 @@ enum PortfolioMapper {
   /// initialiser failable, and would carry a platform detail into the core of
   /// the app. The guarantee is given at the boundary, where we are still talking
   /// to the network.
+  /// The same guarantee, for a link the content is allowed not to have.
+  ///
+  /// An absent link passes, because the schema states it explicitly with a
+  /// `null`. What still does not pass is a link that is **present** and not
+  /// HTTPS: a field being optional is not a reason to stop checking the value
+  /// inside it.
+  static func url(_ raw: String?, at path: String) throws(MappingError) -> URLString? {
+    guard let raw else { return nil }
+    // The type annotation is load-bearing: without it, `String` converting to
+    // `String?` makes both overloads viable and the call is ambiguous.
+    let checked: URLString = try url(raw, at: path)
+    return checked
+  }
+
   static func url(_ raw: String, at path: String) throws(MappingError) -> URLString {
     guard let url = URL(string: raw), url.scheme == "https" else {
       throw MappingError(path: path, reason: .insecureURL(raw))
