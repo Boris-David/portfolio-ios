@@ -1,7 +1,7 @@
 {
     "meta": {
         "locale": "fr",
-        "contentVersion": "7Fb74kGA3OHNz0tC1yO_wZ"
+        "contentVersion": "zCyvFyDuZPwpgbHPxtfu5A"
     },
     "data": {
         "profile": {
@@ -107,15 +107,15 @@
                     ],
                     [
                         {
-                            "text": "En dehors du code : la ",
+                            "text": "Et ce que je cherche ailleurs, c'est la même chose : le ",
                             "style": "plain"
                         },
                         {
-                            "text": "musculation",
+                            "text": "dépassement de soi",
                             "style": "strong"
                         },
                         {
-                            "text": " et le goût du dépassement de soi, le football, la photo de paysages, les voyages.",
+                            "text": ".",
                             "style": "plain"
                         }
                     ]

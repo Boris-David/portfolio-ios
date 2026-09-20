@@ -1,7 +1,7 @@
 {
     "meta": {
         "locale": "en",
-        "contentVersion": "7Fb74kGA3OHNz0tC1yO_wZ"
+        "contentVersion": "zCyvFyDuZPwpgbHPxtfu5A"
     },
     "data": {
         "profile": {
@@ -107,15 +107,15 @@
                     ],
                     [
                         {
-                            "text": "Away from the code: ",
+                            "text": "And what I look for elsewhere is the same thing: ",
                             "style": "plain"
                         },
                         {
-                            "text": "strength training",
+                            "text": "pushing myself",
                             "style": "strong"
                         },
                         {
-                            "text": " and the taste for pushing myself, football, landscape photography, travel.",
+                            "text": ".",
                             "style": "plain"
                         }
                     ]
