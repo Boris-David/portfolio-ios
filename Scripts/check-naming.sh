@@ -41,12 +41,22 @@ RULES=(
   "Packages/Networking/Sources/Networking|Request|Response|Client|Error|Headers|Download|Disposition|the transport"
 )
 
+# ⚠️ The fourth argument is a directory to **skip**, and it replaced a mode that
+# only looked at `$directory/*.swift`.
+#
+# That mode existed to check the data layer without re-checking `DTO/`, which
+# has a stricter rule of its own. It worked only as long as every other file sat
+# at the layer's root — so the day the sources were grouped into `Mapping/`,
+# `Repositories/` and `DataSources/`, the glob matched nothing, `grep` returned
+# non-zero and the whole guard **exited silently with status 2**. It printed no
+# finding and no tick: exactly the shape of a guard that has stopped guarding.
 check() {
-  local directory="$1" suffixes="$2" what="$3" maxdepth="${4:-}"
+  local directory="$1" suffixes="$2" what="$3" skip="${4:-}"
   local found
-  if [ "$maxdepth" = "flat" ]; then
-    found="$(grep -hoE "^(public |package |private )?(struct|enum|final class|class|actor) [A-Za-z0-9_]+" \
-      "$directory"/*.swift 2>/dev/null | awk '{print $NF}' | sort -u)"
+  if [ -n "$skip" ]; then
+    found="$(grep -rhoE "^(public |package |private )?(struct|enum|final class|class|actor) [A-Za-z0-9_]+" \
+      "$directory" --include="*.swift" --exclude-dir="$skip" 2>/dev/null \
+      | awk '{print $NF}' | sort -u)"
   else
     found="$(declarations "$directory")"
   fi
@@ -59,7 +69,7 @@ check() {
 }
 
 check "Packages/Data/Sources/Data/DTO"            "DTO" "the wire format"
-check "Packages/Data/Sources/Data"                "Repository|Mapper|DataSource|Endpoints|Error|Providing" "the data layer" flat
+check "Packages/Data/Sources/Data"                "Repository|Mapper|DataSource|Endpoints|Error|Providing" "the data layer" DTO
 check "Packages/Networking/Sources/Networking"    "Request|Response|Client|Error|Headers|Download|Disposition" "the transport"
 
 # ── Views: a closed vocabulary of UI roles ─────────────────────────────────

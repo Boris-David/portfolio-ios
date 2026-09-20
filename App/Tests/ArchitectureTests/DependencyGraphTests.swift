@@ -260,11 +260,22 @@ struct DependencyGraphTests {
 /// what keeps it that way — and it is a grep, which it says out loud, for the
 /// same reason `check-layers.sh` says it.
 struct SceneLanguageTests {
+  /// Found by name rather than by path.
+  ///
+  /// ⚠️ It was `App/Sources/AppRoot.swift`, and grouping the application's
+  /// sources into folders moved the file and broke every assertion here at
+  /// once. A test that pins a **location** fails on a tidy-up, which is the
+  /// kind of failure that teaches people not to tidy up. The name is the
+  /// thing this suite is actually about.
   private static let root: String = {
     let file = URL(fileURLWithPath: #filePath)
     let ios = file.deletingLastPathComponent().deletingLastPathComponent()
       .deletingLastPathComponent().deletingLastPathComponent()
-    return (try? String(contentsOf: ios.appending(path: "App/Sources/AppRoot.swift"), encoding: .utf8)) ?? ""
+    let sources = ios.appending(path: "App/Sources")
+    let walker = FileManager.default.enumerator(at: sources, includingPropertiesForKeys: nil)
+    let found = walker?.compactMap { $0 as? URL }.first { $0.lastPathComponent == "AppRoot.swift" }
+    guard let found else { return "" }
+    return (try? String(contentsOf: found, encoding: .utf8)) ?? ""
   }()
 
   /// The read itself has to be real. An empty string would make every
