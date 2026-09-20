@@ -521,6 +521,22 @@
         }
       }
     },
+    "interface.interests": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What keeps me busy elsewhere"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce qui m'occupe ailleurs"
+          }
+        }
+      }
+    },
     "interface.learnMore": {
       "localizations": {
         "en": {
@@ -789,6 +805,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Projets ouverts"
+          }
+        }
+      }
+    },
+    "interface.personalityLink": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Who I am, away from the code"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qui je suis, en dehors du code"
+          }
+        }
+      }
+    },
+    "interface.personalityTitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Who I am"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qui je suis"
           }
         }
       }

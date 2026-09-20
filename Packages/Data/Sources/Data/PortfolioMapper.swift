@@ -65,6 +65,10 @@ enum PortfolioMapper {
         description: dto.showcase.description,
         caseStudySlug: dto.showcase.caseStudy
       ),
+      personality: Profile.Personality(
+        summary: dto.personality.summary.map(richText),
+        interests: dto.personality.interests
+      ),
       contact: Profile.Contact(
         email: dto.contact.email,
         title: dto.contact.title,

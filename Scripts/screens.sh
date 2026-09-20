@@ -131,6 +131,7 @@ SCREENS=(
   "product|-route product:kcalories"
   "product|-route product:portfolio"
   "profile|-route about"
+  "profile|-modal personality"
   "profile|-route expertise:concurrency"
 )
 

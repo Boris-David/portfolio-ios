@@ -38,6 +38,12 @@ enum ProfileDecisions {
     documentation: URL(string: "https://developer.apple.com/documentation/swiftui/view/refreshable(action:)"),
     in: .profile
   )
+  static let personality = DesignDecision(
+    id: "profile.personality",
+    component: "presentationDetents([.medium, .large])",
+    documentation: URL(string: "https://developer.apple.com/documentation/swiftui/view/presentationdetents(_:)"),
+    in: .profile
+  )
   static let metrics = DesignDecision(
     id: "profile.metrics",
     component: "contentTransition(.numericText())",

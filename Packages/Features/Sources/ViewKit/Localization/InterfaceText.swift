@@ -53,6 +53,12 @@ package enum InterfaceText {
   package static let readStudy: TextKey = "interface.readStudy"
   /// The way in from the showcase card: the product first, the study after.
   package static let learnMore: TextKey = "interface.learnMore"
+  /// The title of the sheet that says who he is away from the code.
+  package static let personalityTitle: TextKey = "interface.personalityTitle"
+  /// The way into it, from the introduction.
+  package static let personalityLink: TextKey = "interface.personalityLink"
+  /// The heading above his interests.
+  package static let interests: TextKey = "interface.interests"
   package static let resumeAction: TextKey = "interface.resumeAction"
   package static let resumeLoading: TextKey = "interface.resumeLoading"
   package static let resumeTitle: TextKey = "interface.resumeTitle"

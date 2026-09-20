@@ -10,6 +10,11 @@ struct ProfileDTO: Decodable {
     let caseStudy: String?
   }
 
+  struct Personality: Decodable {
+    let summary: [[SpanDTO]]
+    let interests: [String]
+  }
+
   struct Contact: Decodable {
     let email: String
     let title: String
@@ -29,6 +34,7 @@ struct ProfileDTO: Decodable {
   let languages: String
   let summary: [[SpanDTO]]
   let showcase: Showcase
+  let personality: Personality
   let contact: Contact
   let footer: Footer
 }

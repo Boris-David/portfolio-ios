@@ -21,6 +21,7 @@ public struct AboutScreen: View {
   private let profile: Profile
 
   @Localized(.interface) private var text
+  @Environment(\.present) private var present
 
   public init(profile: Profile) {
     self.profile = profile
@@ -48,6 +49,21 @@ public struct AboutScreen: View {
           }
           .accessibilityElement(children: .combine)
         }
+
+        // The way into the one page written in the first person. It sits at the
+        // end because that is the order a reader wants it in: what he has done,
+        // then who he is. Presented and not pushed — an aside, not a chapter.
+        Button { present(.personality) } label: {
+          HStack(spacing: Tokens.Space.s2) {
+            Text(text(InterfaceText.personalityLink))
+            Image(systemName: "arrow.up.right")
+              .font(.system(size: Tokens.Icon.caption, weight: .semibold))
+          }
+          .font(Typography.secondary)
+          .foregroundStyle(Color.accent)
+        }
+        .buttonStyle(.plain)
+        .padding(.top, Tokens.Space.s3)
       }
       .frame(maxWidth: .infinity, alignment: .leading)
       .padding(.vertical, Tokens.Space.s5)
